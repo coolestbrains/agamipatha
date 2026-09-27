@@ -53,10 +53,11 @@
 }
 
 .panel-brand {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: var(--ask-space);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  column-gap: var(--ask-space);
+  row-gap: calc(var(--ask-space) * 0.55);
   width: min(38rem, 100%);
   margin: 0 auto;
   flex-shrink: 0;
@@ -131,8 +132,11 @@
 }
 
 .ask-lede {
-  margin: 0.15rem 0 0;
-  max-width: 32rem;
+  grid-column: 1 / -1;
+  margin: 0;
+  width: 100%;
+  max-width: none;
+  box-sizing: border-box;
   padding: 0.7rem 0.9rem;
   color: var(--ink);
   font-size: var(--ask-lede);

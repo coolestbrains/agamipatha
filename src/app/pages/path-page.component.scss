@@ -162,7 +162,7 @@
   overflow: visible;
   grid-column: 1;
   position: relative;
-  padding-inline: 2.7rem;
+  padding-inline: 3.4rem;
 }
 
 .path-pin {
@@ -170,20 +170,32 @@
   top: 0;
   z-index: 6;
   display: grid;
-  place-items: center;
-  width: 2.35rem;
-  height: 2.35rem;
-  padding: 0;
-  border-radius: 999px;
+  justify-items: center;
+  align-content: center;
+  gap: 0.12rem;
+  width: auto;
+  min-width: 2.7rem;
+  min-height: 2.55rem;
+  padding: 0.3rem 0.4rem 0.35rem;
+  border-radius: 0.85rem;
   border: 1px solid;
   cursor: pointer;
   box-shadow: 0 6px 14px rgb(0 0 0 / 10%);
   transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  font: inherit;
 }
 
 .path-pin svg {
   width: 1.15rem;
   height: 1.15rem;
+}
+
+.pin-label {
+  display: block;
+  font-size: 0.58rem;
+  font-weight: 750;
+  line-height: 1;
+  letter-spacing: 0.01em;
 }
 
 .path-pin:hover {
@@ -888,12 +900,13 @@
 
 @media (max-width: 720px) {
   .path-head-copy {
-    padding-inline: 2.4rem;
+    padding-inline: 3.2rem;
   }
 
   .path-pin {
-    width: 2.05rem;
-    height: 2.05rem;
+    min-width: 2.55rem;
+    min-height: 2.55rem;
+    padding: 0.3rem 0.35rem 0.35rem;
   }
 
   .path-pin svg {

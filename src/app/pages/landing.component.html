@@ -16,7 +16,6 @@
             <p class="brand-tagline">Your Path to the Future</p>
           </div>
         </div>
-        <p class="ask-lede">{{ askHook() }}</p>
       </div>
       <div class="head-actions">
         @if (buyer.isLoggedIn()) {
@@ -25,13 +24,8 @@
           <button type="button" class="my-account" (click)="openLogin()">Log in</button>
         }
       </div>
+      <p class="ask-lede">{{ askHook() }}</p>
     </div>
-
-    @if (askStep() !== 1) {
-      <div class="panel-head">
-        <h1 id="ask-title">{{ askTitle() }}</h1>
-      </div>
-    }
 
     @if (resume(); as trip) {
       <button type="button" class="resume" [class.launching]="launching()" (click)="continueJourney()">
