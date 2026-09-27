@@ -1,0 +1,90 @@
+:host {
+  display: block;
+  text-align: left;
+  color: #111;
+}
+
+.guide {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.brand,
+.prepared,
+.kicker,
+.foot {
+  margin: 0;
+  color: #555;
+}
+
+.brand {
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #111;
+}
+
+h1 {
+  font-family: var(--serif);
+  font-size: clamp(1.35rem, 3vw, 1.85rem);
+  margin: 0;
+  text-align: left;
+}
+
+.sub {
+  margin: 0;
+  font-size: 0.92rem;
+}
+
+.prepared {
+  font-size: 0.8rem;
+  font-style: italic;
+}
+
+p {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.45;
+}
+
+section {
+  display: grid;
+  gap: 0.4rem;
+  padding-top: 0.55rem;
+  border-top: 1px solid var(--line);
+}
+
+h2 {
+  font-family: var(--serif);
+  font-size: 1.12rem;
+  margin: 0;
+  text-align: left;
+}
+
+h3 {
+  margin: 0.2rem 0 0;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-align: left;
+}
+
+ol,
+ul {
+  margin: 0;
+  padding: 0 0 0 1.15rem;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.stage h2 {
+  font-size: 1.05rem;
+}
+
+.foot {
+  padding-top: 0.7rem;
+  border-top: 1px solid var(--line);
+  font-size: 0.78rem;
+}

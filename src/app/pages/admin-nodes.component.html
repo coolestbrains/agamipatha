@@ -1,0 +1,66 @@
+<div class="wrap">
+  <header class="bar">
+    <div>
+      <p class="eyebrow">Catalogue</p>
+      <h1>Qualifications & professions</h1>
+      <app-admin-tabs />
+    </div>
+    <a class="primary" routerLink="/admin/nodes/new">Add node</a>
+  </header>
+
+  @if (notice()) {
+    <p class="notice">{{ notice() }}</p>
+  }
+
+  <div class="filters">
+    <input type="search" [ngModel]="query()" (ngModelChange)="setQuery($event)" placeholder="Search title, id, field" />
+    <select [ngModel]="kindFilter()" (ngModelChange)="setKindFilter($event)">
+      <option value="">All kinds</option>
+      <option value="school">School</option>
+      <option value="higher-secondary">Higher secondary</option>
+      <option value="vocational">Vocational</option>
+      <option value="undergraduate">Undergraduate</option>
+      <option value="postgraduate">Postgraduate</option>
+      <option value="professional">Professional course</option>
+      <option value="profession">Profession</option>
+      <option value="entrance-exam">Entrance exam</option>
+    </select>
+  </div>
+
+  <p class="muted">Showing {{ visible().length }} of {{ filtered().length }} match{{ filtered().length === 1 ? '' : 'es' }} ({{ nodes().length }} total)</p>
+
+  <div class="table-wrap card">
+    <table>
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>Kind</th>
+          <th>Field</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (node of visible(); track node.id) {
+          <tr>
+            <td>
+              <strong>{{ node.title }}</strong>
+              <div class="id">{{ node.id }}</div>
+            </td>
+            <td>{{ kindLabel(node.kind) }}</td>
+            <td>{{ node.field }}</td>
+            <td class="acts">
+              <a [routerLink]="['/admin/nodes', node.id]">Edit</a>
+              <button type="button" class="linkish" (click)="remove(node)">Delete</button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  @if (hasMore()) {
+    <div class="load-more">
+      <button type="button" class="ghost" (click)="loadMore()">Load more</button>
+    </div>
+  }
+</div>

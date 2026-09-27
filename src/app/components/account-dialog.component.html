@@ -1,0 +1,102 @@
+@if (open()) {
+  <div class="overlay" (click)="close()">
+    <form class="account card" role="dialog" aria-modal="true" aria-label="Account" (click)="$event.stopPropagation()" (ngSubmit)="submit()">
+      <div class="account-head">
+        <button class="close ghost" type="button" (click)="close()">Close</button>
+      </div>
+      <div class="tabs" role="tablist">
+        <button type="button" role="tab" [class.on]="mode === 'register'" (click)="mode = 'register'">Create account</button>
+        <button type="button" role="tab" [class.on]="mode === 'login'" (click)="mode = 'login'">I already have an account</button>
+      </div>
+
+      @if (mode === 'register') {
+        <p class="account-title">Your account</p>
+        <p class="account-hint">
+          @if (savingKind() === 'my-path') {
+            Create an account to save this as My Path. You can keep one My Path on your account and open it anytime. Name, mobile, and a password — email is optional.
+          } @else if (savingKind() === 'favourite') {
+            Create an account to save this favourite. You can keep up to 10 favourite paths and open them later. Name, mobile, and a password — email is optional.
+          } @else {
+            Name, mobile, and a password. Email is optional. Use the same details next time to open My Path, Favourites, and store downloads.
+          }
+        </p>
+        <label>
+          <span>Name</span>
+          <input type="text" name="name" [(ngModel)]="name" autocomplete="name" maxlength="80" placeholder="Your name" />
+          @if (fieldErrors.name) {
+            <em>{{ fieldErrors.name }}</em>
+          }
+        </label>
+        <label>
+          <span>Mobile</span>
+          <input type="tel" name="mobile" [(ngModel)]="mobile" autocomplete="tel" inputmode="numeric" placeholder="10-digit mobile" />
+          @if (fieldErrors.mobile) {
+            <em>{{ fieldErrors.mobile }}</em>
+          }
+        </label>
+        <label>
+          <span>Email <small>(optional)</small></span>
+          <input type="email" name="email" [(ngModel)]="email" autocomplete="email" placeholder="you@example.com" />
+          @if (fieldErrors.email) {
+            <em>{{ fieldErrors.email }}</em>
+          }
+        </label>
+        <label>
+          <span>Password</span>
+          <input type="password" name="password" [(ngModel)]="password" autocomplete="new-password" placeholder="8+ characters, letter and number" />
+          @if (fieldErrors.password) {
+            <em>{{ fieldErrors.password }}</em>
+          }
+        </label>
+        <label class="consent">
+          <input type="checkbox" name="acceptedPrivacy" [(ngModel)]="acceptedPrivacy" />
+          <span>
+            I agree to the
+            <a href="/privacy" target="_blank" rel="noopener noreferrer">privacy policy</a>
+            and to AgamiPatha creating a store account.
+          </span>
+        </label>
+        @if (fieldErrors.privacy) {
+          <em class="consent-error">{{ fieldErrors.privacy }}</em>
+        }
+        @if (registerError()) {
+          <p class="account-error">{{ registerError() }}</p>
+        }
+        <button class="primary" type="submit" [disabled]="busy()">
+          {{ busy() ? 'Creating account…' : savingKind() ? 'Create account and save' : 'Create account' }}
+        </button>
+      } @else {
+        <p class="account-title">Log in</p>
+        <p class="account-hint">
+          @if (savingKind() === 'my-path') {
+            Log in to save this as My Path on your account. You can keep one My Path.
+          } @else if (savingKind() === 'favourite') {
+            Log in to save this favourite. You can keep up to 10 favourite paths and open them later.
+          } @else {
+            Use the email or mobile and password from your account.
+          }
+        </p>
+        <label>
+          <span>Email or mobile</span>
+          <input type="text" name="loginId" [(ngModel)]="loginId" autocomplete="username" placeholder="you@example.com or 10-digit mobile" />
+          @if (fieldErrors.login) {
+            <em>{{ fieldErrors.login }}</em>
+          }
+        </label>
+        <label>
+          <span>Password</span>
+          <input type="password" name="loginPassword" [(ngModel)]="loginPassword" autocomplete="current-password" />
+          @if (fieldErrors.loginPassword) {
+            <em>{{ fieldErrors.loginPassword }}</em>
+          }
+        </label>
+        @if (loginError()) {
+          <p class="field-error">{{ loginError() }}</p>
+        }
+        <button class="primary" type="submit" [disabled]="busy()">
+          {{ busy() ? 'Signing in…' : savingKind() ? 'Log in and save' : 'Log in' }}
+        </button>
+      }
+    </form>
+  </div>
+}

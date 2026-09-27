@@ -1,0 +1,9 @@
+.wrap { padding: 1.25rem 1.5rem 3rem; max-width: 56rem; margin-inline: auto; text-align: center; }
+h1 { font-family: var(--serif); }
+.crumb a { color: var(--teal); font-weight: 700; text-decoration: none; }
+.form { padding: 1.2rem; display: grid; gap: 0.85rem; }
+.grid { display: grid; gap: 0.75rem; grid-template-columns: 1fr 1fr; }
+label span { display: block; font-size: 0.78rem; font-weight: 700; margin-bottom: 0.3rem; }
+input, select, textarea { width: 100%; padding: 0.55rem 0.7rem; border-radius: 0.65rem; border: 1px solid var(--line-strong); font: inherit; background: var(--paper); }
+.form-error { color: var(--danger); font-weight: 700; }
+@media (max-width: 700px) { .grid { grid-template-columns: 1fr; } }

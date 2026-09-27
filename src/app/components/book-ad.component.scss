@@ -1,0 +1,122 @@
+:host {
+  position: fixed;
+  left: max(0.75rem, env(safe-area-inset-left));
+  bottom: max(0.75rem, env(safe-area-inset-bottom));
+  z-index: 98;
+  width: min(18.5rem, calc(100vw - 6.75rem));
+  pointer-events: none;
+}
+
+.ad,
+.chip,
+.body {
+  pointer-events: auto;
+}
+
+.ad {
+  position: relative;
+  border-radius: 0.95rem;
+  background: color-mix(in srgb, white 92%, var(--paper));
+  border: 1px solid color-mix(in srgb, var(--teal) 16%, var(--line));
+  box-shadow: 0 14px 32px rgb(0 0 0 / 18%);
+}
+
+.tools {
+  position: absolute;
+  top: 0.28rem;
+  right: 0.28rem;
+  z-index: 1;
+  display: flex;
+  gap: 0.15rem;
+}
+
+.tool {
+  width: 1.55rem;
+  height: 1.55rem;
+  border: 0;
+  border-radius: 999px;
+  padding: 0;
+  font: inherit;
+  font-size: 1.05rem;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--ink);
+  background: color-mix(in srgb, white 88%, var(--paper));
+}
+
+.tool:hover {
+  background: var(--line);
+}
+
+.body {
+  display: grid;
+  grid-template-columns: 3.1rem minmax(0, 1fr);
+  grid-template-rows: auto auto;
+  column-gap: 0.7rem;
+  row-gap: 0.15rem;
+  align-items: center;
+  padding: 0.55rem 2.5rem 0.6rem 0.7rem;
+  text-decoration: none;
+  color: inherit;
+  text-align: left;
+}
+
+.kicker {
+  grid-column: 1 / -1;
+  margin: 0 0 0.1rem;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--teal);
+}
+
+img {
+  width: 3.1rem;
+  height: 4.15rem;
+  object-fit: cover;
+  object-position: top center;
+  border-radius: 0.35rem;
+  background: var(--line);
+}
+
+.copy {
+  display: grid;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+strong {
+  font-size: 0.88rem;
+  line-height: 1.25;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.price {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.chip {
+  border: 1px solid color-mix(in srgb, var(--teal) 16%, var(--line));
+  background: color-mix(in srgb, white 92%, var(--paper));
+  border-radius: 999px;
+  padding: 0.45rem 0.9rem;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0 10px 22px rgb(0 0 0 / 14%);
+}
+
+@media (max-width: 720px) {
+  :host {
+    width: min(16.5rem, calc(100vw - 5.8rem));
+  }
+}

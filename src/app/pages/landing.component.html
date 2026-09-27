@@ -1,0 +1,243 @@
+@if (showAsk()) {
+<div class="ask-overlay" @overlayMotion>
+  <div class="scrim"></div>
+  <section class="panel" role="dialog" aria-modal="true" [attr.aria-labelledby]="'ask-q' + askStep()">
+    <div class="panel-brand">
+      <div class="brand-lockup">
+        <div class="brand-mark">
+          <img
+            [src]="logoSrc()"
+            alt=""
+            class="brand-logo"
+            (error)="onLogoError()"
+          />
+          <div class="brand-copy">
+            <p class="brand-name">AgamiPatha</p>
+            <p class="brand-tagline">Your Path to the Future</p>
+          </div>
+        </div>
+        <p class="ask-lede">{{ askHook() }}</p>
+      </div>
+      <div class="head-actions">
+        @if (buyer.isLoggedIn()) {
+          <a routerLink="/my-paths" class="my-account">My Account</a>
+        } @else {
+          <button type="button" class="my-account" (click)="openLogin()">Log in</button>
+        }
+      </div>
+    </div>
+
+    @if (askStep() !== 1) {
+      <div class="panel-head">
+        <h1 id="ask-title">{{ askTitle() }}</h1>
+      </div>
+    }
+
+    @if (resume(); as trip) {
+      <button type="button" class="resume" [class.launching]="launching()" (click)="continueJourney()">
+        <span class="resume-label">Continue where you left off</span>
+        <span class="resume-path">{{ trip.fromTitle }} ? {{ trip.toTitle }}</span>
+      </button>
+    }
+
+    @if (career.loadError()) {
+      <p class="form-error" role="alert">{{ career.loadError() }}</p>
+    }
+
+    <div class="ask-body">
+
+      @if (askStep() === 1) {
+        <fieldset class="ask-q">
+          <legend class="prompt" id="ask-q1">{{ copy().who }}</legend>
+          <p class="guide-note">{{ askGuide() }}</p>
+          <div class="who-switch" role="radiogroup" aria-label="Who are we guiding today?">
+            @for (opt of audiences; track opt.id) {
+              <button
+                type="button"
+                role="radio"
+                [attr.aria-checked]="audience() === opt.id"
+                [class.on]="audience() === opt.id"
+                (click)="pickAudience(opt.id)"
+              >
+                {{ opt.label }}
+              </button>
+            }
+          </div>
+          @if (error() && !audience()) {
+            <p class="form-error" role="alert">{{ error() }}</p>
+          }
+          @if (quickPaths().length) {
+            <p class="or-split" role="separator"><span>OR</span></p>
+            <div class="suggest">
+              <p class="suggest-label">{{ copy().quickLabel }}</p>
+              <div class="chip-row">
+                @for (pair of quickPaths(); track pair.fromId + pair.toId) {
+                  <button type="button" class="chip" (click)="startQuickPath(pair.fromId, pair.toId)">
+                    <app-node-icon [node]="career.getNode(pair.toId) ?? null" size="xs" />
+                    {{ pair.label }}
+                  </button>
+                }
+              </div>
+            </div>
+          }
+        </fieldset>
+      }
+
+      @if (askStep() === 2) {
+        <fieldset class="ask-q">
+          <legend class="prompt" id="ask-q2">{{ copy().have }}</legend>
+          <p class="guide-note">{{ askGuide() }}</p>
+          <app-search-select
+            [value]="fromId()"
+            (valueChange)="setStart($event)"
+            [options]="startOptions()"
+            [placeholder]="copy().startPlaceholder"
+            [hint]="startNote()"
+          />
+          @if (error() && !fromId()) {
+            <p class="form-error" role="alert">{{ error() }}</p>
+          }
+          @if (startChips().length) {
+            <p class="or-split" role="separator"><span>OR</span></p>
+            <div class="suggest">
+              <p class="suggest-label">{{ copy().suggestStarts }}</p>
+              <div class="chip-row">
+                @for (node of startChips(); track node.id) {
+                  <button
+                    type="button"
+                    class="chip"
+                    [class.picked]="fromId() === node.id"
+                    (click)="setStart(node.id)"
+                  >
+                    <app-node-icon [node]="node" size="xs" />
+                    {{ suggestionLabel(node) }}
+                  </button>
+                }
+              </div>
+            </div>
+          }
+          <button type="button" class="text-link" (click)="openSuggest('start')">Can't find it? Suggest one</button>
+        </fieldset>
+      }
+
+      @if (askStep() === 3) {
+        <fieldset class="ask-q">
+          <legend class="prompt" id="ask-q3">{{ copy().become }}</legend>
+          <p class="guide-note">{{ askGuide() }}</p>
+          <app-search-select
+            [value]="toId()"
+            (valueChange)="setGoal($event)"
+            [groups]="goalGroups()"
+            [placeholder]="copy().goalPlaceholder"
+          />
+          @if (error() && !toId()) {
+            <p class="form-error" role="alert">{{ error() }}</p>
+          }
+          @if (!toId()) {
+            <p class="skip-hint">{{ copy().skipHint }}</p>
+          }
+          @if (suggestions().length) {
+            <p class="or-split" role="separator"><span>OR</span></p>
+            <div class="suggest">
+              <p class="suggest-label">{{ copy().suggestGoals }}</p>
+              <div class="chip-row">
+                @for (node of suggestions(); track node.id) {
+                  <button
+                    type="button"
+                    class="chip"
+                    [class.picked]="toId() === node.id"
+                    (click)="pickSuggestion(node.id)"
+                  >
+                    <app-node-icon [node]="node" size="xs" />
+                    {{ suggestionLabel(node) }}
+                  </button>
+                }
+              </div>
+            </div>
+          }
+          <div class="extra-links">
+            <button type="button" class="text-link" (click)="openSuggest('goal')">Can't find it? Suggest one</button>
+            @if (fromId()) {
+              <a
+                class="text-link"
+                [routerLink]="['/compare']"
+                [queryParams]="toId() ? { from: fromId(), a: toId() } : { from: fromId() }"
+              >Compare two goals</a>
+            }
+          </div>
+        </fieldset>
+      }
+    </div>
+
+    <div class="ask-foot">
+      <div class="ask-actions">
+        <button type="button" class="ghost big" (click)="restartFromBeginning()">Reset</button>
+        @if (askStep() < 3) {
+          <button
+            type="button"
+            class="primary big"
+            [disabled]="!career.ready()"
+            (click)="goNext()"
+          >
+            Continue
+          </button>
+        } @else {
+          <button
+            type="button"
+            class="primary big"
+            [class.launching]="launching()"
+            [disabled]="!career.ready() || !toId()"
+            (click)="finish()"
+          >
+            Show this career path
+          </button>
+        }
+      </div>
+      @if (askStep() > 1) {
+        <div class="extra-links">
+          <button type="button" class="text-link back" (click)="goBack()">Back</button>
+          @if (askStep() === 3) {
+            <button type="button" class="text-link" (click)="skipGoal()">{{ copy().browseGoals }}</button>
+          }
+        </div>
+      }
+    </div>
+  </section>
+</div>
+}
+
+@if (showAsk() && suggestOpen()) {
+  <div class="suggest-overlay" (click)="closeSuggest()">
+    <form class="suggest-dialog card" role="dialog" aria-modal="true" aria-labelledby="suggest-title" (click)="$event.stopPropagation()" (ngSubmit)="submitSuggest()">
+      <button class="close ghost" type="button" (click)="closeSuggest()">Close</button>
+      <h2 id="suggest-title">{{ suggestSlot() === 'start' ? 'Suggest a starting qualification' : 'Suggest a qualification or profession' }}</h2>
+      <p class="optional">Admins review these and add them to the catalogue if they belong on the map.</p>
+      @if (suggestDone()) {
+        <p class="suggest-ok">Thanks. We have the suggestion.</p>
+        <button class="primary big" type="button" (click)="closeSuggest()">Done</button>
+      } @else {
+        <label>
+          <span>Name</span>
+          <input type="text" name="suggestTitle" [(ngModel)]="suggestTitle" maxlength="160" required placeholder="e.g. B.Sc Forensic Science" />
+        </label>
+        <label>
+          <span>Type</span>
+          <select name="suggestKind" [(ngModel)]="suggestKind">
+            <option value="qualification">Qualification</option>
+            <option value="profession">Profession</option>
+          </select>
+        </label>
+        <label>
+          <span>Note (optional)</span>
+          <textarea name="suggestNotes" [(ngModel)]="suggestNotes" maxlength="500" rows="3" placeholder="Any exam, stream, or why it is missing"></textarea>
+        </label>
+        @if (suggestError()) {
+          <p class="form-error" role="alert">{{ suggestError() }}</p>
+        }
+        <button class="primary big" type="submit" [disabled]="suggestBusy()">
+          {{ suggestBusy() ? 'Sending' : 'Submit suggestion' }}
+        </button>
+      }
+    </form>
+  </div>
+}

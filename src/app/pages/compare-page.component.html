@@ -1,0 +1,162 @@
+<div class="wrap">
+  <p class="crumb"><a routerLink="/">← Back to planner</a></p>
+
+  <header>
+    <p class="eyebrow">Two-path compare</p>
+    <h1>Put both options on one table</h1>
+    <p class="lede">
+      Families argue in comparisons. Years, cost, exams, and what each route quietly closes — not a single recommended line.
+    </p>
+    @if (examples().length) {
+      <div class="examples">
+        @for (example of examples(); track example.label) {
+          <button type="button" class="chip" (click)="loadExample(example)">{{ example.label }}</button>
+        }
+      </div>
+    }
+  </header>
+
+  <div class="pickers">
+    <label>
+      <span>Starting from</span>
+      <app-search-select
+        [value]="fromId()"
+        [options]="startOptions()"
+        placeholder="Search a starting qualification"
+        [hint]="startNote()"
+        (valueChange)="setFrom($event)"
+      />
+    </label>
+    <div class="pair">
+      <label>
+        <span>Option A</span>
+        <app-search-select
+          [value]="aId()"
+          [groups]="goalGroups()"
+          placeholder="First goal"
+          (valueChange)="setSide('a', $event)"
+        />
+      </label>
+      <button type="button" class="ghost swap" [disabled]="!aId() && !bId()" (click)="swap()">vs</button>
+      <label>
+        <span>Option B</span>
+        <app-search-select
+          [value]="bId()"
+          [groups]="goalGroups()"
+          placeholder="Second goal"
+          (valueChange)="setSide('b', $event)"
+        />
+      </label>
+    </div>
+  </div>
+
+  @if (!fromId()) {
+    <p class="muted">Choose a start, then two goals — or tap an example above.</p>
+  } @else if (!aId() || !bId()) {
+    <p class="muted">Pick two different goals to fill the table.</p>
+  } @else if (sameGoal()) {
+    <p class="muted">Pick two different goals. The same name on both sides is not a comparison.</p>
+  } @else if (loading()) {
+    <p class="muted">Laying both routes on the table…</p>
+  } @else if (ready()) {
+    <div class="board">
+      <div class="names">
+        <p class="axis"></p>
+        <div class="head">
+          <app-node-icon [node]="left()!.node" size="lg" />
+          <p class="kind">{{ left()!.node.field }}</p>
+          <h2>{{ left()!.node.title }}</h2>
+          <p class="spine">{{ left()!.spine }}</p>
+          @if (!left()!.mapped) {
+            <p class="gap">No mapped route from {{ fromNode()?.shortTitle || 'this start' }} yet. Node facts still compare.</p>
+          }
+          <a class="primary" [routerLink]="['/path']" [queryParams]="{ from: fromId(), to: aId() }">Show path A</a>
+        </div>
+        <div class="head">
+          <app-node-icon [node]="right()!.node" size="lg" />
+          <p class="kind">{{ right()!.node.field }}</p>
+          <h2>{{ right()!.node.title }}</h2>
+          <p class="spine">{{ right()!.spine }}</p>
+          @if (!right()!.mapped) {
+            <p class="gap">No mapped route from {{ fromNode()?.shortTitle || 'this start' }} yet. Node facts still compare.</p>
+          }
+          <a class="primary" [routerLink]="['/path']" [queryParams]="{ from: fromId(), to: bId() }">Show path B</a>
+        </div>
+      </div>
+
+      <div class="row">
+        <p class="axis">Years / duration</p>
+        <p>{{ left()!.years }}</p>
+        <p>{{ right()!.years }}</p>
+      </div>
+      <div class="row">
+        <p class="axis">Typical age</p>
+        <p>{{ left()!.age }}</p>
+        <p>{{ right()!.age }}</p>
+      </div>
+      <div class="row">
+        <p class="axis">Govt cost band</p>
+        <p>{{ left()!.costGovt }}</p>
+        <p>{{ right()!.costGovt }}</p>
+      </div>
+      <div class="row">
+        <p class="axis">Private cost band</p>
+        <p>{{ left()!.costPvt }}</p>
+        <p>{{ right()!.costPvt }}</p>
+      </div>
+      <div class="row">
+        <p class="axis">Earnings hint</p>
+        <p>{{ left()!.salary }}</p>
+        <p>{{ right()!.salary }}</p>
+      </div>
+      <div class="row">
+        <p class="axis">Exams and gates</p>
+        <ul>
+          @for (item of left()!.exams; track item) {
+            <li>{{ item }}</li>
+          } @empty {
+            <li>None listed — confirm the bulletin.</li>
+          }
+        </ul>
+        <ul>
+          @for (item of right()!.exams; track item) {
+            <li>{{ item }}</li>
+          } @empty {
+            <li>None listed — confirm the bulletin.</li>
+          }
+        </ul>
+      </div>
+      <div class="row">
+        <p class="axis">What this opens</p>
+        <ul>
+          @for (item of left()!.opens; track item) {
+            <li>{{ item }}</li>
+          }
+        </ul>
+        <ul>
+          @for (item of right()!.opens; track item) {
+            <li>{{ item }}</li>
+          }
+        </ul>
+      </div>
+      <div class="row closes">
+        <p class="axis">What this closes or delays</p>
+        <ul>
+          @for (item of left()!.closes; track item) {
+            <li>{{ item }}</li>
+          }
+        </ul>
+        <ul>
+          @for (item of right()!.closes; track item) {
+            <li>{{ item }}</li>
+          }
+        </ul>
+      </div>
+    </div>
+    <p class="fine">
+      Typical Indian education routes, not guarantees. Fees and exams change every year. Confirm the official notice before anyone signs a form.
+    </p>
+  } @else {
+    <p class="muted">Those names are not on the map yet. Pick two goals from the lists.</p>
+  }
+</div>

@@ -1,0 +1,82 @@
+<div class="wrap">
+  <p class="crumb"><a routerLink="/">← Back to planner</a></p>
+  <header>
+    <p class="eyebrow">My account</p>
+    <h1>My Path and Favourites</h1>
+    <p class="lede">My Path is the one route you are following. Favourites are up to 10 maps you may want later. They are saved separately.</p>
+  </header>
+
+  @if (!buyer.isLoggedIn()) {
+    <div class="empty card">
+      <p>Log in or create an account to see My Path and Favourites.</p>
+      <button type="button" class="primary" (click)="register()">Create account</button>
+    </div>
+  } @else {
+    <section class="block" aria-labelledby="my-path-heading">
+      <div class="block-head">
+        <h2 id="my-path-heading">My Path</h2>
+        <p>One saved route. Saving another replaces it.</p>
+      </div>
+      @if (myPath(); as trip) {
+        <article class="card route">
+          <div>
+            <p class="spine">{{ trip.spine }}</p>
+            <h3>{{ trip.fromTitle }} → {{ trip.toTitle }}</h3>
+            @if (progress().total) {
+              <div class="meter">
+                <p class="meter-copy">
+                  <strong>{{ progress().percent }}%</strong>
+                  complete · {{ progress().done }} done · {{ progress().left }} left
+                </p>
+                <div class="bar" role="progressbar" [attr.aria-valuenow]="progress().percent" aria-valuemin="0" aria-valuemax="100">
+                  <span [style.width.%]="progress().percent"></span>
+                </div>
+              </div>
+            }
+          </div>
+          <div class="actions">
+            <a class="primary" [routerLink]="['/path']" [queryParams]="trip.queryParams">Open</a>
+            <a class="ghost" routerLink="/my-timeline">My timeline</a>
+            <button type="button" class="ghost" (click)="shareMyPath()">
+              {{ shareCopied() ? 'Link copied' : 'Share' }}
+            </button>
+            <button type="button" class="ghost" (click)="removeMyPath()">Remove</button>
+          </div>
+        </article>
+      } @else {
+        <div class="empty card">
+          <p>No My Path yet. Open a career map and tap Save as My path.</p>
+          <a class="primary" routerLink="/">Plan a path</a>
+        </div>
+      }
+    </section>
+
+    <section class="block" aria-labelledby="favourites-heading">
+      <div class="block-head">
+        <h2 id="favourites-heading">Favourites</h2>
+        <p>Up to 10 paths. Tap the star on a career map to add one.</p>
+      </div>
+      @if (favourites().length) {
+        <ul class="list">
+          @for (trip of favourites(); track trip.key) {
+            <li class="card route">
+              <div>
+                <p class="spine">{{ trip.spine }}</p>
+                <h3>{{ trip.fromTitle }} → {{ trip.toTitle }}</h3>
+              </div>
+              <div class="actions">
+                <a class="primary" [routerLink]="['/path']" [queryParams]="trip.queryParams">Open</a>
+                <button type="button" class="ghost" (click)="removeFavourite(trip.fromId, trip.toId, trip.via)">Remove</button>
+              </div>
+            </li>
+          }
+        </ul>
+      } @else {
+        <div class="empty card">
+          <p>No favourites yet. Open a career map and tap the star.</p>
+          <a class="ghost" routerLink="/">Plan a path</a>
+        </div>
+      }
+    </section>
+  }
+</div>

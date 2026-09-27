@@ -1,0 +1,249 @@
+<div class="wrap">
+  <header class="bar">
+    <div>
+      <p class="eyebrow">Store</p>
+      <h1>Users, purchases & receipts</h1>
+      <app-admin-tabs />
+    </div>
+    <div class="actions">
+      <button class="ghost" type="button" (click)="refresh()">Refresh</button>
+      <button class="danger" type="button" [disabled]="busy()" (click)="clearPurchases()">
+        {{ busy() ? 'Clearing…' : 'Clear all purchases' }}
+      </button>
+    </div>
+  </header>
+
+  @if (error()) {
+    <p class="notice">{{ error() }}</p>
+  }
+  @if (notice()) {
+    <p class="ok">{{ notice() }}</p>
+  }
+
+  @if (ebooks().length) {
+    <h2>Ebook covers</h2>
+    <p class="muted">Upload a PNG, JPG, or WebP (3 MB or less). Ebooks without a cover stay off sale.</p>
+    <div class="covers">
+      @for (ebook of ebooks(); track ebook.productId) {
+        <article class="card cover-card">
+          @if (coverSrc(ebook)) {
+            <img [src]="coverSrc(ebook)" [alt]="ebook.title + ' cover'" (error)="onCoverError($event, ebook)" />
+          } @else {
+            <div class="cover-empty">No cover</div>
+          }
+          <div>
+            <strong>{{ ebook.title }}</strong>
+            <div class="id">{{ ebook.productId }}</div>
+            <label class="upload">
+              <input type="file" accept="image/png,image/jpeg,image/webp" (change)="onCoverPicked(ebook, $event)" />
+              <span>{{ uploadingId() === ebook.productId ? 'Uploading…' : coverSrc(ebook) ? 'Replace cover' : 'Upload cover' }}</span>
+            </label>
+          </div>
+        </article>
+      }
+    </div>
+  }
+
+  @if (sales(); as s) {
+    <ul class="kpis">
+      <li class="card">
+        <strong>{{ s.buyerCount }}</strong>
+        <span>Registered users</span>
+      </li>
+      <li class="card">
+        <strong>{{ s.booksPurchased }}</strong>
+        <span>Books ordered</span>
+      </li>
+      <li class="card">
+        <strong>{{ s.amountReceivedLabel }}</strong>
+        <span>Amount earned</span>
+      </li>
+      <li class="card">
+        <strong>{{ s.booksToday }}</strong>
+        <span>Books today</span>
+      </li>
+      <li class="card">
+        <strong>{{ s.amountTodayLabel }}</strong>
+        <span>Earned today</span>
+      </li>
+    </ul>
+
+    <h2>Users</h2>
+    <p class="muted">Who bought what. Open a row to remove a book, or change a password.</p>
+    @if (s.buyers.length === 0) {
+      <p class="muted">No store users yet.</p>
+    } @else {
+      <div class="table-wrap card">
+        <table>
+          <thead>
+            <tr>
+              <th>User</th>
+              <th>Contact</th>
+              <th>Books</th>
+              <th>Spent</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (buyer of s.buyers; track buyer.id) {
+              <tr>
+                <td>
+                  <strong>{{ buyer.name }}</strong>
+                  @if (buyer.isAdmin) {
+                    <div class="id">Admin account</div>
+                  }
+                </td>
+                <td>
+                  {{ buyer.email || '—' }}
+                  @if (buyer.mobile) {
+                    <div class="id">{{ buyer.mobile }}</div>
+                  }
+                </td>
+                <td>{{ buyer.booksPurchased }}</td>
+                <td>{{ buyer.amountLabel }}</td>
+                <td class="row-actions">
+                  <button class="ghost" type="button" (click)="toggleBuyer(buyer.id)">
+                    {{ openBuyerId() === buyer.id ? 'Hide books' : 'Books' }}
+                  </button>
+                  <button class="ghost" type="button" (click)="startEdit(buyer)">Edit</button>
+                  <button class="ghost" type="button" (click)="startPassword(buyer)">Password</button>
+                  @if (!buyer.isAdmin) {
+                    <button class="linkish" type="button" [disabled]="busy()" (click)="removeBuyer(buyer)">Remove</button>
+                  }
+                </td>
+              </tr>
+              @if (openBuyerId() === buyer.id) {
+                <tr class="detail">
+                  <td colspan="5">
+                    @if (buyer.purchases.length === 0) {
+                      <p class="muted">No paid books yet.</p>
+                    } @else {
+                      <ul class="bought">
+                        @for (item of buyer.purchases; track item.orderId) {
+                          <li>
+                            <div>
+                              <strong>{{ item.title }}</strong>
+                              <div class="id">{{ item.paidAtUtc | date: 'medium' }} · {{ item.amountLabel }}</div>
+                            </div>
+                            <button class="linkish" type="button" [disabled]="busy()" (click)="removeOrder(item)">Remove</button>
+                          </li>
+                        }
+                      </ul>
+                    }
+                  </td>
+                </tr>
+              }
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+
+    @if (editBuyer(); as buyer) {
+      <form class="card editor" (ngSubmit)="saveBuyer()">
+        <p class="editor-title">Edit {{ buyer.name }}</p>
+        <label>
+          <span>Name</span>
+          <input type="text" name="editName" [(ngModel)]="editName" maxlength="80" />
+        </label>
+        <label>
+          <span>Email</span>
+          <input type="email" name="editEmail" [(ngModel)]="editEmail" [disabled]="buyer.isAdmin" />
+        </label>
+        <label>
+          <span>Mobile</span>
+          <input type="tel" name="editMobile" [(ngModel)]="editMobile" />
+        </label>
+        <div class="editor-actions">
+          <button class="primary" type="submit" [disabled]="busy()">Save user</button>
+          <button class="ghost" type="button" (click)="cancelForms()">Cancel</button>
+        </div>
+      </form>
+    }
+
+    @if (passwordBuyer(); as buyer) {
+      <form class="card editor" (ngSubmit)="savePassword()">
+        <p class="editor-title">New password for {{ buyer.name }}</p>
+        <label>
+          <span>Password</span>
+          <input type="password" name="newPassword" [(ngModel)]="newPassword" autocomplete="new-password" />
+        </label>
+        <label>
+          <span>Confirm</span>
+          <input type="password" name="confirmPassword" [(ngModel)]="confirmPassword" autocomplete="new-password" />
+        </label>
+        <p class="muted">8–72 characters, with at least one letter and one number.</p>
+        <div class="editor-actions">
+          <button class="primary" type="submit" [disabled]="busy()">Save password</button>
+          <button class="ghost" type="button" (click)="cancelForms()">Cancel</button>
+        </div>
+      </form>
+    }
+
+    <h2>Earned per book</h2>
+    <div class="table-wrap card">
+      <table>
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>Books sold</th>
+            <th>Received</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (product of s.products; track product.productId) {
+            <tr>
+              <td>
+                <strong>{{ product.title }}</strong>
+                <div class="id">{{ product.productId }}</div>
+              </td>
+              <td>{{ product.booksPurchased }}</td>
+              <td>{{ product.amountLabel }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <h2>Paid orders</h2>
+    @if (s.recent.length === 0) {
+      <p class="muted">No paid store orders yet. Completed Razorpay checkouts will appear here.</p>
+    } @else {
+      <div class="table-wrap card">
+        <table>
+          <thead>
+            <tr>
+              <th>When (UTC)</th>
+              <th>Product</th>
+              <th>Buyer</th>
+              <th>Received</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (order of s.recent; track order.id) {
+              <tr>
+                <td>{{ order.paidAtUtc | date: 'medium' }}</td>
+                <td>{{ order.productTitle }}</td>
+                <td>
+                  @if (order.buyerName) {
+                    {{ order.buyerName }}
+                    @if (order.buyerEmail) {
+                      <div class="id">{{ order.buyerEmail }}</div>
+                    }
+                  } @else {
+                    {{ order.buyerEmail || '—' }}
+                  }
+                </td>
+                <td>{{ order.amountLabel }}</td>
+                <td class="row-actions">
+                  <button class="linkish" type="button" [disabled]="busy()" (click)="removeOrder(order)">Remove</button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  }
+</div>

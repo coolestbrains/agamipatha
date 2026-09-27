@@ -1,0 +1,393 @@
+<!-- Meta Pixel Code -->
+<script>
+  !function(f,b,e,v,n,t,s)
+  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+  n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];
+  s.parentNode.insertBefore(t,s)}(window, document,'script',
+  'https://connect.facebook.net/en_US/fbevents.js');
+  fbq('init', '1736245850760365');
+  fbq('track', 'PageView');
+  </script>
+  <noscript><img height="1" width="1" style="display:none"
+  src="https://www.facebook.com/tr?id=1736245850760365&ev=PageView&noscript=1"
+  /></noscript>
+  <!-- End Meta Pixel Code -->
+   
+  
+  <div class="wrap" [class.parent-on]="parentMode()">
+  <div class="path-shell">
+  <div class="path-top">
+    <label class="path-field">
+      <span>Start from</span>
+      <app-search-select
+        [value]="fromId()"
+        [options]="startOptions()"
+        placeholder="Search starting qualification"
+        [hint]="startNote()"
+        (valueChange)="setPair('from', $event)"
+      />
+    </label>
+    <label class="path-field">
+      <span>Goal</span>
+      <app-search-select
+        [value]="toId()"
+        [groups]="goalGroups()"
+        placeholder="Search a qualification or profession"
+        (valueChange)="setPair('to', $event)"
+      />
+    </label>
+    <button
+      type="button"
+      class="start-over-icon"
+      (click)="startOver()"
+      aria-label="Start over"
+      title="Start over"
+    >
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M4.2 12a7.8 7.8 0 1 0 2.3-5.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+        <path d="M4.2 4.6v5.2H9.4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+    </button>
+  </div>
+    @if (fromId() && toId()) {
+      <h1 class="path-heading">{{ pathHeading() }}</h1>
+    }
+    @if (experienceCallout(); as note) {
+      <p class="experience-callout" role="note">{{ note }}</p>
+    }
+
+  <header
+    class="path-head"
+    [class.has-matches]="!loading() && matchCount() > 0"
+    [class.has-alts]="!loading() && matchCount() > 1"
+  >
+      @if (!loading() && matchCount() > 1) {
+        <button
+          type="button"
+          class="path-arrow prev"
+          [disabled]="!canPrevRoute()"
+          (click)="shiftRoute(-1)"
+          [attr.aria-label]="'Previous path, ' + routeIndex() + ' of ' + matchCount()"
+        >
+          <svg class="chev" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M15.5 5.5 9 12l6.5 6.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+          <span class="path-arrow-copy">
+            <em>Previous path</em>
+            @if (canPrevRoute()) {
+              <strong>{{ routeIndex() }} of {{ matchCount() }}</strong>
+            }
+          </span>
+        </button>
+      }
+      <div class="path-head-copy">
+        @if (active(); as path) {
+          <button
+            type="button"
+            class="path-pin path-pin-save"
+            [class.on]="isMyPath()"
+            (click)="saveMyPath()"
+            [attr.aria-label]="isMyPath() ? 'Saved as My path' : 'Save as My path'"
+            [attr.title]="isMyPath() ? 'Saved as My path' : 'Save as My path'"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M7 4.8h10v14.4l-5-3.2-5 3.2V4.8Z"
+                [attr.fill]="isMyPath() ? 'currentColor' : 'none'"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </button>
+          <button
+            type="button"
+            class="path-pin path-pin-fav"
+            [class.on]="isFavourite()"
+            (click)="saveFavourite()"
+            [attr.aria-label]="isFavourite() ? 'Remove from Favourites' : 'Save as a favourite path'"
+            [attr.title]="isFavourite() ? 'Saved to Favourites' : 'Save as favourite'"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M12 3.6 14.5 9l5.9.7-4.4 4 1.2 5.8L12 16.7 6.8 19.5l1.2-5.8-4.4-4L9.5 9 12 3.6Z"
+                [attr.fill]="isFavourite() ? 'currentColor' : 'none'"
+                stroke="currentColor"
+                stroke-width="1.7"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </button>
+          @if (matchCount() > 1) {
+            <p class="route-line">{{ path.totalLabel }} · {{ path.title }}</p>
+            <p class="route-spine">{{ path.spine }}</p>
+          }
+          <div class="path-tools">
+            <button type="button" class="ghost tool" (click)="openShare()" aria-label="Share" title="Share">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 3.5v10.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+                <path d="M8.2 7.2 12 3.5l3.8 3.7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+                <path d="M6 11.5v7.2h12v-7.2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+              <span class="tool-label">
+                <span class="label-short">Share</span>
+                <span class="label-full">Share</span>
+              </span>
+            </button>
+            <button
+              type="button"
+              class="ghost tool"
+              (click)="sharePathLink()"
+              [attr.aria-label]="linkCopied() ? 'Link copied' : 'Share path'"
+              [attr.title]="linkCopied() ? 'Link copied' : 'Share path'"
+            >
+              @if (linkCopied()) {
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M5.5 12.5 10 17l8.5-9.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+              } @else {
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M10 13.5a4.2 4.2 0 0 0 6 0l2.2-2.2a4.2 4.2 0 0 0-6-6L11 6.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+                  <path d="M14 10.5a4.2 4.2 0 0 0-6 0L5.8 12.7a4.2 4.2 0 0 0 6 6L13 17.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+                </svg>
+              }
+              <span class="tool-label">
+                <span class="label-short">{{ linkCopied() ? 'Copied' : 'Link' }}</span>
+                <span class="label-full">{{ linkCopied() ? 'Link copied' : 'Share path' }}</span>
+              </span>
+            </button>
+            <a
+              class="ghost tool"
+              [routerLink]="['/compare']"
+              [queryParams]="{ from: fromId(), a: toId() }"
+              aria-label="Compare to another"
+              title="Compare to another"
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M7.5 5.5v13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+                <path d="M4.5 8.5 7.5 5.5 10.5 8.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+                <path d="M16.5 18.5v-13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+                <path d="M13.5 15.5 16.5 18.5 19.5 15.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+              <span class="tool-label">
+                <span class="label-short">Compare</span>
+                <span class="label-full">Compare to another</span>
+              </span>
+            </a>
+            <a
+              class="ghost tool"
+              [routerLink]="['/options']"
+              [queryParams]="{ from: fromId() }"
+              aria-label="See options"
+              title="See options"
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <rect x="4.5" y="4.5" width="6.2" height="6.2" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.8" />
+                <rect x="13.3" y="4.5" width="6.2" height="6.2" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.8" />
+                <rect x="4.5" y="13.3" width="6.2" height="6.2" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.8" />
+                <rect x="13.3" y="13.3" width="6.2" height="6.2" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.8" />
+              </svg>
+              <span class="tool-label">
+                <span class="label-short">Options</span>
+                <span class="label-full">See options</span>
+              </span>
+            </a>
+          </div>
+        }
+      </div>
+      @if (!loading() && matchCount() > 1) {
+        <button
+          type="button"
+          class="path-arrow next"
+          [disabled]="!canNextRoute()"
+          (click)="shiftRoute(1)"
+          [attr.aria-label]="'Next path, ' + (routeIndex() + 2) + ' of ' + matchCount()"
+        >
+          <span class="path-arrow-copy">
+            <em>Next path</em>
+            @if (canNextRoute()) {
+              <strong>{{ routeIndex() + 2 }} of {{ matchCount() }}</strong>
+            }
+          </span>
+          <svg class="chev" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M8.5 5.5 15 12l-6.5 6.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </button>
+      }
+    </header>
+
+  @if (loading()) {
+    <p class="meta">Drawing a route…</p>
+  }
+
+  @if (missing()) {
+    <div class="empty card">
+      <p>{{ missing() }}</p>
+      <div class="empty-actions">
+        @if (switchPlan()) {
+          <button type="button" class="primary" (click)="openSwitch()">Switch qualification/profession</button>
+        }
+        @if (fromNode()) {
+          <a class="ghost" [routerLink]="['/options']" [queryParams]="{ from: fromNode()!.id }">See professions from {{ fromNode()!.shortTitle }}</a>
+        }
+        @if (fromId() && toId()) {
+          <a class="ghost" [routerLink]="['/compare']" [queryParams]="{ from: fromId(), a: toId() }">Compare with another goal</a>
+        }
+      </div>
+    </div>
+  }
+
+  @if (active(); as path) {
+    <app-journey-path
+      [steps]="path.steps"
+      [kindLabel]="kindLabel"
+      [calm]="parentMode()"
+      [recommended]="!!path.recommended"
+      [whyLines]="whyLines()"
+      [highlightIds]="feederStepIds()"
+      [hasCalendar]="!!calendar()"
+      [hasCost]="!!cost()"
+      [makingPdf]="makingPdf()"
+      (openDetail)="openDetail($event)"
+      (openCalendar)="openCalendar()"
+      (openCost)="openCost()"
+      (openPreview)="openPreview()"
+      (downloadPdf)="downloadPathPdf()"
+      (printGuide)="printGuide()"
+    />
+  }
+  </div>
+
+  @if ((previewOpen() || printSheet()) && pathGuide(); as guide) {
+    <article class="path-sheet" aria-hidden="true">
+      <app-path-guide-view [guide]="guide" />
+    </article>
+  }
+</div>
+
+@if (switchOpen() && switchPlan(); as plan) {
+  <div class="sheet-pop switch-pop" role="dialog" aria-modal="true" aria-label="Switch qualification or profession">
+    <div class="sheet-pop-head">
+      <p class="sheet-pop-title">Switch qualification/profession</p>
+      <button class="ghost" type="button" (click)="closeSwitch()">Close</button>
+    </div>
+    <div class="sheet-body">
+      <article class="switch-plan" [class.no]="!plan.possible">
+        <p class="switch-verdict" [class.yes]="plan.possible">{{ plan.verdict }}</p>
+        <p class="switch-pair">{{ fromNode()?.shortTitle }} → {{ toNode()?.shortTitle }}</p>
+        <p class="switch-why">{{ plan.why }}</p>
+        <ol class="switch-steps">
+          @for (step of plan.steps; track $index) {
+            <li>
+              <h3>{{ step.title }}</h3>
+              <p>{{ step.detail }}</p>
+              @if (step.duration) {
+                <p class="switch-meta">Typical time: {{ step.duration }}</p>
+              }
+              @if (step.exams.length) {
+                <p class="switch-meta">Check: {{ step.exams.join(' · ') }}</p>
+              }
+              @if (step.node; as node) {
+                <button type="button" class="ghost" (click)="openDetail(node)">Details</button>
+              }
+            </li>
+          }
+        </ol>
+        @if (plan.notes.length) {
+          <ul class="switch-notes">
+            @for (note of plan.notes; track note) {
+              <li>{{ note }}</li>
+            }
+          </ul>
+        }
+        @if (plan.alts.length) {
+          <section class="switch-alts">
+            <h3>Already mapped from your start</h3>
+            <ul>
+              @for (alt of plan.alts; track alt.node.id) {
+                <li>
+                  <a [routerLink]="['/path']" [queryParams]="{ from: fromId(), to: alt.node.id }">{{ alt.node.shortTitle }}</a>
+                  <span>{{ alt.why }}</span>
+                </li>
+              }
+            </ul>
+          </section>
+        }
+        <div class="switch-actions">
+          @if (plan.possible && plan.reenterId && toId()) {
+            <a class="primary" [routerLink]="['/path']" [queryParams]="{ from: plan.reenterId, to: toId() }">Open this switch on the map</a>
+          }
+          @if (fromNode()) {
+            <a class="ghost" [routerLink]="['/options']" [queryParams]="{ from: fromNode()!.id }">See professions from {{ fromNode()!.shortTitle }}</a>
+          }
+        </div>
+      </article>
+    </div>
+  </div>
+}
+
+@if (sheetOpen() === 'calendar' && calendar(); as cal) {
+  <div class="sheet-pop" role="dialog" aria-modal="true" aria-label="This year’s calendar">
+    <div class="sheet-pop-head">
+      <p class="sheet-pop-title">This year’s calendar</p>
+      <button class="ghost" type="button" (click)="closeSheet()">Close</button>
+    </div>
+    <div class="sheet-body">
+      <app-path-calendar [calendar]="cal" />
+    </div>
+  </div>
+}
+
+@if (sheetOpen() === 'cost' && cost(); as money) {
+  <div class="sheet-pop" role="dialog" aria-modal="true" aria-label="Cost honesty sheet">
+    <div class="sheet-pop-head">
+      <p class="sheet-pop-title">Cost honesty sheet</p>
+      <button class="ghost" type="button" (click)="closeSheet()">Close</button>
+    </div>
+    <div class="sheet-body">
+      <app-path-cost-sheet [cost]="money" />
+    </div>
+  </div>
+}
+
+@if (previewOpen() && pathGuide(); as guide) {
+  <div class="guide-pop" role="dialog" aria-modal="true" aria-label="Path guide preview">
+    <div class="guide-pop-head">
+      <p class="guide-pop-title">Preview</p>
+      <button class="ghost" type="button" (click)="closePreview()">Close</button>
+    </div>
+    <div class="guide-body">
+      <app-path-guide-view [guide]="guide" />
+    </div>
+    <div class="guide-actions">
+      <button type="button" class="primary" [disabled]="makingPdf()" (click)="downloadPathPdf()">
+        {{ makingPdf() ? 'Preparing PDF…' : 'Generate path guide PDF' }}
+      </button>
+      <button type="button" class="ghost" (click)="printGuide()">Print</button>
+    </div>
+  </div>
+}
+
+@if (shareOpen() && shareBrief(); as family) {
+  <div class="share-pop print-card" role="dialog" aria-label="Share this path">
+    <button class="share-close ghost" type="button" (click)="closeShare()">Close</button>
+    <div class="share-body" #shareShot>
+      <app-parent-brief [brief]="family" />
+    </div>
+    <div class="share-actions">
+      <button type="button" class="primary" [disabled]="sharing()" (click)="shareWhatsApp()">
+        {{ sharing() ? 'Preparing…' : 'WhatsApp' }}
+      </button>
+      @if (canNativeShare) {
+        <button type="button" class="ghost" [disabled]="sharing()" (click)="shareNative()">Share</button>
+      }
+      <button type="button" class="ghost" [disabled]="sharing()" (click)="copyShare()">
+        {{ copied() ? 'Copied' : 'Copy image' }}
+      </button>
+      <button type="button" class="ghost" (click)="printPath()">Print / PDF</button>
+    </div>
+  </div>
+}

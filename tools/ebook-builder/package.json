@@ -1,0 +1,8 @@
+{
+  "name": "agamipatha-ebook-builder",
+  "private": true,
+  "type": "commonjs",
+  "dependencies": {
+    "pdfkit": "^0.15.2"
+  }
+}

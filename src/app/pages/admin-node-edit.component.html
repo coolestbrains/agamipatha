@@ -1,0 +1,117 @@
+<div class="wrap">
+  <app-admin-tabs />
+  <p class="crumb"><a routerLink="/admin/nodes">← All nodes</a></p>
+  <h1>{{ isNew ? 'New node' : 'Edit node' }}</h1>
+  <form class="card form" (ngSubmit)="save()">
+    <div class="grid">
+      <label>
+        <span>Id (stable slug)</span>
+        <input name="id" [(ngModel)]="node.id" [disabled]="!isNew" required />
+      </label>
+      <label>
+        <span>Kind</span>
+        <select name="kind" [(ngModel)]="node.kind">
+          <option value="school">School</option>
+          <option value="higher-secondary">Higher secondary</option>
+          <option value="vocational">Vocational</option>
+          <option value="undergraduate">Undergraduate</option>
+          <option value="postgraduate">Postgraduate</option>
+          <option value="professional">Professional course</option>
+          <option value="profession">Profession</option>
+          <option value="entrance-exam">Entrance exam</option>
+        </select>
+      </label>
+      <label>
+        <span>Title</span>
+        <input name="title" [(ngModel)]="node.title" required />
+      </label>
+      <label>
+        <span>Short title</span>
+        <input name="shortTitle" [(ngModel)]="node.shortTitle" />
+      </label>
+      <label>
+        <span>Field</span>
+        <input name="field" [(ngModel)]="node.field" />
+      </label>
+      <label>
+        <span>Duration</span>
+        <input name="duration" [(ngModel)]="node.duration" />
+      </label>
+      <label>
+        <span>Typical age</span>
+        <input name="typicalAge" [(ngModel)]="node.typicalAge" />
+      </label>
+      <label>
+        <span>Govt / public cost (qualifications)</span>
+        <input name="costGovt" [(ngModel)]="node.costGovt" placeholder="₹20,000–₹1.25 lakh / year" />
+      </label>
+      <label>
+        <span>Private cost (qualifications)</span>
+        <input name="costPvt" [(ngModel)]="node.costPvt" placeholder="₹1.5–4.5 lakh / year" />
+      </label>
+      <label>
+        <span>Approximate earnings (professions)</span>
+        <input name="salaryHint" [(ngModel)]="node.salaryHint" placeholder="About ₹4–12 LPA to start" />
+      </label>
+      <label>
+        <span>Entry level</span>
+        <select name="entryLevel" [(ngModel)]="node.entryLevel">
+          <option value="">(default / campus)</option>
+          <option value="campus">Campus</option>
+          <option value="early">Early career</option>
+          <option value="experienced">Experienced</option>
+        </select>
+      </label>
+      <label>
+        <span>Experience years (min)</span>
+        <input name="experienceYearsMin" type="number" min="0" max="40" [(ngModel)]="node.experienceYearsMin" placeholder="e.g. 3" />
+      </label>
+      <label>
+        <span>Experience years (typical)</span>
+        <input name="experienceYearsTypical" type="number" min="0" max="40" [(ngModel)]="node.experienceYearsTypical" placeholder="e.g. 5" />
+      </label>
+    </div>
+    <label>
+      <span>Summary</span>
+      <textarea name="summary" rows="3" [(ngModel)]="node.summary"></textarea>
+    </label>
+    <label>
+      <span>Outlook</span>
+      <textarea name="outlook" rows="3" [(ngModel)]="node.outlook"></textarea>
+    </label>
+    <div class="grid">
+      <label>
+        <span>What you study (one per line)</span>
+        <textarea name="study" rows="5" [(ngModel)]="studyText"></textarea>
+      </label>
+      <label>
+        <span>Exams (one per line)</span>
+        <textarea name="exams" rows="5" [(ngModel)]="examsText"></textarea>
+      </label>
+      <label>
+        <span>Skills (one per line)</span>
+        <textarea name="skills" rows="5" [(ngModel)]="skillsText"></textarea>
+      </label>
+      <label>
+        <span>Workplaces (one per line)</span>
+        <textarea name="work" rows="5" [(ngModel)]="workplacesText"></textarea>
+      </label>
+      <label>
+        <span>Top Indian institutes (one per line)</span>
+        <textarea name="institutes" rows="5" [(ngModel)]="institutesText"></textarea>
+      </label>
+      <label>
+        <span>Helpful certifications (one per line, professions)</span>
+        <textarea name="certs" rows="5" [(ngModel)]="certificationsText"></textarea>
+      </label>
+      <label>
+        <span>Feeder role ids (one per line, experienced professions)</span>
+        <textarea name="feeders" rows="5" [(ngModel)]="feederRolesText" placeholder="software-engineer&#10;cloud-engineer"></textarea>
+      </label>
+    </div>
+    @if (error()) {
+      <p class="form-error">{{ error() }}</p>
+    }
+    <button class="primary" type="submit">Save to SQL database</button>
+  </form>
+</div>

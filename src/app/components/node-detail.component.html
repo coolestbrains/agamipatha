@@ -1,0 +1,276 @@
+<div class="scrim" (click)="close()"></div>
+<aside
+  class="panel"
+  role="dialog"
+  aria-modal="true"
+  [attr.aria-label]="node.title"
+  (wheel)="$event.stopPropagation()"
+  (touchmove)="$event.stopPropagation()"
+>
+  <header class="dash-head">
+    <div class="dash-head-row">
+      <div class="dash-identity">
+        <app-node-icon [node]="node" size="lg" />
+        <div class="dash-copy">
+          <h2>{{ node.title }}</h2>
+          <p class="kind">{{ view.kindLabel }} · {{ node.field }}</p>
+        </div>
+      </div>
+      <div class="dash-actions">
+        @if (view.pathFromId) {
+          <a
+            class="path-mini"
+            [routerLink]="['/path']"
+            [queryParams]="{ from: view.pathFromId, to: node.id }"
+            (click)="close()"
+          >
+            Show path
+          </a>
+        }
+        <button type="button" class="close" (click)="close($event)" aria-label="Close details">
+          <span class="close-label">Close</span>
+          <span class="close-x" aria-hidden="true">×</span>
+        </button>
+      </div>
+    </div>
+    @if (node.duration || node.typicalAge || node.costGovt || node.costPvt || (node.kind === 'profession' && node.salaryHint) || view.experienceBadge) {
+      <div class="kpi-strip">
+        @if (view.experienceBadge) {
+          <span class="chip experience"><em>Experience</em> {{ view.experienceBadge }}</span>
+        }
+        @if (node.duration) {
+          <span class="chip"><em>Duration</em> {{ node.duration }}</span>
+        }
+        @if (node.typicalAge) {
+          <span class="chip"><em>Age</em> {{ node.typicalAge }}</span>
+        }
+        @if (node.costGovt) {
+          <span class="chip"><em>Govt</em> {{ node.costGovt }}</span>
+        }
+        @if (node.costPvt) {
+          <span class="chip marigold"><em>Private</em> {{ node.costPvt }}</span>
+        }
+        @if (node.kind === 'profession' && node.salaryHint) {
+          <span class="chip cyan"><em>Earnings</em> {{ node.salaryHint }}</span>
+        }
+      </div>
+    }
+  </header>
+
+  <div class="scroll" #scroll>
+    <p class="lede">{{ node.summary }}</p>
+    <div class="board">
+      @if (!view.extrasReady) {
+        <p class="loading-more" aria-live="polite">Loading related details…</p>
+      }
+
+      @if (view.feeders.length) {
+        <section class="tile">
+          <h3>Usual feeder roles first</h3>
+          <p class="context-line">Most people hold one of these before {{ node.shortTitle || node.title }}.</p>
+          <div class="hop-grid">
+            @for (item of view.feeders; track item.id) {
+              <button type="button" class="hop-card" (click)="openRelated(item)">
+                <app-node-icon [node]="item" size="sm" />
+                <span class="trend-kind">{{ trendingKind(item) }}</span>
+                <strong>{{ item.title }}</strong>
+              </button>
+            }
+          </div>
+        </section>
+      }
+
+      @if (view.whyRelevant; as why) {
+        <section class="tile">
+          <h3>Why this is relevant</h3>
+          <p class="context-line">{{ why }}</p>
+        </section>
+      }
+
+      @if (view.howFromHere; as how) {
+        <section class="tile">
+          <h3>How you get there from here</h3>
+          <p class="via-line">
+            @if (how.via) {
+              <strong>{{ how.via }}</strong>
+            }
+            {{ how.notes }}
+          </p>
+          @if (how.later) {
+            <p class="hint">Then continue via {{ how.later }}.</p>
+          }
+        </section>
+      }
+
+      @if (node.whatYouStudy.length) {
+        <section class="tile">
+          <h3>What you study / practise</h3>
+          <ul>
+            @for (item of node.whatYouStudy.slice(0, 12); track item) {
+              <li>{{ item }}</li>
+            }
+          </ul>
+        </section>
+      }
+
+      @if (node.exams.length) {
+        <section class="tile">
+          <h3>Exams and gates</h3>
+          <ul>
+            @for (item of node.exams.slice(0, 12); track item) {
+              <li>{{ item }}</li>
+            }
+          </ul>
+        </section>
+      }
+
+      @if (node.skills.length) {
+        <section class="tile">
+          <h3>Skills this stage builds</h3>
+          <ul class="pills">
+            @for (item of node.skills.slice(0, 16); track item) {
+              <li>{{ item }}</li>
+            }
+          </ul>
+        </section>
+      }
+
+      @if (view.extrasReady && view.nextHops.length) {
+        <section class="tile wide">
+          <h3>Typical next hops</h3>
+          <div class="hop-grid">
+            @for (hop of view.nextHops; track hop.node.id) {
+              <button type="button" class="hop-card" (click)="openRelated(hop.node)">
+                <app-node-icon [node]="hop.node" size="sm" />
+                <span class="trend-kind">{{ trendingKind(hop.node) }}</span>
+                <strong>{{ hop.node.title }}</strong>
+                @if (hop.edge.via) {
+                  <span class="hop-via">{{ hop.edge.via }}</span>
+                }
+              </button>
+            }
+          </div>
+        </section>
+      }
+
+      @if (view.extrasReady && view.relatedInField.length) {
+        <section class="tile">
+          <h3>Related in this field</h3>
+          <div class="hop-grid">
+            @for (item of view.relatedInField; track item.id) {
+              <button type="button" class="hop-card" (click)="openRelated(item)">
+                <app-node-icon [node]="item" size="sm" />
+                <span class="trend-kind">{{ trendingKind(item) }} · {{ item.field }}</span>
+                <strong>{{ item.title }}</strong>
+              </button>
+            }
+          </div>
+        </section>
+      }
+
+      @if (node.outlook) {
+        <section class="tile wide">
+          <h3>How to think about this step</h3>
+          <p class="outlook">{{ node.outlook }}</p>
+        </section>
+      }
+
+      @if (view.extrasReady && (view.certLinks.length || view.institutes.length || view.employers.length)) {
+        <section class="tile wide lists-row" aria-label="Certifications, institutes, and organisations">
+          @if (view.certLinks.length) {
+            <div class="list-col">
+              <h3>Top certifications</h3>
+              <div class="list-scroll">
+                <ol class="link-list">
+                  @for (item of view.certLinks; track item.name; let i = $index) {
+                    <li>
+                      <span class="link-rank">{{ i + 1 }}</span>
+                      <span class="link-body">
+                        <a [href]="item.url" target="_blank" rel="noopener noreferrer">{{ item.name }}</a>
+                        <span class="link-extra">{{ item.coach }}</span>
+                      </span>
+                    </li>
+                  }
+                </ol>
+              </div>
+            </div>
+          }
+          @if (view.institutes.length) {
+            <div class="list-col">
+              <h3>Top institutes</h3>
+              <div class="list-scroll">
+                <ol class="link-list">
+                  @for (item of view.institutes; track item.name; let i = $index) {
+                    <li>
+                      <span class="link-rank">{{ i + 1 }}</span>
+                      <span class="link-body">
+                        @if (item.url) {
+                          <a [href]="item.url" target="_blank" rel="noopener noreferrer">{{ item.name }}</a>
+                        } @else {
+                          <span>{{ item.name }}</span>
+                        }
+                      </span>
+                    </li>
+                  }
+                </ol>
+              </div>
+            </div>
+          }
+          @if (view.employers.length) {
+            <div class="list-col">
+              <h3>Top organisations</h3>
+              <div class="list-scroll">
+                <ol class="link-list">
+                  @for (item of view.employers; track item.name; let i = $index) {
+                    <li>
+                      <span class="link-rank">{{ i + 1 }}</span>
+                      <span class="link-body">
+                        @if (item.url) {
+                          <a [href]="item.url" target="_blank" rel="noopener noreferrer">{{ item.name }}</a>
+                        } @else {
+                          <span>{{ item.name }}</span>
+                        }
+                      </span>
+                    </li>
+                  }
+                </ol>
+              </div>
+            </div>
+          }
+        </section>
+      }
+
+      @if (!view.extrasReady && view.institutes.length) {
+        <section class="tile">
+          <h3>Top institutes</h3>
+          <ul>
+            @for (item of view.institutes; track item.name) {
+              <li>{{ item.name }}</li>
+            }
+          </ul>
+        </section>
+      }
+
+      @if (view.extrasReady && view.trending.length) {
+        <section class="tile wide trending" aria-label="Most searched goals from the home page">
+          <h3>Most recently trending</h3>
+          <div class="trend-grid">
+            @for (item of view.trending; track item.id; let i = $index) {
+              <button
+                type="button"
+                class="trend-card"
+                [style.--i]="i"
+                (click)="openTrending(item)"
+              >
+                <span class="trend-rank">{{ i + 1 }}</span>
+                <span class="trend-kind">{{ trendingKind(item) }} · {{ item.field }}</span>
+                <strong>{{ item.title }}</strong>
+                <span class="trend-sum">{{ item.summary }}</span>
+              </button>
+            }
+          </div>
+        </section>
+      }
+    </div>
+  </div>
+</aside>

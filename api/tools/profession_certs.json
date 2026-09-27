@@ -1,0 +1,321 @@
+{
+  "byField": {
+    "Agriculture": [
+      "IBPS AFO / state agriculture officer exams",
+      "ICAR NET (if you want teaching or research)",
+      "Pesticide / soil-testing licences where the role needs them"
+    ],
+    "Aviation": [
+      "DGCA CPL, then ATPL as hours build",
+      "Class 1 medical (kept current)",
+      "Type rating for the aircraft you will fly"
+    ],
+    "Business": [
+      "Google / Meta digital marketing certificates",
+      "NISM series (if you touch investments or wealth)",
+      "SHRM / HRCI or a labour-law short course for people roles"
+    ],
+    "Communications": [
+      "Toastmasters or an equivalent speaking credential",
+      "TESOL / CELTA if you train language or debate",
+      "Google Digital Marketing & E-commerce Certificate"
+    ],
+    "Defence": [
+      "NDA / CDS / AFCAT as the entry exam you actually sit",
+      "SSB plus medicals",
+      "Service-specific specialist courses after commissioning"
+    ],
+    "Design": [
+      "Google UX Design Certificate (strong for UI/UX)",
+      "Adobe Certified Professional (Photoshop / Illustrator / InDesign)",
+      "A public portfolio matters more than any single cert"
+    ],
+    "Earth science": [
+      "GATE Geology / Geophysics",
+      "Esri / QGIS professional GIS certificates",
+      "CSIR NET Earth Sciences (academia)"
+    ],
+    "Economics": [
+      "UGC-NET Economics (college teaching)",
+      "NISM / FRM Part I if you pivot to markets",
+      "R programming or data-analytics certificates help applied roles"
+    ],
+    "Education": [
+      "CTET / state TET (school teaching)",
+      "UGC-NET (college / university)",
+      "RCI credentials if you work in special education"
+    ],
+    "Energy": [
+      "GATE Petroleum / Geology as relevant",
+      "IWCF / IADC well-control (oilfield roles)",
+      "SPE membership and short industry courses"
+    ],
+    "Engineering": [
+      "GATE (M.Tech, PSU, teaching)",
+      "ESE / state engineering services where relevant",
+      "AutoCAD, SolidWorks, or PLC certificates matching the branch"
+    ],
+    "Environment": [
+      "QCI / NABET EIA functional-area training",
+      "ISO 14001 lead auditor",
+      "CSIR NET / GATE Environmental Science"
+    ],
+    "Fashion": [
+      "Adobe Certified Professional (fashion illustration / CAD)",
+      "CGD / pattern-CAD short courses (Gerber, Lectra, Optitex)",
+      "A lookbook or internships usually outweigh extra diplomas"
+    ],
+    "Finance": [
+      "NISM modules (mutual funds, equity, research)",
+      "CFA Level I (markets and research roles)",
+      "Digital banking / FinTech certificates for specialist PO tracks"
+    ],
+    "Healthcare": [
+      "State council / NMC / INC registration for the profession",
+      "BLS and ACLS (clinical roles)",
+      "Specialty fellowships or council-recognised add-on certificates"
+    ],
+    "Hospitality": [
+      "FSSAI / food-safety supervisor (kitchens and F&B)",
+      "Certified Hospitality Administrator or equivalent later",
+      "Language and sommelier short courses for luxury properties"
+    ],
+    "Law": [
+      "AIBE and state bar enrolment",
+      "Company-law / CS electives or diploma for in-house work",
+      "CIPP or a privacy certificate if you do data / tech law"
+    ],
+    "Maritime": [
+      "DG Shipping Certificate of Competency",
+      "STCW basic and advanced modules",
+      "Medicals kept current under DGS rules"
+    ],
+    "Media": [
+      "Google / Meta ads certificates (digital roles)",
+      "Adobe Premiere / After Effects professional certificates",
+      "A clip file or channel is usually the real credential"
+    ],
+    "Mining": [
+      "GATE Mining",
+      "DGMS certificates of competency (mines manager / surveyor)",
+      "Mine-safety and blasting licences as the role requires"
+    ],
+    "Performing arts": [
+      "NSD / FTII / university diplomas where they fit the craft",
+      "Trinity / ABRSM (music) or recognised dance diplomas",
+      "Showreel, workshops, and union cards often matter more"
+    ],
+    "Public service": [
+      "UPSC CSE or the state PSC you are targeting",
+      "CAPF / state police exams for uniformed tracks",
+      "Optional-subject coaching is not a certificate — skip paid 'UPSC certs'"
+    ],
+    "Science": [
+      "CSIR NET / GATE in the relevant paper",
+      "Good Clinical Practice if you work in trials",
+      "Instrument or GLP short courses for industry labs"
+    ],
+    "Social sector": [
+      "Counselling certificates (RCI-aware where clinical)",
+      "CSR / NGO project-management short courses",
+      "MSW remains the main professional signal"
+    ],
+    "Sports": [
+      "NIS diploma or a recognised coaching licence",
+      "ACE / NASM / ACSM for fitness trainers",
+      "Yoga Alliance or AYUSH-recognised yoga certification"
+    ],
+    "Technology": [
+      "A cloud associate certificate (AWS, Azure, or GCP)",
+      "A role-specific cert (security, data, or Kubernetes) once you have projects",
+      "GitHub / internships still beat a stack of unpaid badges"
+    ]
+  },
+  "byId": {
+    "software-engineer": [
+      "AWS Certified Developer or Solutions Architect Associate",
+      "Oracle Java / Microsoft Azure Developer (if that is your stack)",
+      "Kubernetes CKA later, once you run systems in production"
+    ],
+    "full-stack-developer": [
+      "Meta Front-End Developer Certificate",
+      "AWS Certified Developer – Associate",
+      "MongoDB or PostgreSQL associate certificates matching your stack"
+    ],
+    "data-scientist": [
+      "Google Advanced Data Analytics or TensorFlow Developer Certificate",
+      "AWS Certified Machine Learning – Specialty",
+      "A statistics MOOC plus Kaggle / GitHub beats a cert-only CV"
+    ],
+    "data-analyst": [
+      "Google Data Analytics Certificate",
+      "Microsoft Power BI Data Analyst (PL-300)",
+      "Tableau Desktop Specialist"
+    ],
+    "ml-engineer": [
+      "TensorFlow Developer Certificate",
+      "AWS Certified Machine Learning – Specialty",
+      "Databricks or MLOps associate credentials once you ship models"
+    ],
+    "prompt-engineer": [
+      "DeepLearning.AI / OpenAI prompt-engineering short courses",
+      "A public eval harness or prompt library on GitHub",
+      "Vendor GenAI associate certs (Azure AI / Google Cloud) if the employer asks"
+    ],
+    "cybersecurity-analyst": [
+      "CompTIA Security+",
+      "CEH or CompTIA CySA+ for SOC roles",
+      "OSCP later if you want hands-on pentest work"
+    ],
+    "cloud-engineer": [
+      "AWS Solutions Architect Associate",
+      "Microsoft Azure Administrator (AZ-104)",
+      "Google Cloud Associate Cloud Engineer"
+    ],
+    "cloud-architect": [
+      "AWS Certified Solutions Architect – Professional",
+      "Microsoft Azure Solutions Architect Expert (AZ-305)",
+      "Google Professional Cloud Architect"
+    ],
+    "robotics-automation-engineer": [
+      "Siemens / Rockwell PLC and HMI certificates",
+      "FANUC / ABB / KUKA robot programming courses",
+      "GATE (M.Tech / PSU) or industrial safety / Six Sigma where the plant asks"
+    ],
+    "devops-engineer": [
+      "Certified Kubernetes Administrator (CKA)",
+      "HashiCorp Terraform Associate",
+      "AWS Certified DevOps Engineer – Professional (after a few years)"
+    ],
+    "qa-automation-engineer": [
+      "ISTQB Foundation, then Advanced Test Automation",
+      "A Selenium / Playwright / API-testing portfolio",
+      "AWS Cloud Practitioner if you test cloud-native apps"
+    ],
+    "database-administrator": [
+      "Oracle Database Administrator Certified Professional",
+      "Microsoft SQL Server / Azure Database Administrator Associate",
+      "PostgreSQL or MongoDB DBA certificates for open-source stacks"
+    ],
+    "business-analyst": [
+      "IIBA ECBA, then CCBA / CBAP",
+      "PMI-PBA",
+      "SQL + a BI cert (PL-300 or Tableau) for IT-BA roles"
+    ],
+    "product-manager": [
+      "Certified Scrum Product Owner (CSPO)",
+      "Pragmatic Institute or AIPMM product certificates",
+      "A PM internship or shipped feature still counts more"
+    ],
+    "game-developer": [
+      "Unity Certified User / Professional Programmer",
+      "Unreal Engine Professional",
+      "A shipped demo is the certificate studios actually open"
+    ],
+    "uiux-designer": [
+      "Google UX Design Certificate",
+      "NN/g UX certificate (later, after a portfolio)",
+      "Figma professional coursework plus 3–5 case studies"
+    ],
+    "chartered-accountant": [
+      "ICAI CA (Foundation → Intermediate → Final + articles)",
+      "DISA or a data-analytics certificate after qualification",
+      "CPA / IFRS diplomas only if you target a specific market"
+    ],
+    "company-secretary": [
+      "ICSI CS Executive and Professional",
+      "Insolvency or labour-law diplomas as electives",
+      "ESG / governance short courses for listed-company roles"
+    ],
+    "cost-accountant": [
+      "ICMAI CMA Intermediate and Final",
+      "SAP CO or a costing-analytics certificate",
+      "NISM if you move toward finance control in markets firms"
+    ],
+    "investment-analyst": [
+      "CFA Level I, then II/III while working",
+      "NISM Research Analyst and Equity Derivatives",
+      "FRM Part I for risk-leaning desks"
+    ],
+    "actuary": [
+      "IAI or IFoA Core Principles papers (start in college)",
+      "CM1/CS1 early papers are the real signal",
+      "Excel / Python certificates are optional extras"
+    ],
+    "banker": [
+      "IBPS / SBI PO or specialist officer exam you actually clear",
+      "NISM (mutual funds, derivatives) for specialist roles",
+      "JAIIB / CAIIB after you join a bank"
+    ],
+    "doctor": [
+      "NMC registration after MBBS",
+      "BLS / ACLS",
+      "NEET-PG / INI-CET for specialisation — not a side certificate"
+    ],
+    "nurse": [
+      "State nursing council registration",
+      "BLS / ACLS",
+      "Specialty certificates (ICU, oncology, midwifery) after a year on the floor"
+    ],
+    "pharmacist": [
+      "State pharmacy council registration",
+      "GPAT if you want M.Pharm / PSUs",
+      "Pharmacovigilance or clinical-research certificates for industry"
+    ],
+    "lawyer": [
+      "AIBE and state bar enrolment",
+      "Diploma in corporate / cyber / IPR law matching chambers",
+      "Contract-drafting and e-discovery short courses for firms"
+    ],
+    "civil-servant": [
+      "UPSC CSE or the state PSC notification you are sitting",
+      "No paid 'IAS certificate' is recognised — ignore those ads",
+      "A language or data-analytics course can help the job after selection"
+    ],
+    "architect": [
+      "CoA registration after B.Arch",
+      "GATE Architecture if you want M.Arch / PSU",
+      "Revit / BIM professional certificates"
+    ],
+    "teacher": [
+      "CTET or the state TET for the schools you want",
+      "B.Ed remains the professional requirement in most states",
+      "Cambridge TKT / TESOL for English-medium and international schools"
+    ],
+    "commercial-pilot": [
+      "DGCA CPL with instrument rating",
+      "ATPL frozen, then full ATPL with hours",
+      "Type rating paid by you or the airline — budget for it"
+    ],
+    "content-strategist": [
+      "Google SEO / Analytics foundations",
+      "HubSpot Content Marketing",
+      "A published portfolio still outweighs certs"
+    ],
+    "digital-marketing-manager": [
+      "Google Ads and Analytics certifications",
+      "Meta Blueprint media buying",
+      "HubSpot or similar inbound / CRM certificates"
+    ],
+    "sustainability-manager": [
+      "GRI Certified Sustainability Professional",
+      "ISO 14001 Lead Auditor",
+      "An ESG or carbon-accounting certificate (CDP / GHG Protocol track)"
+    ],
+    "ev-engineer": [
+      "EV / battery technology certificate from an IIT or NSDC partner",
+      "MATLAB / Simulink or power-electronics coursework",
+      "Functional safety (ISO 26262) awareness for automotive roles"
+    ],
+    "healthcare-administrator": [
+      "NABH assessor / quality management training",
+      "Healthcare management diploma or MBA healthcare",
+      "Six Sigma / lean for hospital ops"
+    ],
+    "supply-chain-manager": [
+      "APICS CSCP or CPIM",
+      "Six Sigma Green Belt",
+      "SAP MM / TM or similar ERP modules for planners"
+    ]
+  }
+}

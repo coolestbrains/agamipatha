@@ -1,0 +1,51 @@
+<article class="brief" [attr.data-voice]="brief().voice" aria-label="Share card for this path">
+  <p class="brand">{{ brief().brand }}</p>
+  <p class="eyebrow">{{ brief().eyebrow }}</p>
+  <h2>{{ brief().fromTitle }} → {{ brief().toTitle }}</h2>
+  <p class="what">{{ brief().whatThisIs }}</p>
+  <p class="spine">{{ brief().spine }}</p>
+
+  <ol class="steps">
+    @for (step of brief().steps; track step + $index) {
+      <li>{{ step }}</li>
+    }
+  </ol>
+
+  <section>
+    <h3>{{ brief().safetyTitle }}</h3>
+    <ul>
+      @for (line of brief().safety; track line) {
+        <li>{{ line }}</li>
+      }
+    </ul>
+  </section>
+
+  <section>
+    <h3>{{ brief().backupTitle }}</h3>
+    <ul>
+      @for (line of brief().backup; track line) {
+        <li>{{ line }}</li>
+      }
+    </ul>
+  </section>
+
+  <section>
+    <h3>{{ brief().moneyTitle }}</h3>
+    <p>{{ brief().money }}</p>
+  </section>
+
+  <section>
+    <h3>{{ brief().calendarTitle }}</h3>
+    <p>{{ brief().thisYear }}</p>
+  </section>
+
+  @if (brief().firstYear) {
+    <p class="book">
+      {{ brief().firstYearLead }}
+      <a routerLink="/store">First-year College Survival</a>
+      in the store — hostel, attendance, internals, when to change course.
+    </p>
+  }
+
+  <p class="shot">{{ brief().shot }}</p>
+</article>

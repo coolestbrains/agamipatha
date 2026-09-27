@@ -1,0 +1,54 @@
+<article class="guide">
+  <p class="brand">{{ guide().brand }}</p>
+  <h1>{{ guide().title }}</h1>
+  <p class="sub">{{ guide().subtitle }}</p>
+  <p class="prepared">{{ guide().prepared }}</p>
+  @for (para of guide().intro; track $index) {
+    @if (para) {
+      <p>{{ para }}</p>
+    }
+  }
+  <section>
+    <h2>Route at a glance</h2>
+    <ol>
+      @for (line of guide().overview; track $index) {
+        <li>{{ line }}</li>
+      }
+    </ol>
+  </section>
+  @for (stage of guide().stages; track stage.title) {
+    <section class="stage">
+      <h2>{{ stage.title }}</h2>
+      @if (stage.kicker) {
+        <p class="kicker">{{ stage.kicker }}</p>
+      }
+      @for (para of stage.paragraphs; track $index) {
+        <p>{{ para }}</p>
+      }
+      @for (group of stage.groups; track group.label) {
+        <h3>{{ group.label }}</h3>
+        <ul>
+          @for (item of group.items; track item) {
+            <li>{{ item }}</li>
+          }
+        </ul>
+      }
+    </section>
+  }
+  @for (block of guide().sections; track block.heading) {
+    <section>
+      <h2>{{ block.heading }}</h2>
+      @for (para of block.paragraphs ?? []; track $index) {
+        <p>{{ para }}</p>
+      }
+      @if (block.bullets?.length) {
+        <ul>
+          @for (item of block.bullets!; track item) {
+            <li>{{ item }}</li>
+          }
+        </ul>
+      }
+    </section>
+  }
+  <p class="foot">{{ guide().footer }}</p>
+</article>

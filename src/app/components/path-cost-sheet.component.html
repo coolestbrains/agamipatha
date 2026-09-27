@@ -1,0 +1,116 @@
+<section class="sheet" [attr.aria-label]="'Cost honesty, ' + cost().spine">
+  <header>
+    <p class="eyebrow">Cost honesty sheet</p>
+    <h2>What this route costs, and what this household can actually pay</h2>
+    <p class="lede">
+      Government vs private vs loan EMI on {{ cost().spine }}. The Class 10 book already taught the three numbers. A brochure that needs a fourth is a fantasy.
+    </p>
+  </header>
+
+  <p class="legend">
+    <span data-amount="low">Lower yearly cost</span>
+    <span data-amount="mid">Mid</span>
+    <span data-amount="high">Higher yearly cost</span>
+  </p>
+
+  <div class="totals">
+    <article [attr.data-amount]="costTones().govt">
+      <p class="kicker">Government seat</p>
+      <p class="sum">{{ formatInr(cost().govt.min) }}–{{ formatInr(cost().govt.max) }}</p>
+      <p class="sub">Remaining on this spine · about {{ formatInr(cost().govt.annualMid) }} / year</p>
+    </article>
+    <article [attr.data-amount]="costTones().pvt">
+      <p class="kicker">Private campus</p>
+      <p class="sum">{{ formatInr(cost().pvt.min) }}–{{ formatInr(cost().pvt.max) }}</p>
+      <p class="sub">Remaining on this spine · about {{ formatInr(cost().pvt.annualMid) }} / year</p>
+    </article>
+    <article [attr.data-amount]="costTones().emi">
+      <p class="kicker">If you borrow the private mid</p>
+      <p class="sum">{{ formatInr(cost().emiFull) }}<span> / month</span></p>
+      <p class="sub">10 years at 10%. Gap after cash: {{ formatInr(gapEmi()) }} / month</p>
+    </article>
+  </div>
+
+  <div class="hops" role="table">
+    <div class="row head" role="row">
+      <span>Hop</span>
+      <span>Years</span>
+      <span>Govt</span>
+      <span>Private</span>
+    </div>
+    @for (hop of cost().hops; track hop.id) {
+      <div class="row" role="row">
+        <strong>{{ hop.title }}</strong>
+        <span>{{ hop.years }}</span>
+        <span>{{ hop.govtRaw || formatBand(hop.govt) }}</span>
+        <span>{{ hop.pvtRaw || formatBand(hop.pvt) }}</span>
+      </div>
+    }
+  </div>
+  <p class="fine">{{ cost().assumptions }}</p>
+
+  <form class="ceiling" (ngSubmit)="persist()">
+    <h3>What this household can actually pay</h3>
+    <p class="hint">Three annual numbers. Write who would sign the loan. Persist on this browser so the next path still knows the ceiling.</p>
+    <div class="fields">
+      <label>
+        <span>Without a loan (₹ / year)</span>
+        <input
+          type="text"
+          inputmode="decimal"
+          [ngModel]="cashText()"
+          (ngModelChange)="cashText.set($event); persist()"
+          name="cash"
+          placeholder="e.g. 60000 or 1.5 lakh"
+        />
+      </label>
+      <label>
+        <span>With a loan we would sign (₹ / year of fee)</span>
+        <input
+          type="text"
+          inputmode="decimal"
+          [ngModel]="loanText()"
+          (ngModelChange)="loanText.set($event); persist()"
+          name="loan"
+          placeholder="e.g. 2 lakh"
+        />
+      </label>
+      <label>
+        <span>Not at all — walk away above (₹ / year)</span>
+        <input
+          type="text"
+          inputmode="decimal"
+          [ngModel]="walkText()"
+          (ngModelChange)="walkText.set($event); persist()"
+          name="walk"
+          placeholder="Optional"
+        />
+      </label>
+      <label>
+        <span>Who signs the loan?</span>
+        <input
+          type="text"
+          [ngModel]="signer()"
+          (ngModelChange)="signer.set($event); persist()"
+          name="signer"
+          placeholder="Parent, guardian, student"
+        />
+      </label>
+    </div>
+  </form>
+
+  <aside class="verdict" [attr.data-tone]="verdict().tone">
+    <p class="kicker">Honesty</p>
+    <h3>{{ verdict().title }}</h3>
+    <ul>
+      @for (line of verdict().lines; track line) {
+        <li>{{ line }}</li>
+      }
+    </ul>
+    <p class="book">
+      Same worksheet, on paper:
+      <a routerLink="/store">Class 10 Stream Chooser</a>
+      in the store.
+    </p>
+  </aside>
+</section>

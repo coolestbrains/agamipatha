@@ -1,0 +1,232 @@
+<section class="journey">
+  @if (timelineSummary()) {
+    <div class="journey-toolbar">
+      <div class="toolbar-copy">
+        <p class="timeline-sum">{{ timelineSummary() }}</p>
+      </div>
+    </div>
+  }
+
+  <div class="journey-board" [class.with-arrows]="steps().length > 1">
+    @if (steps().length > 1) {
+    <button
+      type="button"
+      class="side-arrow prev"
+      [disabled]="!canPrev()"
+      (click)="go(-1)"
+      [attr.aria-label]="canPrev() ? 'Previous step: ' + prevTitle() : 'No previous step'"
+    >
+      <svg class="chev" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M15.5 5.5 9 12l6.5 6.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+      <span class="side-copy">
+        <em>Previous</em>
+        @if (prevTitle()) {
+          <strong>{{ prevTitle() }}</strong>
+        }
+      </span>
+    </button>
+    }
+
+    <div class="map-stage">
+      @if (recommended()) {
+        <div class="rec-tag">
+          <button type="button" class="rec-tag-mark" aria-describedby="why-rec">Recommended</button>
+          <aside class="why-tip" id="why-rec" role="tooltip">
+            <p>Why we recommend this path</p>
+            <ul>
+              @for (line of whyLines(); track line) {
+                <li>{{ line }}</li>
+              }
+            </ul>
+          </aside>
+        </div>
+      }
+      <div class="canvas-wrap" #canvas>
+    <svg
+      #svg
+      class="map"
+      [class.draw]="drawing()"
+      [attr.viewBox]="'0 0 ' + viewW() + ' ' + viewH"
+      role="img"
+      [attr.aria-label]="'Animated career path' + (timelineSummary() ? '. ' + timelineSummary() : '')"
+    >
+      <defs>
+        <linearGradient id="roadGlow" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stop-color="#4f2bff" />
+          <stop offset="50%" stop-color="#14d4e8" />
+          <stop offset="100%" stop-color="#ff2d92" />
+        </linearGradient>
+      </defs>
+      <path class="road-shadow" [attr.d]="pathD()" />
+      <path class="road" [attr.d]="pathD()" />
+      @for (hop of hops(); track $index) {
+        <g class="hop-time" [attr.transform]="'translate(' + hop.x + ' ' + hop.y + ')'">
+          <rect [attr.x]="-hop.w / 2" y="-9" [attr.width]="hop.w" height="18" rx="9" />
+          <text text-anchor="middle" dy="4">{{ hop.label }}</text>
+        </g>
+      }
+      @if (yearRail(); as rail) {
+        <g class="year-rail">
+          <line [attr.x1]="rail.x1" [attr.x2]="rail.x2" y1="328" y2="328" />
+        </g>
+      }
+      @for (mark of yearMarks(); track mark.i) {
+        <g
+          class="year-mark"
+          [class.active]="mark.active"
+          [class.done]="mark.done"
+          [attr.transform]="'translate(' + mark.x + ' 328)'"
+          (click)="goTo(mark.i)"
+        >
+          <rect class="hit" x="-22" y="-12" width="44" height="38" />
+          <line y1="-6" y2="6" />
+          <text text-anchor="middle" y="20">{{ mark.label }}</text>
+        </g>
+      }
+      @for (step of steps(); track step.node.id; let i = $index) {
+        @if (nodePts()[i]; as pt) {
+          <g
+            class="stop"
+            [class.active]="i === index()"
+            [class.done]="i < index()"
+            [class.job]="step.node.kind === 'profession'"
+            [class.exam]="step.node.kind === 'entrance-exam'"
+            [class.feeder]="highlightIds().includes(step.node.id)"
+            [style.--i]="i"
+            [attr.transform]="'translate(' + pt.x + ' ' + pt.y + ')'"
+            tabindex="0"
+            role="button"
+            [attr.aria-label]="step.node.title + (highlightIds().includes(step.node.id) ? ', feeder role' : '') + (ageShort(step.node.typicalAge) ? ', typical age ' + ageShort(step.node.typicalAge) : '') + '. Double-click or use Details to see more'"
+            (click)="onNodeClick(i)"
+            (dblclick)="onNodeDblClick(i)"
+            (keydown)="onNodeKey($event, i)"
+          >
+            <circle class="halo" r="28" />
+            <circle class="dot" r="16" />
+            <text class="num" text-anchor="middle" dy="5">{{ step.stepIndex }}</text>
+            <text class="label" text-anchor="middle" dy="44">{{ step.node.shortTitle }}</text>
+            @if (highlightIds().includes(step.node.id)) {
+              <text class="feeder-tag" text-anchor="middle" dy="-34">Feeder</text>
+            }
+            @if (ageShort(step.node.typicalAge); as age) {
+              <text class="age" text-anchor="middle" dy="58">{{ age }}</text>
+            }
+          </g>
+        }
+      }
+      <g class="traveler" [attr.transform]="'translate(' + traveler().x + ' ' + traveler().y + ')'">
+        <circle class="pulse" r="22" />
+        <circle class="core" r="8" />
+      </g>
+    </svg>
+    </div>
+      @if (progressLabel() || !calm()) {
+        <div class="play-dock">
+          @if (progressLabel()) {
+            <p class="progress">{{ progressLabel() }}</p>
+          }
+          @if (!calm()) {
+            <button
+              type="button"
+              class="play"
+              [class.on]="playing()"
+              (click)="togglePlay()"
+              [attr.aria-label]="playing() ? 'Pause route' : 'Play route'"
+              [attr.title]="playing() ? 'Pause' : 'Play'"
+            >
+              @if (playing()) {
+                <svg class="ico pause" viewBox="0 0 24 24" aria-hidden="true">
+                  <rect x="6" y="5" width="4.2" height="14" rx="1.2" />
+                  <rect x="13.8" y="5" width="4.2" height="14" rx="1.2" />
+                </svg>
+              } @else {
+                <svg class="ico go" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M8.2 5.4v13.2L19 12 8.2 5.4Z" />
+                </svg>
+              }
+            </button>
+          }
+        </div>
+      }
+    </div>
+
+    @if (steps().length > 1) {
+    <button
+      type="button"
+      class="side-arrow next"
+      [disabled]="!canNext()"
+      (click)="go(1)"
+      [attr.aria-label]="canNext() ? 'Next step: ' + nextTitle() : 'No next step'"
+    >
+      <span class="side-copy">
+        <em>Next</em>
+        @if (nextTitle()) {
+          <strong>{{ nextTitle() }}</strong>
+        }
+      </span>
+      <svg class="chev" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M8.5 5.5 15 12l-6.5 6.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+    </button>
+    }
+  </div>
+
+  <div class="node-hint">
+    <p>Select a node, then tap Details — or double-click any node to see details about it.</p>
+    <div class="node-hint-actions">
+      <button type="button" class="ghost" [disabled]="!current()" (click)="details()" aria-label="Details" title="Details">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <rect x="5.5" y="3.8" width="13" height="16.4" rx="1.6" fill="none" stroke="currentColor" stroke-width="1.8" />
+          <path d="M8.4 8.4h7.2M8.4 12h7.2M8.4 15.6h4.4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+        </svg>
+        <span class="label-short">Details</span>
+        <span class="label-full">Details</span>
+      </button>
+      <button type="button" class="ghost" [disabled]="!hasCalendar()" (click)="openCalendar.emit()" aria-label="This year’s calendar" title="This year’s calendar">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <rect x="4" y="5.4" width="16" height="14.2" rx="2" fill="none" stroke="currentColor" stroke-width="1.8" />
+          <path d="M4 10.2h16M8 3.8v3.4M16 3.8v3.4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+        </svg>
+        <span class="label-short">Calendar</span>
+        <span class="label-full">This year’s calendar</span>
+      </button>
+      <button type="button" class="ghost" [disabled]="!hasCost()" (click)="openCost.emit()" aria-label="Cost honesty sheet" title="Cost honesty sheet">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M7 5.4h10M7 9.4h10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+          <path d="M10.2 5.4v13.2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+          <path d="M10.2 9.4c4.1 0 6.6 1.8 6.6 4.7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+          <path d="M10.2 13.4 17.2 19.2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+        </svg>
+        <span class="label-short">Cost</span>
+        <span class="label-full">Cost honesty sheet</span>
+      </button>
+      <button type="button" class="ghost" (click)="openPreview.emit()" aria-label="Preview" title="Preview">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M3.8 12s3.2-6 8.2-6 8.2 6 8.2 6-3.2 6-8.2 6-8.2-6-8.2-6Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" />
+          <circle cx="12" cy="12" r="2.4" fill="none" stroke="currentColor" stroke-width="1.8" />
+        </svg>
+        <span class="label-short">Preview</span>
+        <span class="label-full">Preview</span>
+      </button>
+      <button type="button" class="ghost" [disabled]="makingPdf()" (click)="downloadPdf.emit()" [attr.aria-label]="makingPdf() ? 'Preparing PDF' : 'Generate guide PDF'" [attr.title]="makingPdf() ? 'Preparing PDF…' : 'Generate guide PDF'">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M6.4 3.6h7.2L18.6 8.6v11.8H6.4Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" />
+          <path d="M13.6 3.6v5h5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" />
+          <path d="M9 13.2h6.2M9 16.4h4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+        </svg>
+        <span class="label-short">{{ makingPdf() ? 'Wait' : 'PDF' }}</span>
+        <span class="label-full">{{ makingPdf() ? 'Preparing PDF…' : 'Generate guide PDF' }}</span>
+      </button>
+      <button type="button" class="ghost" (click)="printGuide.emit()" aria-label="Print" title="Print">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M7.4 9V4.4h9.2V9" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" />
+          <rect x="4.6" y="9" width="14.8" height="7.4" rx="1.4" fill="none" stroke="currentColor" stroke-width="1.8" />
+          <path d="M7.6 14.2h8.8v5.4H7.6Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" />
+        </svg>
+        <span class="label-short">Print</span>
+        <span class="label-full">Print</span>
+      </button>
+    </div>
+  </div>
+</section>

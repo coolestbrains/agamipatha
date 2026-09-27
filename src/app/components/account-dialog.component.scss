@@ -1,0 +1,144 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 140;
+  display: grid;
+  place-items: center;
+  padding: max(0.75rem, env(safe-area-inset-top)) max(0.75rem, env(safe-area-inset-right))
+    max(0.75rem, env(safe-area-inset-bottom)) max(0.75rem, env(safe-area-inset-left));
+  background: rgb(22 14 61 / 55%);
+  backdrop-filter: blur(8px);
+}
+
+.account {
+  display: grid;
+  gap: 0.7rem;
+  width: min(32rem, 100%);
+  max-height: calc(100dvh - 1.5rem);
+  overflow: auto;
+  padding: 0.85rem 1.15rem 1.2rem;
+  text-align: left;
+}
+
+.account-head {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.close {
+  padding: 0.3rem 0.7rem;
+  font-size: 0.78rem;
+}
+
+.tabs {
+  display: flex;
+  gap: 0.3rem;
+  padding: 0.2rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, white 70%, var(--paper));
+  border: 1px solid var(--line);
+}
+
+.tabs button {
+  flex: 1;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 0.4rem 0.55rem;
+  border-radius: 999px;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.tabs button.on {
+  color: var(--on-dark);
+  background: #111;
+}
+
+.account-title {
+  margin: 0.15rem 0 0;
+  font-weight: 750;
+}
+
+.account-hint {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.account label {
+  display: grid;
+  gap: 0.28rem;
+}
+
+.account span {
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.account span small {
+  font-weight: 550;
+  color: var(--muted);
+}
+
+.account input {
+  width: 100%;
+  padding: 0.65rem 0.8rem;
+  border-radius: 0.7rem;
+  border: 1px solid var(--line-strong);
+  font: inherit;
+  background: var(--paper);
+}
+
+.account em,
+.field-error,
+.account-error {
+  font-style: normal;
+  font-size: 0.75rem;
+  font-weight: 650;
+  color: #b42318;
+}
+
+.account-error {
+  margin: 0;
+  font-size: 0.88rem;
+}
+
+.consent {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.55rem;
+  align-items: start;
+}
+
+.consent input[type='checkbox'] {
+  width: 1.05rem;
+  height: 1.05rem;
+  margin-top: 0.15rem;
+  padding: 0;
+  accent-color: #111;
+  cursor: pointer;
+}
+
+.consent span {
+  font-size: 0.8rem;
+  font-weight: 550;
+  line-height: 1.4;
+  color: var(--ink);
+}
+
+.consent a {
+  color: var(--ink);
+  font-weight: 750;
+}
+
+.consent-error {
+  margin: -0.25rem 0 0;
+}
+
+.account .primary {
+  justify-self: stretch;
+  width: 100%;
+}

@@ -1,0 +1,72 @@
+<div class="wrap">
+  <header>
+    <p class="eyebrow">Catalogue</p>
+    <h1>Path connections</h1>
+    <app-admin-tabs />
+    <p class="muted">Each row is a directed step from one qualification or profession to the next.</p>
+  </header>
+
+  <form class="card form" (ngSubmit)="add()">
+    <label>
+      <span>From</span>
+      <app-search-select
+        [(value)]="fromId"
+        [groups]="nodeGroups()"
+        placeholder="Search starting node"
+      />
+    </label>
+    <label>
+      <span>To</span>
+      <app-search-select
+        [(value)]="toId"
+        [groups]="nodeGroups()"
+        placeholder="Search destination"
+      />
+    </label>
+    <label>
+      <span>Via (exam / admission)</span>
+      <input name="via" [(ngModel)]="via" />
+    </label>
+    <label class="wide">
+      <span>Notes</span>
+      <input name="notes" [(ngModel)]="notes" />
+    </label>
+    @if (error()) {
+      <p class="form-error wide">{{ error() }}</p>
+    }
+    <button class="primary wide" type="submit">Add connection</button>
+  </form>
+
+  <input class="search" type="search" [ngModel]="query()" (ngModelChange)="setQuery($event)" placeholder="Filter connections" />
+
+  <p class="muted">Showing {{ visible().length }} of {{ filtered().length }} connection{{ filtered().length === 1 ? '' : 's' }}</p>
+
+  <div class="table-wrap card">
+    <table>
+      <thead>
+        <tr>
+          <th>From</th>
+          <th>To</th>
+          <th>Via</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (edge of visible(); track edge.id) {
+          <tr>
+            <td>{{ title(edge.from) }}</td>
+            <td>{{ title(edge.to) }}</td>
+            <td>{{ edge.via }}</td>
+            <td><button type="button" class="linkish" (click)="remove(edge)">Delete</button></td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  @if (hasMore()) {
+    <div class="load-more">
+      <button type="button" class="ghost" (click)="loadMore()">Load more</button>
+    </div>
+  }
+</div>

@@ -1,0 +1,64 @@
+<div class="wrap">
+  <p class="crumb"><a routerLink="/">← Back to planner</a></p>
+  <header>
+    <p class="eyebrow">My account</p>
+    <h1>My Orders</h1>
+    <p class="lede">Books and downloads you have bought while logged in on this account.</p>
+  </header>
+
+  @if (!buyer.isLoggedIn()) {
+    <div class="empty card">
+      <p>Log in to see orders placed with your store account.</p>
+      <div class="actions">
+        <button type="button" class="primary" (click)="login()">Log in</button>
+        <button type="button" class="ghost" (click)="register()">Create account</button>
+      </div>
+    </div>
+  } @else {
+    <section class="block" aria-labelledby="orders-heading">
+      <div class="block-head">
+        <h2 id="orders-heading">Your purchases</h2>
+        <p>Paid orders include a download. Pending ones are checkouts that were not completed.</p>
+      </div>
+
+      @if (loading()) {
+        <p class="muted">Loading orders…</p>
+      } @else if (error()) {
+        <div class="empty card">
+          <p>{{ error() }}</p>
+          <button type="button" class="ghost" (click)="refresh()">Try again</button>
+        </div>
+      } @else if (orders().length === 0) {
+        <div class="empty card">
+          <p>No orders yet. Buy a book from the store and it will show up here.</p>
+          <a class="primary" routerLink="/store">Open store</a>
+        </div>
+      } @else {
+        <ul class="list">
+          @for (order of orders(); track order.orderId + ':' + order.productId + ':' + order.placedAtUtc) {
+            <li class="card order">
+              <div>
+                <p class="meta">
+                  <span class="status" [class.paid]="order.status === 'paid'" [class.pending]="order.status === 'created'">
+                    {{ statusLabel(order.status) }}
+                  </span>
+                  <span>{{ order.placedAtUtc | date: 'd MMM yyyy, h:mm a' }}</span>
+                </p>
+                <h3>{{ order.title }}</h3>
+                <p class="amount">{{ order.amountLabel }}</p>
+              </div>
+              <div class="actions">
+                @if (order.status === 'paid' && order.downloadToken) {
+                  <button type="button" class="primary" (click)="download(order)">
+                    Download{{ order.fileName ? ' ' + order.fileName : '' }}
+                  </button>
+                }
+                <a class="ghost" routerLink="/store">Browse store</a>
+              </div>
+            </li>
+          }
+        </ul>
+      }
+    </section>
+  }
+</div>

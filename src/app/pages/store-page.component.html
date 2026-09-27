@@ -1,0 +1,180 @@
+<section class="wrap">
+  <p class="eyebrow">Digital shelf</p>
+  <h1>Online Store</h1>
+  <p class="lede">
+    Pay with Razorpay, then download the ebook. Create an account at checkout so you can open it again later.
+  </p>
+
+  @if (catalog()?.configured && catalog()?.testMode) {
+    <p class="notice">
+      Razorpay is in <strong>test mode</strong>. Use test card <code>4111 1111 1111 1111</code>, any future expiry, and any CVV.
+    </p>
+  }
+  @if (!catalog()?.configured && catalog()) {
+    <p class="notice">
+      Products are listed, but checkout is off until you add <code>Razorpay:Test:KeyId</code> and
+      <code>Razorpay:Test:KeySecret</code> in <code>appsettings.json</code> and restart the API.
+    </p>
+  }
+
+  @if (loadError()) {
+    <p class="form-error">{{ loadError() }}</p>
+  }
+  @if (checkoutError()) {
+    <p class="form-error">{{ checkoutError() }}</p>
+  }
+
+  <div class="grid">
+    @for (product of catalog()?.products ?? []; track product.id) {
+      <article class="card product">
+        <div class="copy">
+          <p class="kind">{{ kindLabel(product.kind) }}</p>
+          <h2>{{ product.title }}</h2>
+          <p class="desc">{{ product.description }}</p>
+          <p class="price">{{ product.priceLabel }}</p>
+          @if (purchaseFor(product.id); as purchase) {
+            <button class="primary" type="button" (click)="download(product, purchase)">
+              Download {{ product.file || purchase.fileName }}
+            </button>
+          } @else {
+            <button
+              class="primary"
+              type="button"
+              [disabled]="!!busyId() || !catalog()?.configured || !canBuy(product)"
+              (click)="buy(product)"
+            >
+              {{ !canBuy(product) ? 'Coming soon' : 'BUY' }}
+            </button>
+          }
+        </div>
+        @if (coverSrc(product)) {
+          <button class="cover-btn" type="button" (click)="openPreview(product)">
+            <img class="cover" [src]="coverSrc(product)" [alt]="'Open ' + product.title" (error)="onCoverError($event, product)" />
+          </button>
+        }
+      </article>
+    }
+  </div>
+</section>
+
+@if (accountOpen()) {
+  <div class="overlay account-overlay" (click)="closeAccount()">
+    <form class="account dialog card" role="dialog" aria-modal="true" aria-label="Store account" (click)="$event.stopPropagation()" (ngSubmit)="submitAccount()">
+      <div class="account-head">
+        <button class="close ghost" type="button" (click)="closeAccount()">Close</button>
+      </div>
+      <div class="tabs" role="tablist">
+        <button type="button" role="tab" [class.on]="mode === 'buy'" (click)="mode = 'buy'">New purchase</button>
+        <button type="button" role="tab" [class.on]="mode === 'login'" (click)="mode = 'login'">I already have an account</button>
+      </div>
+
+      @if (mode === 'buy') {
+        <p class="account-title">Your account</p>
+        <p class="account-hint">Name, mobile, and a password. Email is optional. You can create the account now, or when you buy. Use the same details next time to open your downloads.</p>
+        <label>
+          <span>Name</span>
+          <input type="text" name="name" [(ngModel)]="name" autocomplete="name" maxlength="80" placeholder="Your name" />
+          @if (fieldErrors.name) {
+            <em>{{ fieldErrors.name }}</em>
+          }
+        </label>
+        <label>
+          <span>Mobile</span>
+          <input type="tel" name="mobile" [(ngModel)]="mobile" autocomplete="tel" inputmode="numeric" placeholder="10-digit mobile" />
+          @if (fieldErrors.mobile) {
+            <em>{{ fieldErrors.mobile }}</em>
+          }
+        </label>
+        <label>
+          <span>Email <small>(optional)</small></span>
+          <input type="email" name="email" [(ngModel)]="email" autocomplete="email" placeholder="you@example.com" />
+          @if (fieldErrors.email) {
+            <em>{{ fieldErrors.email }}</em>
+          }
+        </label>
+        <label>
+          <span>Password</span>
+          <input type="password" name="password" [(ngModel)]="password" autocomplete="new-password" placeholder="8+ characters, letter and number" />
+          @if (fieldErrors.password) {
+            <em>{{ fieldErrors.password }}</em>
+          }
+        </label>
+        <label class="consent">
+          <input type="checkbox" name="acceptedPrivacy" [(ngModel)]="acceptedPrivacy" />
+          <span>
+            I agree to the
+            <a href="/privacy" target="_blank" rel="noopener noreferrer">privacy policy</a>
+            and to AgamiPatha creating a store account.
+          </span>
+        </label>
+        @if (fieldErrors.privacy) {
+          <em class="consent-error">{{ fieldErrors.privacy }}</em>
+        }
+        @if (registerError()) {
+          <p class="account-error">{{ registerError() }}</p>
+        }
+        <button class="primary" type="submit" [disabled]="loginBusy() || !!busyId()">
+          {{ loginBusy() && !pendingProduct() ? 'Creating account…' : pendingProduct() ? 'Continue to pay' : 'Create account' }}
+        </button>
+      } @else {
+        <p class="account-title">Log in</p>
+        <p class="account-hint">Use the email or mobile and password from your purchase.</p>
+        <label>
+          <span>Email or mobile</span>
+          <input type="text" name="loginId" [(ngModel)]="loginId" autocomplete="username" placeholder="you@example.com or 10-digit mobile" />
+          @if (fieldErrors.login) {
+            <em>{{ fieldErrors.login }}</em>
+          }
+        </label>
+        <label>
+          <span>Password</span>
+          <input type="password" name="loginPassword" [(ngModel)]="loginPassword" autocomplete="current-password" />
+          @if (fieldErrors.loginPassword) {
+            <em>{{ fieldErrors.loginPassword }}</em>
+          }
+        </label>
+        @if (loginError()) {
+          <p class="field-error">{{ loginError() }}</p>
+        }
+        <button class="primary" type="submit" [disabled]="loginBusy() || !!busyId()">
+          {{ loginBusy() ? 'Signing in…' : pendingProduct() ? 'Log in and pay' : 'Log in' }}
+        </button>
+      }
+    </form>
+  </div>
+}
+
+@if (preview(); as product) {
+  <div class="overlay" (click)="closePreview()">
+    <div class="dialog card" role="dialog" aria-modal="true" [attr.aria-label]="product.title" (click)="$event.stopPropagation()">
+      <button class="close ghost" type="button" (click)="closePreview()">Close</button>
+      <div class="dialog-grid">
+        @if (coverSrc(product)) {
+          <img class="preview-cover" [src]="coverSrc(product)" [alt]="product.title + ' cover'" (error)="onCoverError($event, product)" />
+        }
+        <div class="preview-copy">
+          <p class="kind">{{ kindLabel(product.kind) }}</p>
+          <h2>{{ product.title }}</h2>
+          <p class="preview-desc">{{ product.description }}</p>
+          <p class="price">{{ product.priceLabel }}</p>
+          @if (purchaseFor(product.id); as purchase) {
+            <button class="primary" type="button" (click)="download(product, purchase)">
+              Download {{ product.file || purchase.fileName }}
+            </button>
+          } @else {
+            <button
+              class="primary"
+              type="button"
+              [disabled]="!!busyId() || !catalog()?.configured || !canBuy(product)"
+              (click)="buy(product)"
+            >
+              {{ !canBuy(product) ? 'Coming soon' : 'BUY' }}
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+}
+
+<app-razorpay-trust />

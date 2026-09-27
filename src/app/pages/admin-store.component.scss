@@ -1,0 +1,287 @@
+.wrap {
+  padding: 1.25rem 1.5rem 3rem;
+  max-width: 70rem;
+  margin-inline: auto;
+  text-align: center;
+}
+
+.bar {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.actions {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.danger {
+  border: 0;
+  border-radius: 0.7rem;
+  padding: 0.45rem 0.85rem;
+  font: inherit;
+  font-weight: 700;
+  color: #fff;
+  background: var(--danger);
+  cursor: pointer;
+}
+
+.danger:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--teal);
+  margin: 0;
+}
+
+h1 {
+  font-family: var(--serif);
+  margin: 0.2rem 0 0;
+}
+
+h2 {
+  font-family: var(--serif);
+  font-size: 1.25rem;
+  margin: 1.6rem 0 0.7rem;
+}
+
+.notice {
+  color: var(--danger);
+  font-weight: 700;
+}
+
+.muted {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.ok {
+  color: var(--teal);
+  font-weight: 700;
+}
+
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.75rem;
+  list-style: none;
+  margin: 1.2rem 0 0;
+  padding: 0;
+}
+
+.kpis li {
+  padding: 0.9rem 1rem;
+}
+
+.kpis strong {
+  display: block;
+  font-size: 1.35rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.kpis span {
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.table-wrap {
+  overflow: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+}
+
+th,
+td {
+  text-align: center;
+  padding: 0.7rem 0.85rem;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}
+
+.id {
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.covers {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: 0.85rem;
+  text-align: left;
+}
+
+.cover-card {
+  display: grid;
+  grid-template-columns: 5.4rem 1fr;
+  gap: 0.8rem;
+  align-items: center;
+  padding: 0.8rem;
+}
+
+.cover-card img,
+.cover-empty {
+  width: 5.4rem;
+  height: 7.1rem;
+  object-fit: cover;
+  border-radius: 0.45rem;
+  background: #f3f3f3;
+  border: 1px solid var(--line);
+}
+
+.cover-empty {
+  display: grid;
+  place-items: center;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.upload {
+  display: inline-flex;
+  margin-top: 0.55rem;
+  cursor: pointer;
+}
+
+.upload input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.upload span {
+  display: inline-flex;
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  border: 1px solid var(--line-strong);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.upload:hover span {
+  border-color: var(--teal);
+}
+
+.row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.35rem;
+}
+
+.row-actions .ghost,
+.row-actions .linkish {
+  padding: 0.28rem 0.6rem;
+  font-size: 0.75rem;
+}
+
+.row-actions .linkish {
+  background: none;
+  border: 0;
+  color: var(--danger);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.row-actions .linkish:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.detail td {
+  background: color-mix(in srgb, white 70%, var(--paper));
+  text-align: left;
+}
+
+.bought {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.bought li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.bought .linkish {
+  background: none;
+  border: 0;
+  color: var(--danger);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0;
+}
+
+.bought .linkish:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.editor {
+  display: grid;
+  gap: 0.7rem;
+  max-width: 28rem;
+  margin: 1rem auto 0;
+  padding: 1rem 1.1rem;
+  text-align: left;
+}
+
+.editor-title {
+  margin: 0;
+  font-weight: 750;
+}
+
+.editor label {
+  display: grid;
+  gap: 0.28rem;
+}
+
+.editor span {
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.editor input {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border-radius: 0.7rem;
+  border: 1px solid var(--line-strong);
+  font: inherit;
+  background: var(--paper);
+}
+
+.editor-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+@media (max-width: 900px) {
+  .kpis {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

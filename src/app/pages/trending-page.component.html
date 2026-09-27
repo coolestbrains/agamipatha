@@ -1,0 +1,89 @@
+<div class="wrap">
+  <p class="crumb"><a routerLink="/">← Back to planner</a></p>
+
+  <header>
+    <p class="eyebrow">Trending now</p>
+    <h1>Top qualifications and professions</h1>
+    <p class="lede">
+      The ten most looked-at qualifications and professions right now. View a path from where you stand.
+    </p>
+  </header>
+
+  @if (!career.ready()) {
+    <p class="muted">Loading trending goals…</p>
+  } @else if (career.loadError()) {
+    <p class="muted">{{ career.loadError() }}</p>
+  } @else if (!items().length) {
+    <p class="muted">Trending goals will appear here once people start searching.</p>
+  } @else {
+    <ol class="trend-list">
+      @for (node of items(); track node.id; let i = $index) {
+        <li class="trend card">
+          <span class="rank">{{ i + 1 }}</span>
+          <app-node-icon [node]="node" size="lg" />
+          <div class="copy">
+            <p class="kind">{{ kindLabel(node) }}@if (node.field) { · {{ node.field }} }</p>
+            <h2>{{ node.title }}</h2>
+            <p class="sum">{{ node.summary }}</p>
+          </div>
+          <button
+            type="button"
+            class="primary"
+            [disabled]="launching()"
+            (click)="viewPath(node)"
+          >
+            View Path
+          </button>
+        </li>
+      }
+    </ol>
+  }
+</div>
+
+@if (pending(); as goal) {
+  <div class="ask-overlay" (click)="closePopup()">
+    <form class="ask-dialog card" role="dialog" aria-modal="true" aria-labelledby="trend-ask-title" (click)="$event.stopPropagation()" (submit)="$event.preventDefault(); submitPopup()">
+      <button type="button" class="ghost close" (click)="closePopup()">Close</button>
+      <p class="eyebrow">Career guidance</p>
+      <h2 id="trend-ask-title">We’ll draw this career path from the right standing</h2>
+      <p class="goal-line">Guiding a route to <strong>{{ goal.title }}</strong></p>
+
+      <fieldset>
+        <legend>Who are we guiding?</legend>
+        <div class="who-switch" role="radiogroup" aria-label="Who are you?">
+          @for (opt of audiences; track opt.id) {
+            <button
+              type="button"
+              role="radio"
+              [attr.aria-checked]="audience() === opt.id"
+              [class.on]="audience() === opt.id"
+              (click)="setAudience(opt.id)"
+            >
+              {{ opt.label }}
+            </button>
+          }
+        </div>
+      </fieldset>
+
+      <label>
+        <span>Where should this career path start?</span>
+        <app-search-select
+          [value]="fromId()"
+          (valueChange)="setStart($event)"
+          [options]="startOptions()"
+          placeholder="Search a qualification"
+          [hint]="startNote()"
+        />
+      </label>
+
+      @if (error()) {
+        <p class="form-error" role="alert">{{ error() }}</p>
+      }
+
+      <div class="ask-actions">
+        <button type="button" class="ghost" (click)="closePopup()">Cancel</button>
+        <button type="submit" class="primary" [disabled]="launching()">View Path</button>
+      </div>
+    </form>
+  </div>
+}

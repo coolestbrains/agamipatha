@@ -1,0 +1,46 @@
+<div class="chat-root">
+  @if (open()) {
+    <section class="panel" role="dialog" aria-label="Ask AgamiPatha">
+      <header>
+        <div>
+          <strong>Ask AgamiPatha</strong>
+          <p>Free assistant — careers and anything else</p>
+        </div>
+        <button type="button" class="icon" (click)="toggle()" aria-label="Close chat">×</button>
+      </header>
+      <div class="thread" #thread>
+        @for (msg of messages(); track $index) {
+          <article class="bubble" [class.mine]="msg.role === 'user'">
+            {{ msg.text }}
+          </article>
+        }
+        @if (busy()) {
+          <p class="pending">Thinking…</p>
+        }
+        @if (error()) {
+          <p class="fail">{{ error() }}</p>
+        }
+      </div>
+      <form class="composer" (submit)="$event.preventDefault(); send()">
+        <textarea
+          #box
+          rows="2"
+          [ngModel]="draft()"
+          (ngModelChange)="draft.set($event)"
+          name="draft"
+          (keydown)="onKey($event)"
+          placeholder="Ask a question…"
+          [disabled]="busy()"
+        ></textarea>
+        <button type="submit" class="primary" [disabled]="busy() || !draft().trim()">Send</button>
+      </form>
+    </section>
+  }
+  <button type="button" class="fab" (click)="toggle()" [attr.aria-expanded]="open()">
+    @if (open()) {
+      Close
+    } @else {
+      Ask AI
+    }
+  </button>
+</div>

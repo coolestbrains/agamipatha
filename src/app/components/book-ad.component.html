@@ -1,0 +1,28 @@
+@if (ads.visible()) {
+  @if (ads.current(); as book) {
+    @if (ads.collapsed()) {
+      <button type="button" class="chip" (click)="ads.expand()">Store</button>
+    } @else {
+      <article class="ad">
+        <div class="tools">
+          <button type="button" class="tool" (click)="ads.collapse()" aria-label="Collapse store ad">–</button>
+          <button type="button" class="tool" (click)="ads.dismiss()" aria-label="Close store ad">×</button>
+        </div>
+        <a class="body" routerLink="/store" [attr.aria-label]="'Buy ' + book.title">
+          <p class="kicker">From the Store</p>
+          @if (coverSrc(book)) {
+            <img
+              [src]="coverSrc(book)"
+              [alt]="book.title"
+              (error)="onCoverError($event, book)"
+            />
+          }
+          <span class="copy">
+            <strong>{{ book.title }}</strong>
+            <span class="price">{{ book.priceLabel }} · Get the ebook</span>
+          </span>
+        </a>
+      </article>
+    }
+  }
+}

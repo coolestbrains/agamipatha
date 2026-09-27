@@ -1,0 +1,55 @@
+<div class="wrap">
+  <header class="bar">
+    <div>
+      <p class="eyebrow">Catalogue</p>
+      <h1>Suggested missing items</h1>
+      <app-admin-tabs />
+    </div>
+    <button class="ghost" type="button" (click)="refresh()">Refresh</button>
+  </header>
+
+  @if (notice()) {
+    <p class="notice">{{ notice() }}</p>
+  }
+
+  <p class="muted">{{ rows().length }} suggestion{{ rows().length === 1 ? '' : 's' }} from the planner.</p>
+
+  <div class="table-wrap card">
+    <table>
+      <thead>
+        <tr>
+          <th>When</th>
+          <th>Slot</th>
+          <th>Kind</th>
+          <th>Suggested</th>
+          <th>From</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (row of rows(); track row.id) {
+          <tr>
+            <td>{{ row.createdAtUtc | date:'medium' }}</td>
+            <td>{{ slotLabel(row.slot) }}</td>
+            <td>{{ kindLabel(row.kind) }}</td>
+            <td>
+              <strong>{{ row.title }}</strong>
+              @if (row.notes) {
+                <div class="id">{{ row.notes }}</div>
+              }
+            </td>
+            <td>{{ row.fromTitle || row.fromId || '—' }}</td>
+            <td class="acts">
+              <a [routerLink]="['/admin/nodes/new']" [queryParams]="{ title: row.title, kind: row.kind }">Add node</a>
+              <button type="button" class="linkish" (click)="remove(row)">Remove</button>
+            </td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="6" class="muted">No suggestions yet.</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

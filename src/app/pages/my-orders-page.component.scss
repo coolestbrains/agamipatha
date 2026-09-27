@@ -1,0 +1,128 @@
+.wrap {
+  padding: 1.25rem max(1rem, env(safe-area-inset-right)) 3rem max(1rem, env(safe-area-inset-left));
+  max-width: 44rem;
+  margin-inline: auto;
+  text-align: center;
+}
+
+.crumb a {
+  color: var(--teal);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+header {
+  margin: 0 auto 1.4rem;
+}
+
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--teal);
+  margin: 0.75rem 0 0;
+}
+
+h1,
+h2 {
+  font-family: var(--serif);
+}
+
+h1 {
+  font-size: clamp(1.6rem, 3.2vw, 2.2rem);
+  margin: 0.35rem 0 0.55rem;
+}
+
+.lede,
+.empty p,
+.block-head p,
+.muted,
+.amount,
+.meta {
+  color: var(--muted);
+}
+
+.block {
+  display: grid;
+  gap: 0.7rem;
+  margin: 0 0 1.6rem;
+  text-align: left;
+}
+
+.block-head h2 {
+  margin: 0;
+  font-size: 1.35rem;
+}
+
+.block-head p {
+  margin: 0.25rem 0 0;
+  font-size: 0.9rem;
+}
+
+.empty {
+  display: grid;
+  gap: 0.75rem;
+  justify-items: center;
+  padding: 1.2rem;
+  text-align: center;
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.7rem;
+}
+
+.order {
+  display: grid;
+  gap: 0.7rem;
+  padding: 0.95rem 1rem;
+  text-align: left;
+}
+
+.order h3 {
+  margin: 0.2rem 0 0.15rem;
+  font-size: 1.05rem;
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem 0.75rem;
+  margin: 0;
+  font-size: 0.82rem;
+}
+
+.status {
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.status.paid {
+  color: var(--teal);
+}
+
+.status.pending {
+  color: #9a5b00;
+}
+
+.amount {
+  margin: 0;
+  font-size: 0.92rem;
+  font-weight: 650;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  align-items: center;
+}
+
+.actions a,
+.actions button {
+  text-decoration: none;
+}

@@ -1,0 +1,114 @@
+<div class="wrap">
+  <header>
+    <p class="eyebrow">Catalogue</p>
+    <h1>Build or edit a full path</h1>
+    <app-admin-tabs />
+    <p class="muted">
+      Add as many steps as you need — qualifications, mandatory entrance exams, or professions. If a hop’s Via names a required entrance exam, it is inserted as its own step on the route.
+    </p>
+  </header>
+
+  <section class="card load">
+    <h2>Edit an existing route</h2>
+    <div class="pair">
+      <label>
+        <span>Start</span>
+        <app-search-select
+          [(value)]="loadFrom"
+          [options]="startOptions()"
+          placeholder="Search starting qualification"
+        />
+      </label>
+      <label>
+        <span>Goal</span>
+        <app-search-select
+          [(value)]="loadTo"
+          [groups]="nodeGroups()"
+          placeholder="Search a qualification or profession"
+        />
+      </label>
+    </div>
+    <button type="button" class="ghost" (click)="loadExisting()" [disabled]="loadingRoutes()">
+      {{ loadingRoutes() ? 'Loading…' : 'Find matching paths' }}
+    </button>
+    @if (routes().length) {
+      <p class="muted">Showing {{ visibleRoutes().length }} of {{ routes().length }} path{{ routes().length === 1 ? '' : 's' }}</p>
+      <ul class="found">
+        @for (route of visibleRoutes(); track route.spine) {
+          <li>
+            <div>
+              <strong>{{ route.title }}</strong>
+              <p>{{ route.spine }} · {{ route.steps.length }} steps</p>
+            </div>
+            <button type="button" class="primary" (click)="editRoute(route)">Edit this path</button>
+          </li>
+        }
+      </ul>
+      @if (hasMoreRoutes()) {
+        <div class="load-more">
+          <button type="button" class="ghost" (click)="loadMoreRoutes()">Load more</button>
+        </div>
+      }
+    }
+  </section>
+
+  <form class="card editor" (ngSubmit)="save()">
+    <div class="editor-head">
+      <h2>{{ previousNodeIds ? 'Edit path' : 'New path' }}</h2>
+      <button type="button" class="ghost" (click)="reset()">Start new path</button>
+    </div>
+
+    <ol class="steps">
+      @for (step of steps; track $index) {
+        <li class="step">
+          <div class="step-top">
+            <span class="num">Step {{ $index + 1 }}</span>
+            <div class="step-acts">
+              <button type="button" class="ghost tiny" (click)="move($index, -1)" [disabled]="$index === 0">Up</button>
+              <button type="button" class="ghost tiny" (click)="move($index, 1)" [disabled]="$index === steps.length - 1">Down</button>
+              <button type="button" class="linkish" (click)="removeStep($index)" [disabled]="steps.length <= 2">Remove</button>
+            </div>
+          </div>
+          <label>
+            <span>Qualification or profession</span>
+            <app-search-select
+              [(value)]="step.nodeId"
+              [groups]="nodeGroups()"
+              placeholder="Search a qualification or profession"
+            />
+          </label>
+          @if ($index > 0) {
+            <div class="hop">
+              <label>
+                <span>Via (exam / admission into this step)</span>
+                <input name="via{{ $index }}" [(ngModel)]="step.via" />
+              </label>
+              <label>
+                <span>Notes</span>
+                <input name="notes{{ $index }}" [(ngModel)]="step.notes" />
+              </label>
+            </div>
+          }
+        </li>
+      }
+    </ol>
+
+    <button type="button" class="ghost" (click)="addStep()">+ Add another step</button>
+
+    @if (previousNodeIds) {
+      <label class="check">
+        <input type="checkbox" name="removeDropped" [(ngModel)]="removeDroppedHops" />
+        <span>Also delete connections I dropped from the previous version of this path</span>
+      </label>
+    }
+
+    @if (error()) {
+      <p class="form-error">{{ error() }}</p>
+    }
+    @if (notice()) {
+      <p class="notice">{{ notice() }}</p>
+    }
+
+    <button class="primary" type="submit">Save full path</button>
+  </form>
+</div>

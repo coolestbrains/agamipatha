@@ -1,0 +1,206 @@
+.wrap {
+  padding: 1.25rem max(1rem, env(safe-area-inset-right)) 3rem max(1rem, env(safe-area-inset-left));
+  max-width: 52rem;
+  margin-inline: auto;
+  text-align: center;
+}
+
+.crumb a {
+  color: var(--teal);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+header {
+  max-width: 40rem;
+  margin: 0 auto 1.5rem;
+}
+
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--teal);
+  margin: 0.75rem 0 0;
+}
+
+h1,
+h2 {
+  font-family: var(--serif);
+}
+
+h1 {
+  font-size: clamp(1.6rem, 3vw, 2.2rem);
+  margin: 0.35rem 0 0.7rem;
+}
+
+.lede,
+.muted,
+.sum {
+  color: var(--muted);
+}
+
+.trend-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.trend {
+  display: grid;
+  grid-template-columns: 2.4rem 2.7rem minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.85rem 1rem;
+  padding: 1rem 1.1rem;
+  text-align: left;
+}
+
+.rank {
+  display: grid;
+  place-items: center;
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 999px;
+  font-weight: 800;
+  background: color-mix(in srgb, var(--ink) 8%, white);
+}
+
+.copy {
+  min-width: 0;
+}
+
+.kind {
+  margin: 0 0 0.2rem;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--teal);
+}
+
+.trend h2 {
+  margin: 0;
+  font-size: 1.15rem;
+}
+
+.sum {
+  margin: 0.3rem 0 0;
+  font-size: 0.88rem;
+}
+
+.trend .primary {
+  justify-self: end;
+  white-space: nowrap;
+}
+
+.ask-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 130;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgb(17 17 17 / 45%);
+  overflow: auto;
+}
+
+.ask-dialog {
+  position: relative;
+  width: min(28rem, 100%);
+  padding: 1.3rem 1.2rem 1.35rem;
+  text-align: left;
+  display: grid;
+  gap: 0.85rem;
+  overflow: visible;
+}
+
+.ask-dialog .close {
+  position: absolute;
+  top: 0.7rem;
+  right: 0.7rem;
+  padding: 0.3rem 0.7rem;
+  font-size: 0.8rem;
+}
+
+.ask-dialog h2 {
+  font-size: 1.4rem;
+  margin: 0 2.4rem 0 0;
+  text-align: left;
+}
+
+.goal-line {
+  margin: 0;
+  color: var(--muted);
+}
+
+fieldset {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  display: grid;
+  gap: 0.4rem;
+}
+
+legend,
+.ask-dialog label > span {
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.who-switch {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.3rem;
+  padding: 0.22rem;
+  border: 1.5px solid var(--line-strong);
+  border-radius: 999px;
+  background: var(--paper);
+}
+
+.who-switch button {
+  min-height: 2.6rem;
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background: transparent;
+  font: inherit;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.who-switch button.on {
+  border-color: var(--teal);
+  background: color-mix(in srgb, var(--teal) 12%, white);
+  color: var(--teal);
+}
+
+.ask-dialog label {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.ask-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem;
+}
+
+.form-error {
+  margin: 0;
+  color: var(--danger);
+  font-weight: 650;
+}
+
+@media (max-width: 720px) {
+  .trend {
+    grid-template-columns: 2.2rem 2.4rem minmax(0, 1fr);
+  }
+
+  .trend .primary {
+    grid-column: 1 / -1;
+    width: 100%;
+    justify-self: stretch;
+  }
+}

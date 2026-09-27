@@ -1,0 +1,258 @@
+.sheet {
+  margin: 1.1rem auto 0;
+  max-width: 72rem;
+  padding: 1.1rem 1rem 1.3rem;
+  border: 1px solid color-mix(in srgb, var(--teal) 16%, var(--line));
+  border-radius: 1.1rem;
+  background: color-mix(in srgb, white 82%, var(--paper));
+  text-align: left;
+}
+
+:host-context(.sheet-pop) .sheet {
+  margin: 0 auto;
+  max-width: 72rem;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  padding: 0 0 0.4rem;
+}
+
+header {
+  max-width: 44rem;
+  margin: 0 auto 1rem;
+  text-align: center;
+}
+
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.7rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+h2,
+h3 {
+  font-family: var(--serif);
+}
+
+h2 {
+  font-size: clamp(1.2rem, 2.3vw, 1.65rem);
+  margin: 0.3rem 0 0.45rem;
+}
+
+.lede,
+.hint,
+.fine,
+.sub,
+.book {
+  color: var(--muted);
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.45rem 0.85rem;
+  margin: 0 0 0.75rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.legend span::before {
+  content: '';
+  width: 0.7rem;
+  height: 0.7rem;
+  border-radius: 999px;
+  background: var(--cost-tone);
+}
+
+.legend span[data-amount='low']::before,
+.totals article[data-amount='low'] {
+  --cost-tone: #1f9d55;
+}
+
+.legend span[data-amount='mid']::before,
+.totals article[data-amount='mid'] {
+  --cost-tone: #d97706;
+}
+
+.legend span[data-amount='high']::before,
+.totals article[data-amount='high'] {
+  --cost-tone: #c2410c;
+}
+
+.totals {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.65rem;
+  margin-bottom: 0.9rem;
+}
+
+.totals article,
+.verdict {
+  padding: 0.85rem 0.9rem;
+  border-radius: 0.9rem;
+  border: 1px solid var(--line);
+  background: color-mix(in srgb, var(--cyan) 8%, white);
+}
+
+.totals article[data-amount] {
+  border-color: color-mix(in srgb, var(--cost-tone) 42%, var(--line));
+  background: color-mix(in srgb, var(--cost-tone) 12%, white);
+  box-shadow: inset 4px 0 0 var(--cost-tone);
+}
+
+.totals article[data-amount] .kicker,
+.totals article[data-amount] .sum {
+  color: var(--cost-tone);
+}
+
+.kicker {
+  margin: 0;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.sum {
+  margin: 0.25rem 0 0.2rem;
+  font-family: var(--serif);
+  font-size: 1.35rem;
+}
+
+.sum span {
+  font-family: var(--sans);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.sub,
+.fine,
+.hint {
+  margin: 0;
+  font-size: 0.8rem;
+}
+
+.hops {
+  border: 1px solid var(--line);
+  border-radius: 0.9rem;
+  overflow: hidden;
+  margin: 0.35rem 0 0.45rem;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: minmax(7rem, 1.4fr) 4.5rem 1.3fr 1.3fr;
+  gap: 0.5rem;
+  padding: 0.55rem 0.75rem;
+  font-size: 0.82rem;
+  border-top: 1px solid var(--line);
+}
+
+.row.head {
+  border-top: 0;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  background: color-mix(in srgb, var(--cyan) 12%, white);
+}
+
+.ceiling {
+  margin: 1.1rem 0 0.9rem;
+}
+
+.ceiling h3 {
+  margin: 0 0 0.3rem;
+  font-size: 1.15rem;
+}
+
+.fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.7rem;
+  margin-top: 0.7rem;
+}
+
+label {
+  display: grid;
+  gap: 0.28rem;
+}
+
+label span {
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+input {
+  width: 100%;
+  padding: 0.65rem 0.75rem;
+  border-radius: 0.7rem;
+  border: 1px solid var(--line-strong);
+  font: inherit;
+  background: white;
+}
+
+.verdict h3 {
+  margin: 0.2rem 0 0.45rem;
+  font-size: 1.2rem;
+}
+
+.verdict ul {
+  margin: 0;
+  padding: 0 0 0 1.1rem;
+  display: grid;
+  gap: 0.35rem;
+  font-size: 0.9rem;
+}
+
+.verdict[data-tone='fits'] {
+  box-shadow: inset 0 0 0 1px #111;
+}
+
+.verdict[data-tone='loan'] {
+  background: color-mix(in srgb, #8a8a8a 10%, white);
+}
+
+.verdict[data-tone='stop'] {
+  background: color-mix(in srgb, #111 6%, white);
+}
+
+.book {
+  margin: 0.7rem 0 0;
+  font-size: 0.8rem;
+}
+
+.book a {
+  color: inherit;
+  font-weight: 700;
+}
+
+@media (max-width: 800px) {
+  .totals,
+  .fields {
+    grid-template-columns: 1fr;
+  }
+
+  .row,
+  .row.head {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .row strong {
+    grid-column: 1 / -1;
+  }
+}

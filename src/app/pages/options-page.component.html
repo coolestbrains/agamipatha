@@ -1,0 +1,82 @@
+<div class="wrap">
+  <p class="crumb"><a routerLink="/">← Back to planner</a></p>
+
+  @if (!career.ready()) {
+    <p class="muted">{{ career.loadError() || 'Loading options from the catalogue…' }}</p>
+  } @else {
+    @if (standing(); as start) {
+      <header>
+        <p class="eyebrow">Career options</p>
+        <h1>From {{ start.title }}, browse mapped goals</h1>
+        @if (startNote(); as note) {
+          <p class="metric-note">{{ note }}</p>
+        }
+        <p class="lede">{{ start.summary }}</p>
+        <div class="header-actions">
+          <button type="button" class="ghost" (click)="openDetail(start)">Full details</button>
+          <a class="ghost" [routerLink]="['/compare']" [queryParams]="{ from: fromId() }">Compare two goals</a>
+        </div>
+      </header>
+
+      <div class="tabs" role="tablist" aria-label="Goal type">
+        @for (item of tabs(); track item.id) {
+          <button
+            type="button"
+            role="tab"
+            [class.on]="tab() === item.id"
+            [attr.aria-selected]="tab() === item.id"
+            (click)="setTab(item.id)"
+          >
+            <span class="tab-full">{{ item.label }}</span>
+            <span class="tab-short">{{ item.short }}</span>
+            <em>{{ item.count }}</em>
+          </button>
+        }
+      </div>
+
+      @if (total() === 0) {
+        <p class="muted">{{ emptyCopy() }}</p>
+      } @else {
+        <p class="hint">Showing {{ shownCount() }} of {{ total() }}.</p>
+        <div class="groups">
+          @for (group of visibleGroups(); track group.key) {
+            <section class="group">
+              <h2>{{ group.heading }}</h2>
+              <div class="grid">
+                @for (node of group.nodes; track node.id) {
+                  <button
+                    type="button"
+                    class="job card"
+                    [class.hot]="node.id === hotId()"
+                    (click)="openDetail(node)"
+                  >
+                    @if (node.id === hotId()) {
+                      <span class="option-badge">{{ badge(hotId()) }}</span>
+                    }
+                    @if (experienceLabel(node); as xp) {
+                      <span class="xp-badge">{{ xp }}</span>
+                    }
+                    <app-node-icon [node]="node" size="lg" />
+                    <span class="title">{{ node.title }}</span>
+                    <span class="go">Open full details →</span>
+                  </button>
+                }
+              </div>
+            </section>
+          }
+        </div>
+        <div class="more-bar">
+          @if (remaining() > 0) {
+            <button type="button" class="primary" (click)="loadMore()">
+              Load more · {{ nextBatch() }}
+            </button>
+          } @else {
+            <p class="muted more-done">All {{ total() }} listed.</p>
+          }
+        </div>
+      }
+    } @else {
+      <p class="muted">That qualification is not on the map.</p>
+    }
+  }
+</div>

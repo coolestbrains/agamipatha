@@ -1,0 +1,116 @@
+<div class="wrap">
+  <p class="crumb"><a routerLink="/my-paths">← Back to My account</a></p>
+  <header>
+    <p class="eyebrow">My timeline</p>
+    <h1>Track your path</h1>
+    @if (trip()) {
+      <p class="lede">{{ fromTitle() }} → {{ toTitle() }}</p>
+    } @else {
+      <p class="lede">Mark each sub-goal as you finish it, and open hints when you need a way through the next gate.</p>
+    }
+  </header>
+
+  @if (!loggedIn()) {
+    <div class="empty card">
+      <p>Log in to open My timeline for the path you saved.</p>
+      <button type="button" class="primary" (click)="register()">Create account</button>
+    </div>
+  } @else if (!trip()) {
+    <div class="empty card">
+      <p>Save one route as My Path first, then come back to track it.</p>
+      <a class="primary" routerLink="/">Plan a path</a>
+    </div>
+  } @else if (loading()) {
+    <p class="meta">Loading your gates…</p>
+  } @else if (!rows().length) {
+    <div class="empty card">
+      <p>This saved route could not be drawn. Open the map and save My Path again.</p>
+      <a class="primary" [routerLink]="['/path']" [queryParams]="openParams()">Open path</a>
+    </div>
+  } @else {
+    <div class="progress card">
+      <p class="progress-label">
+        @if (allDone()) {
+          {{ percent() }}% complete · every mapped gate is marked.
+        } @else if (currentTitle()) {
+          {{ percent() }}% complete · next: {{ currentTitle() }} · {{ doneCount() }} of {{ rows().length }} done
+        } @else {
+          {{ percent() }}% complete · {{ doneCount() }} of {{ rows().length }} done
+        }
+      </p>
+      <div class="bar" role="progressbar" [attr.aria-valuenow]="percent()" aria-valuemin="0" aria-valuemax="100">
+        <span [style.width.%]="percent()"></span>
+      </div>
+    </div>
+
+    <ol class="rail">
+      @for (row of rows(); track row.id) {
+        <li class="step card" [class.done]="row.done" [class.now]="row.current" [class.goal]="row.role === 'goal'">
+          <span class="dot" aria-hidden="true">{{ row.done ? '✓' : row.index + 1 }}</span>
+          <div class="body">
+            <p class="kicker">
+              @if (row.role === 'start') {
+                Start
+              } @else if (row.role === 'goal') {
+                Final goal
+              } @else {
+                Sub-goal {{ row.index }} of {{ row.total - 2 }}
+              }
+              · {{ row.kind }}
+            </p>
+            <h2>{{ row.title }}</h2>
+            @if (row.via) {
+              <p class="via">Through {{ row.via }}</p>
+            }
+            <div class="actions">
+              <button type="button" class="primary" (click)="toggleDone(row.id)">
+                {{ row.done ? 'Undo' : row.role === 'goal' ? 'Mark goal done' : 'Mark complete' }}
+              </button>
+              <button type="button" class="ghost" [class.on]="hintId() === row.id" (click)="toggleHint(row.id)">
+                {{ hintId() === row.id ? 'Hide hints' : 'How to achieve' }}
+              </button>
+              @if (row.help.length) {
+                <button type="button" class="ghost" [class.on]="helpId() === row.id" (click)="toggleHelp(row.id)">
+                  {{ helpId() === row.id ? 'Hide help' : 'Need help' }}
+                </button>
+              }
+            </div>
+            @if (hintId() === row.id) {
+              <aside class="hints" [attr.aria-label]="'How to achieve ' + row.title">
+                @for (line of row.hint.paragraphs; track line) {
+                  <p>{{ line }}</p>
+                }
+                @for (group of row.hint.groups; track group.label) {
+                  <h3>{{ group.label }}</h3>
+                  <ul>
+                    @for (item of group.items; track item) {
+                      <li>{{ item }}</li>
+                    }
+                  </ul>
+                }
+              </aside>
+            }
+            @if (helpId() === row.id) {
+              <aside class="hints help" [attr.aria-label]="'Resources to prepare for ' + row.title">
+                <p>Use official pages first. Coaching and search links are extras to prepare — confirm every date and fee on the notice.</p>
+                @for (group of row.help; track group.label) {
+                  <h3>{{ group.label }}</h3>
+                  <ul class="links">
+                    @for (link of group.links; track link.url) {
+                      <li>
+                        <a [href]="link.url" target="_blank" rel="noopener noreferrer">{{ link.name }}</a>
+                        @if (link.extra) {
+                          <span>{{ link.extra }}</span>
+                        }
+                      </li>
+                    }
+                  </ul>
+                }
+              </aside>
+            }
+          </div>
+        </li>
+      }
+    </ol>
+  }
+</div>

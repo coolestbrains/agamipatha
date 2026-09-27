@@ -1,0 +1,145 @@
+<header class="site-header">
+  <div class="site-header-inner">
+    <div class="brand-cluster">
+      <a routerLink="/" class="brand">
+        <img [src]="logoSrc()" alt="AgamiPatha" class="brand-logo" (error)="onLogoError()" />
+        <span class="brand-copy">
+          <small>Your Path to the Future</small>
+        </span>
+      </a>
+    </div>
+    <nav class="site-nav" aria-label="Primary">
+      <a routerLink="/" class="nav-plan" [class.active]="isPlanActive()">Plan a path</a>
+      <div class="why-menu" [class.open]="whyMenuOpen()">
+        <button
+          type="button"
+          class="why-trigger"
+          [class.active]="isWhyUsActive()"
+          [attr.aria-expanded]="whyMenuOpen()"
+          aria-haspopup="menu"
+          (click)="toggleWhyMenu($event)"
+        >
+          <span>Why Us?</span>
+          <svg class="chevron" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </button>
+        @if (whyMenuOpen()) {
+          <div class="why-dropdown" role="menu" aria-label="Why Us">
+            <a role="menuitem" routerLink="/why" routerLinkActive="on" (click)="closeWhyMenu()">Why AgamiPatha?</a>
+            <a role="menuitem" routerLink="/about" routerLinkActive="on" (click)="closeWhyMenu()">About</a>
+          </div>
+        }
+      </div>
+      <a routerLink="/trending" class="nav-trending" routerLinkActive="active">Trending Now</a>
+      <a routerLink="/store" routerLinkActive="active">Online Store</a>
+    </nav>
+    <div class="header-auth">
+      @if (buyer.isLoggedIn()) {
+        <div class="account-menu" [class.open]="accountMenuOpen()">
+          <button
+            type="button"
+            class="account-trigger"
+            [attr.aria-expanded]="accountMenuOpen()"
+            aria-haspopup="menu"
+            (click)="toggleAccountMenu($event)"
+          >
+            <span class="buyer-hi">{{ buyer.firstName() }}</span>
+            <svg class="chevron" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </button>
+          @if (accountMenuOpen()) {
+            <div class="account-dropdown" role="menu" aria-label="Account">
+              <a role="menuitem" routerLink="/my-paths" (click)="closeAccountMenu()">My Account</a>
+              <a role="menuitem" routerLink="/my-orders" (click)="closeAccountMenu()">My Orders</a>
+              @if (admin.isAdmin()) {
+                <a role="menuitem" routerLink="/admin/nodes" (click)="closeAccountMenu()">Admin</a>
+              }
+              <button role="menuitem" type="button" class="logout-item" (click)="logout()">Logout</button>
+            </div>
+          }
+        </div>
+      } @else {
+        <button class="buyer-login" type="button" (click)="openBuyerLogin()">Log in</button>
+      }
+    </div>
+  </div>
+</header>
+<main>
+  <router-outlet />
+</main>
+@if (career.detailNode(); as node) {
+  <app-node-detail [node]="node" [fromId]="career.detailFromId()" (closed)="career.closeDetail()" />
+}
+<app-chat-widget />
+<app-book-ad />
+<app-account-dialog />
+<footer class="site-footer">
+  @if (stats.snapshot(); as s) {
+    <div class="stats-block">
+      <p class="stats-label">Till date</p>
+      <ul class="site-stats" aria-label="Site totals till date">
+        @for (item of tillDateItems(s); track item.label) {
+          <li>
+            @if (admin.isAdmin()) {
+              <button type="button" class="stat-link" (click)="openStat(item.metric)">
+                <strong>{{ item.value | number }}</strong>
+                <span>{{ item.label }}</span>
+              </button>
+            } @else {
+              <strong>{{ item.value | number }}</strong>
+              <span>{{ item.label }}</span>
+            }
+          </li>
+        }
+      </ul>
+    </div>
+    <div class="stats-block">
+      <p class="stats-label">Today</p>
+      <ul class="site-stats today" aria-label="Activity today">
+        @for (item of todayItems(s); track item.label) {
+          <li>
+            @if (admin.isAdmin()) {
+              <button type="button" class="stat-link" (click)="openStat(item.metric)">
+                <strong>{{ item.value | number }}</strong>
+                <span>{{ item.label }}</span>
+              </button>
+            } @else {
+              <strong>{{ item.value | number }}</strong>
+              <span>{{ item.label }}</span>
+            }
+          </li>
+        }
+      </ul>
+    </div>
+  } @else if (stats.loadError()) {
+    <p class="stats-miss">Totals are unavailable until the API is running.</p>
+  }
+  <p>
+    Paths are typical Indian education routes, not guarantees. Catalogue and these running totals live in the AgamiPatha
+    SQL Server database and can be edited by admins. Confirm official rules before you apply.
+    <a routerLink="/privacy">Privacy</a>
+    ·
+    <a routerLink="/why">Why AgamiPatha?</a>
+  </p>
+  <p class="powered-by">Powered by Coolest Brains</p>
+</footer>
+@if (chartMetric()) {
+  <div class="stat-overlay" (click)="closeChart()">
+    <div class="stat-dialog card" role="dialog" aria-modal="true" [attr.aria-labelledby]="'stat-chart-title'" (click)="$event.stopPropagation()">
+      <button type="button" class="ghost close" (click)="closeChart()">Close</button>
+      <p class="eyebrow">Admin</p>
+      <h2 id="stat-chart-title">{{ chartSeries()?.label || 'Count' }} till date</h2>
+      @if (chartBusy()) {
+        <p class="muted">Loading the line…</p>
+      } @else if (chartError()) {
+        <p class="form-error">{{ chartError() }}</p>
+      } @else {
+        @if (chartSeries(); as pack) {
+          <app-stats-chart [series]="pack" />
+        }
+      }
+    </div>
+  </div>
+}

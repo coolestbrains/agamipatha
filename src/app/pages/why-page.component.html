@@ -1,0 +1,25 @@
+<section class="why" aria-labelledby="why-title">
+  <header class="why-hero">
+    <p class="eyebrow">The name means future</p>
+    <h1 id="why-title">Why AgamiPatha?</h1>
+    <p class="lede">
+      Your Path to the Future — five reasons this map exists.
+    </p>
+  </header>
+
+  <ol class="reasons">
+    @for (item of reasons; track item.title; let i = $index) {
+      <li class="reason" [style.--i]="i">
+        <span class="num" aria-hidden="true">{{ i + 1 }}</span>
+        <div class="copy">
+          <h2>{{ item.title }}</h2>
+          <p>{{ item.detail }}</p>
+        </div>
+      </li>
+    }
+  </ol>
+
+  <p class="cta-wrap">
+    <a routerLink="/" class="cta">Plan a path</a>
+  </p>
+</section>
