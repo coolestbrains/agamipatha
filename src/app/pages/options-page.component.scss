@@ -87,7 +87,7 @@ h2 {
 
 .tabs button.on {
   color: var(--on-dark);
-  background: #111;
+  background: #1a3d7c;
 }
 
 .tabs em {
@@ -205,9 +205,9 @@ h2 {
   max-width: calc(100% - 0.9rem);
   padding: 0.2rem 0.45rem;
   border-radius: 999px;
-  border: 1px solid color-mix(in srgb, #111 28%, var(--line));
-  background: color-mix(in srgb, #111 8%, white);
-  color: #111;
+  border: 1px solid color-mix(in srgb, #1a3d7c 28%, var(--line));
+  background: color-mix(in srgb, #1a3d7c 8%, white);
+  color: #1a3d7c;
   font-size: 0.62rem;
   font-weight: 750;
   line-height: 1.2;

@@ -2,17 +2,18 @@
 
 :root {
   --paper: #ffffff;
-  --ink: #111111;
-  --muted: #6a6a6a;
-  --line: #e6e6e6;
-  --line-strong: #c0c0c0;
-  --teal: #111111;
-  --marigold: #8a8a8a;
-  --marigold-deep: #4a4a4a;
-  --cyan: #c0c0c0;
+  --ink: #2c2c2c;
+  --muted: #6b6b6b;
+  --line: #e5e5e5;
+  --line-strong: #c4c4c4;
+  --blue: #1a3d7c;
+  --teal: #1bc9c7;
+  --marigold: #f9c74f;
+  --marigold-deep: #c4921f;
+  --cyan: #1bc9c7;
   --on-dark: #ffffff;
-  --danger: #2b2b2b;
-  --shadow: 0 0 0;
+  --danger: #b42318;
+  --shadow: 26 61 124;
   --serif: 'Fraunces', Georgia, serif;
   --sans: 'Outfit', system-ui, sans-serif;
 }
@@ -34,9 +35,9 @@ body {
   font-family: var(--sans);
   text-align: center;
   background:
-    radial-gradient(1100px 540px at 6% -14%, color-mix(in srgb, #c0c0c0 28%, transparent), transparent 56%),
-    radial-gradient(920px 480px at 100% -10%, color-mix(in srgb, #8a8a8a 16%, transparent), transparent 52%),
-    radial-gradient(860px 520px at 48% 108%, color-mix(in srgb, #111111 6%, transparent), transparent 52%),
+    radial-gradient(1100px 540px at 6% -14%, color-mix(in srgb, var(--teal) 22%, transparent), transparent 56%),
+    radial-gradient(920px 480px at 100% -10%, color-mix(in srgb, var(--marigold) 18%, transparent), transparent 52%),
+    radial-gradient(860px 520px at 48% 108%, color-mix(in srgb, var(--blue) 8%, transparent), transparent 52%),
     var(--paper);
   color: var(--ink);
   line-height: 1.5;
@@ -95,8 +96,8 @@ h3 {
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--on-dark);
-  background: linear-gradient(135deg, #111111 0%, #4a4a4a 120%);
-  box-shadow: 0 6px 14px rgb(0 0 0 / 16%);
+  background: linear-gradient(135deg, var(--blue) 0%, var(--teal) 120%);
+  box-shadow: 0 6px 14px rgb(var(--shadow) / 22%);
 }
 
 button.primary,
@@ -105,7 +106,7 @@ a.primary {
   align-items: center;
   justify-content: center;
   justify-self: center;
-  background: linear-gradient(135deg, #111111 0%, #2b2b2b 55%, #8a8a8a 160%);
+  background: linear-gradient(135deg, var(--blue) 0%, color-mix(in srgb, var(--blue) 55%, var(--teal)) 55%, var(--teal) 160%);
   color: var(--on-dark);
   border: 0;
   border-radius: 999px;
@@ -116,7 +117,7 @@ a.primary {
   text-decoration: none;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 10px 22px rgb(0 0 0 / 18%);
+  box-shadow: 0 10px 22px rgb(var(--shadow) / 24%);
   transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
 }
 
@@ -141,7 +142,7 @@ button.primary:hover,
 a.primary:hover {
   filter: brightness(1.08);
   transform: translateY(-2px);
-  box-shadow: 0 14px 28px rgb(0 0 0 / 22%);
+  box-shadow: 0 14px 28px rgb(var(--shadow) / 28%);
 }
 
 button.ghost:hover,

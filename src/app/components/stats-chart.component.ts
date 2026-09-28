@@ -168,7 +168,7 @@ interface PlotPoint {
     }
     .chart-toolbar button.on {
       color: var(--on-dark);
-      background: #111;
+      background: #1a3d7c;
     }
     .month-pick {
       display: inline-flex;
@@ -209,18 +209,18 @@ interface PlotPoint {
     }
     .line {
       fill: none;
-      stroke: #111;
+      stroke: #1a3d7c;
       stroke-width: 2.4;
       stroke-linejoin: round;
       stroke-linecap: round;
       pointer-events: none;
     }
     .area {
-      fill: color-mix(in srgb, #111 10%, transparent);
+      fill: color-mix(in srgb, #1a3d7c 10%, transparent);
       pointer-events: none;
     }
     .dot {
-      fill: #111;
+      fill: #1a3d7c;
       opacity: 0;
       pointer-events: none;
     }
@@ -229,7 +229,7 @@ interface PlotPoint {
       opacity: 1;
     }
     .bar {
-      fill: #111;
+      fill: #1a3d7c;
       pointer-events: none;
     }
     .bar.hot {

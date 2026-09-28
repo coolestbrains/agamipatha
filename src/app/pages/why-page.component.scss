@@ -1,7 +1,7 @@
 .why {
-  --why-ink: #111;
-  --why-mute: #5a5a5a;
-  --why-rule: color-mix(in srgb, #111 14%, transparent);
+  --why-ink: #2c2c2c;
+  --why-mute: #6b6b6b;
+  --why-rule: color-mix(in srgb, #1a3d7c 14%, transparent);
 
   position: relative;
   isolation: isolate;
@@ -21,8 +21,8 @@
   z-index: -1;
   pointer-events: none;
   background:
-    radial-gradient(ellipse 70% 80% at 12% 30%, color-mix(in srgb, #111 8%, transparent), transparent 70%),
-    radial-gradient(ellipse 55% 70% at 92% 10%, color-mix(in srgb, #8a8a8a 18%, transparent), transparent 68%);
+    radial-gradient(ellipse 70% 80% at 12% 30%, color-mix(in srgb, #1a3d7c 8%, transparent), transparent 70%),
+    radial-gradient(ellipse 55% 70% at 92% 10%, color-mix(in srgb, #f9c74f 22%, transparent), transparent 68%);
 }
 
 @keyframes why-enter {
@@ -110,7 +110,7 @@ h1 {
   font-weight: 650;
   line-height: 0.9;
   letter-spacing: -0.04em;
-  color: color-mix(in srgb, #111 28%, transparent);
+  color: color-mix(in srgb, #1a3d7c 28%, transparent);
   padding-top: 0.12em;
 }
 
@@ -160,8 +160,8 @@ h1 {
   min-height: 3.1rem;
   padding: 0.75rem 1.45rem;
   border-radius: 999px;
-  border: 1px solid #111;
-  background: #111;
+  border: 1px solid #1a3d7c;
+  background: #1a3d7c;
   color: #fff;
   font: inherit;
   font-size: 1.05rem;

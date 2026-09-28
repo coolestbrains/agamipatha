@@ -448,7 +448,7 @@ export class StorePageComponent {
         email: this.email.trim() || undefined,
         contact: this.normalizeMobile(this.mobile) ?? undefined,
       },
-      theme: { color: '#111111' },
+      theme: { color: '#1A3D7C' },
       handler: (response) => this.confirmPayment(response, product),
       modal: {
         ondismiss: () => this.busyId.set(''),

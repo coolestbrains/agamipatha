@@ -215,8 +215,8 @@
 .site-nav a.active,
 .site-nav .why-trigger.active {
   color: var(--on-dark);
-  background: linear-gradient(135deg, #111111 0%, #2b2b2b 70%, #8a8a8a 160%);
-  box-shadow: 0 8px 16px rgb(0 0 0 / 16%);
+  background: linear-gradient(135deg, var(--blue) 0%, var(--teal) 160%);
+  box-shadow: 0 8px 16px rgb(var(--shadow) / 22%);
 }
 
 .why-menu {
@@ -355,7 +355,7 @@
   font-size: 0.82rem;
   font-weight: 750;
   color: var(--on-dark);
-  background: #111;
+  background: #1a3d7c;
   cursor: pointer;
 }
 

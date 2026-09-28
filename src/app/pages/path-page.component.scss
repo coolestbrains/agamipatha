@@ -29,8 +29,8 @@
   max-width: 42rem;
   padding: 0.7rem 0.95rem;
   border-radius: 0.85rem;
-  border: 1px solid color-mix(in srgb, #111 22%, var(--line));
-  background: color-mix(in srgb, #111 6%, white);
+  border: 1px solid color-mix(in srgb, #1a3d7c 22%, var(--line));
+  background: color-mix(in srgb, #1a3d7c 6%, white);
   color: var(--ink);
   font-size: 0.92rem;
   font-weight: 600;
@@ -69,9 +69,9 @@
   height: 2.55rem;
   margin-bottom: 0.05rem;
   padding: 0;
-  border: 1px solid #111;
+  border: 1px solid #1a3d7c;
   border-radius: 999px;
-  background: #111;
+  background: #1a3d7c;
   color: #fff;
   cursor: pointer;
   flex-shrink: 0;
@@ -442,7 +442,7 @@
   padding: 0;
   border-radius: 1.05rem;
   background: #fff;
-  border: 1px solid #111;
+  border: 1px solid #1a3d7c;
   box-shadow: 0 16px 36px rgb(0 0 0 / 18%);
   overflow: hidden;
 }
@@ -534,7 +534,7 @@
   width: min(44rem, calc(100% - 1.2rem));
   margin-inline: auto;
   background: #fff;
-  border: 1px solid #111;
+  border: 1px solid #1a3d7c;
   border-radius: 1.05rem;
   box-shadow: 0 16px 36px rgb(0 0 0 / 18%);
   overflow: hidden;
@@ -762,7 +762,7 @@
 
   .path-sheet {
     display: block;
-    color: #111;
+    color: #1a3d7c;
     padding: 0;
     text-align: left;
   }

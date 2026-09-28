@@ -46,7 +46,7 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
     }
     a.active {
       color: var(--on-dark);
-      background: linear-gradient(135deg, var(--teal), var(--marigold));
+      background: linear-gradient(135deg, var(--blue), var(--teal));
     }
   `,
 })

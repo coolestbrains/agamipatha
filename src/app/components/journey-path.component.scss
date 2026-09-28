@@ -9,17 +9,18 @@
   gap: 1rem;
   width: 100%;
   min-width: 0;
-  --paper: #f8f6ff;
-  --ink: #160e3d;
-  --muted: #5a5480;
-  --line: #ddd4ff;
-  --line-strong: #c4b6fb;
-  --teal: #4f2bff;
-  --marigold: #ff2d92;
-  --marigold-deep: #d01678;
-  --cyan: #14d4e8;
-  --on-dark: #f8f6ff;
-  --shadow: 22 14 61;
+  --paper: #ffffff;
+  --ink: #2c2c2c;
+  --muted: #6b6b6b;
+  --line: #e5e5e5;
+  --line-strong: #c4c4c4;
+  --blue: #1a3d7c;
+  --teal: #1bc9c7;
+  --marigold: #f9c74f;
+  --marigold-deep: #c4921f;
+  --cyan: #1bc9c7;
+  --on-dark: #ffffff;
+  --shadow: 26 61 124;
 }
 
 .journey-toolbar {
@@ -463,13 +464,13 @@
 }
 
 .stop.feeder .halo {
-  stroke: #111;
+  stroke: #1a3d7c;
   stroke-width: 2;
   opacity: 0.85;
 }
 
 .stop.feeder .dot {
-  stroke: #111;
+  stroke: #1a3d7c;
   stroke-width: 2.5;
 }
 
@@ -478,7 +479,7 @@
   font-weight: 750;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  fill: #111;
+  fill: #1a3d7c;
 }
 
 .stop.exam .dot {
