@@ -137,6 +137,20 @@ h1 {
 .cta-wrap {
   margin: clamp(2rem, 5vh, 3rem) 0 0;
   text-align: left;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1rem;
+  align-items: center;
+}
+
+.ghost-link {
+  color: var(--why-mute);
+  font-weight: 650;
+  text-decoration: none;
+}
+
+.ghost-link:hover {
+  color: var(--why-ink);
 }
 
 .cta {

@@ -12,6 +12,7 @@ import { StatsChartComponent } from './components/stats-chart.component';
 import { JourneyService } from './journey.service';
 import { TimelineService } from './timeline.service';
 import { SiteStats, StatMetric, StatSeries, StatsService } from './stats.service';
+import { SeoService } from './seo.service';
 import { filter } from 'rxjs';
 
 @Component({
@@ -43,7 +44,7 @@ export class AppComponent {
 
   isWhyUsActive(): boolean {
     const path = this.path();
-    return path === '/why' || path === '/about';
+    return path === '/why' || path === '/about' || path === '/careers';
   }
 
   toggleAccountMenu(event: MouseEvent): void {
@@ -88,6 +89,7 @@ export class AppComponent {
   constructor() {
     inject(JourneyService);
     inject(TimelineService);
+    inject(SeoService).start();
     this.stats.recordGuestIfNeeded().subscribe();
     this.router.events.pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd)).subscribe(() => {
       this.path.set(this.currentPath());

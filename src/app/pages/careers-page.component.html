@@ -1,0 +1,56 @@
+<section class="careers" aria-labelledby="careers-title">
+  <header class="careers-hero">
+    <p class="eyebrow">Self-serve career guide</p>
+    <h1 id="careers-title">A self-serve career guide for students and professionals</h1>
+    <p class="lede">
+      AgamiPatha (Agami Patha) helps you map an Indian career path yourself — from Class 10, Class 12, a degree, or a
+      working standing to a profession — with exams, years, and typical cost. No counsellor appointment required.
+    </p>
+  </header>
+
+  <div class="intro body">
+    <h2>Guide yourself from where you stand</h2>
+    <p>
+      Whether you are choosing a stream after 10th, a course after 12th, a first job after graduation, or a mid-career
+      switch, start from the qualification you already hold. AgamiPatha opens only the doors that come next and draws a
+      stepwise route to the goal you name — a practical self-serve alternative to waiting for counselling slots.
+    </p>
+  </div>
+
+  <div class="topics">
+    @for (item of topics; track item.title) {
+      <article class="topic">
+        <h2>{{ item.title }}</h2>
+        <p>{{ item.detail }}</p>
+      </article>
+    }
+  </div>
+
+  <div class="body">
+    <h2>What this self-serve guide helps with</h2>
+    <ul class="intent-list">
+      <li>Career path after Class 10 / Metric in India</li>
+      <li>Best stream after 10th for engineering, medicine, CA, law, or design</li>
+      <li>Career options after Class 12 PCM, PCB, Commerce, or Arts</li>
+      <li>How to become a doctor, engineer, CA, lawyer, civil servant, nurse, or teacher in India</li>
+      <li>Career switch or postgraduate routes for working professionals</li>
+      <li>Compare two career paths before you commit time or fees</li>
+    </ul>
+  </div>
+
+  <section class="faq" aria-labelledby="faq-title">
+    <h2 id="faq-title">Self-serve career guide FAQ</h2>
+    @for (item of faqs; track item.q) {
+      <details class="faq-item">
+        <summary>{{ item.q }}</summary>
+        <p>{{ item.a }}</p>
+      </details>
+    }
+  </section>
+
+  <p class="cta-wrap">
+    <a routerLink="/" class="cta">Start your career guide</a>
+    <a routerLink="/trending" class="ghost-link">See trending careers</a>
+    <a routerLink="/store" class="ghost-link">Career workbooks</a>
+  </p>
+</section>

@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /admin/
+Disallow: /my-paths
+Disallow: /my-orders
+Disallow: /my-timeline
+
+Sitemap: https://agamipatha.com/sitemap.xml

@@ -27,6 +27,7 @@
         @if (whyMenuOpen()) {
           <div class="why-dropdown" role="menu" aria-label="Why Us">
             <a role="menuitem" routerLink="/why" routerLinkActive="on" (click)="closeWhyMenu()">Why AgamiPatha?</a>
+            <a role="menuitem" routerLink="/careers" routerLinkActive="on" (click)="closeWhyMenu()">Career guide</a>
             <a role="menuitem" routerLink="/about" routerLinkActive="on" (click)="closeWhyMenu()">About</a>
           </div>
         }
@@ -120,6 +121,8 @@
     Paths are typical Indian education routes, not guarantees. Catalogue and these running totals live in the AgamiPatha
     SQL Server database and can be edited by admins. Confirm official rules before you apply.
     <a routerLink="/privacy">Privacy</a>
+    ·
+    <a routerLink="/careers">Career guide</a>
     ·
     <a routerLink="/why">Why AgamiPatha?</a>
   </p>
