@@ -36,6 +36,7 @@
           </div>
           <div class="actions">
             <a class="primary" [routerLink]="['/path']" [queryParams]="trip.queryParams">Open</a>
+            <a class="ghost" [routerLink]="['/circle']" [queryParams]="{ goal: trip.toId }">Path Circle</a>
             <a class="ghost" routerLink="/my-timeline">My timeline</a>
             <button type="button" class="ghost" (click)="shareMyPath()">
               {{ shareCopied() ? 'Link copied' : 'Share' }}

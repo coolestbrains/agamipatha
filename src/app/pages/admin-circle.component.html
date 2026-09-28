@@ -1,0 +1,74 @@
+<div class="wrap">
+  <header class="bar">
+    <div>
+      <p class="eyebrow">Safety</p>
+      <h1>Path Circle</h1>
+      <app-admin-tabs />
+    </div>
+    <button class="ghost" type="button" (click)="refresh()">Refresh</button>
+  </header>
+
+  @if (error()) {
+    <p class="notice error">{{ error() }}</p>
+  }
+
+  @if (stats(); as s) {
+    <ul class="kpis">
+      <li class="card">
+        <strong>{{ s.profiles }}</strong>
+        <span>Profiles</span>
+      </li>
+      <li class="card">
+        <strong>{{ s.discoverable }}</strong>
+        <span>Discoverable</span>
+      </li>
+      <li class="card">
+        <strong>{{ s.pendingRequests }}</strong>
+        <span>Pending requests</span>
+      </li>
+      <li class="card">
+        <strong>{{ s.acceptedConnections }}</strong>
+        <span>Accepted connections</span>
+      </li>
+      <li class="card">
+        <strong>{{ s.reports }}</strong>
+        <span>Reports</span>
+      </li>
+    </ul>
+
+    <h2>Recent reports</h2>
+    <p class="muted">Contact stays private until mutual accept. Use reports to spot abuse.</p>
+    @if (!s.recentReports.length) {
+      <p class="muted">No reports yet.</p>
+    } @else {
+      <div class="table-wrap card">
+        <table>
+          <thead>
+            <tr>
+              <th>When</th>
+              <th>Reporter</th>
+              <th>Target</th>
+              <th>Reason</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of s.recentReports; track row.id) {
+              <tr>
+                <td>{{ row.createdAtUtc | date: 'medium' }}</td>
+                <td>
+                  <strong>{{ row.reporterName || row.reporterBuyerId }}</strong>
+                  <div class="id">{{ row.reporterBuyerId }}</div>
+                </td>
+                <td>
+                  <strong>{{ row.targetName || row.targetBuyerId }}</strong>
+                  <div class="id">{{ row.targetBuyerId }}</div>
+                </td>
+                <td>{{ row.reason }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  }
+</div>

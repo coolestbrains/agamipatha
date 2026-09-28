@@ -272,6 +272,59 @@ public static class DatabaseInitializer
                 CREATE INDEX IX_CatalogSuggestions_CreatedAtUtc
                     ON dbo.CatalogSuggestions (CreatedAtUtc DESC);
             END
+
+            IF OBJECT_ID(N'dbo.PathProfiles', N'U') IS NULL
+            BEGIN
+                CREATE TABLE dbo.PathProfiles (
+                    BuyerId nvarchar(80) NOT NULL CONSTRAINT PK_PathProfiles PRIMARY KEY,
+                    DisplayName nvarchar(80) NOT NULL,
+                    Headline nvarchar(160) NOT NULL,
+                    City nvarchar(80) NULL,
+                    StandingNodeId nvarchar(80) NOT NULL,
+                    GoalNodeId nvarchar(80) NOT NULL,
+                    Audience nvarchar(20) NOT NULL,
+                    Bio nvarchar(500) NOT NULL,
+                    HelpOffersJson nvarchar(max) NOT NULL,
+                    LookingForJson nvarchar(max) NOT NULL,
+                    IsDiscoverable bit NOT NULL CONSTRAINT DF_PathProfiles_IsDiscoverable DEFAULT (1),
+                    ShareEmail bit NOT NULL CONSTRAINT DF_PathProfiles_ShareEmail DEFAULT (0),
+                    ShareMobile bit NOT NULL CONSTRAINT DF_PathProfiles_ShareMobile DEFAULT (1),
+                    Under18 bit NOT NULL CONSTRAINT DF_PathProfiles_Under18 DEFAULT (0),
+                    InviteCode nvarchar(32) NOT NULL,
+                    CreatedAtUtc datetime2 NOT NULL,
+                    UpdatedAtUtc datetime2 NOT NULL
+                );
+                CREATE INDEX IX_PathProfiles_GoalNodeId ON dbo.PathProfiles (GoalNodeId);
+                CREATE INDEX IX_PathProfiles_Goal_Standing ON dbo.PathProfiles (GoalNodeId, StandingNodeId);
+                CREATE UNIQUE INDEX IX_PathProfiles_InviteCode ON dbo.PathProfiles (InviteCode);
+            END
+
+            IF OBJECT_ID(N'dbo.PathConnectRequests', N'U') IS NULL
+            BEGIN
+                CREATE TABLE dbo.PathConnectRequests (
+                    Id int NOT NULL IDENTITY(1,1) CONSTRAINT PK_PathConnectRequests PRIMARY KEY,
+                    FromBuyerId nvarchar(80) NOT NULL,
+                    ToBuyerId nvarchar(80) NOT NULL,
+                    Status nvarchar(20) NOT NULL,
+                    Note nvarchar(240) NULL,
+                    CreatedAtUtc datetime2 NOT NULL,
+                    ResolvedAtUtc datetime2 NULL
+                );
+                CREATE UNIQUE INDEX IX_PathConnectRequests_Pair ON dbo.PathConnectRequests (FromBuyerId, ToBuyerId);
+                CREATE INDEX IX_PathConnectRequests_ToStatus ON dbo.PathConnectRequests (ToBuyerId, Status);
+            END
+
+            IF OBJECT_ID(N'dbo.PathCircleReports', N'U') IS NULL
+            BEGIN
+                CREATE TABLE dbo.PathCircleReports (
+                    Id int NOT NULL IDENTITY(1,1) CONSTRAINT PK_PathCircleReports PRIMARY KEY,
+                    ReporterBuyerId nvarchar(80) NOT NULL,
+                    TargetBuyerId nvarchar(80) NOT NULL,
+                    Reason nvarchar(400) NOT NULL,
+                    CreatedAtUtc datetime2 NOT NULL
+                );
+                CREATE INDEX IX_PathCircleReports_CreatedAtUtc ON dbo.PathCircleReports (CreatedAtUtc DESC);
+            END
             """);
         await EnsureGuestVisitKeyAsync(db);
     }

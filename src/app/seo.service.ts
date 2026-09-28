@@ -52,6 +52,15 @@ const ROUTE_SEO: { match: RegExp | string; seo: PageSeo }[] = [
     },
   },
   {
+    match: /^\/circle$/,
+    seo: {
+      title: 'Path Circle | Meet peers on your career path — AgamiPatha',
+      description:
+        'Join Path Circle on AgamiPatha: meet students and professionals aiming at the same career. Request–accept privacy — contact only after both accept.',
+      path: '/circle',
+    },
+  },
+  {
     match: /^\/store$/,
     seo: {
       title: 'Career guide ebooks & stream chooser | AgamiPatha Store',

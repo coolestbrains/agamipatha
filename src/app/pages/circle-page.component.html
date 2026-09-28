@@ -1,0 +1,277 @@
+<section class="circle">
+  <header class="hero">
+    <p class="eyebrow">Path Circle</p>
+    <h1>Meet peers on your career path</h1>
+    <p class="lede">
+      A private circle for students and professionals aiming at the same future. Profiles are discoverable; contact
+      details stay hidden until both of you accept.
+    </p>
+  </header>
+
+  @if (inviteHint(); as invite) {
+    <p class="banner">Invited to the circle for <strong>{{ invite.goalTitle }}</strong> by {{ invite.displayName }}.</p>
+  }
+
+  @if (!buyer.isLoggedIn()) {
+    <div class="empty card">
+      <p>Log in to join Path Circle and find people targeting the same career.</p>
+      <div class="row">
+        <button type="button" class="primary" (click)="openRegister()">Create account</button>
+        <button type="button" class="ghost" (click)="openLogin()">Log in</button>
+      </div>
+    </div>
+  } @else {
+
+    @if (error()) {
+      <p class="form-error" role="alert">{{ error() }}</p>
+    }
+    @if (notice()) {
+      <p class="banner ok">{{ notice() }}</p>
+    }
+
+    @if (hasProfile()) {
+      <nav class="tabs" aria-label="Path Circle sections">
+        <button type="button" [class.on]="tab() === 'peers'" (click)="setTab('peers')">Peers</button>
+        <button type="button" [class.on]="tab() === 'requests'" (click)="setTab('requests')">
+          Requests
+          @if (pendingIncoming()) {
+            <span class="badge">{{ pendingIncoming() }}</span>
+          }
+        </button>
+        <button type="button" [class.on]="tab() === 'connections'" (click)="setTab('connections')">Connected</button>
+        <button type="button" [class.on]="tab() === 'profile'" (click)="setTab('profile')">My profile</button>
+      </nav>
+    }
+
+    @if (!hasProfile() || tab() === 'profile') {
+      <section class="panel card" aria-labelledby="profile-title">
+        <h2 id="profile-title">{{ hasProfile() ? 'Edit your circle profile' : 'Join Path Circle' }}</h2>
+        <p class="hint">Prefills from My Path when you have one. Only people with the same career goal will see you.</p>
+
+        <label>
+          <span>Display name</span>
+          <input [(ngModel)]="displayName" name="displayName" maxlength="80" />
+        </label>
+        <label>
+          <span>Headline</span>
+          <input [(ngModel)]="headline" name="headline" maxlength="160" placeholder="e.g. Class 12 PCM → Doctor" />
+        </label>
+        <div class="grid-2">
+          <label>
+            <span>Who is this for?</span>
+            <select [(ngModel)]="audience" name="audience">
+              <option value="student">Student</option>
+              <option value="professional">Professional</option>
+              <option value="parent">Parent</option>
+            </select>
+          </label>
+          <label>
+            <span>City (optional)</span>
+            <input [(ngModel)]="city" name="city" maxlength="80" [disabled]="under18" />
+          </label>
+        </div>
+
+        <label>
+          <span>Current standing</span>
+          <app-search-select
+            [value]="standingNodeId()"
+            (valueChange)="standingNodeId.set($event)"
+            [options]="startOptions()"
+            placeholder="Search your qualification"
+          />
+        </label>
+        <label>
+          <span>Career goal</span>
+          <app-search-select
+            [value]="goalNodeId()"
+            (valueChange)="goalNodeId.set($event)"
+            [groups]="goalGroups()"
+            placeholder="Search a profession or later qualification"
+          />
+        </label>
+
+        <label>
+          <span>Short bio</span>
+          <textarea [(ngModel)]="bio" name="bio" rows="3" maxlength="500" placeholder="What you can help with, or what you need"></textarea>
+        </label>
+
+        <div class="tag-block">
+          <p class="tag-label">I can help with</p>
+          <div class="chip-row">
+            @for (tag of tags; track tag.id) {
+              <button type="button" class="chip" [class.on]="hasTag('help', tag.id)" (click)="toggleTag('help', tag.id)">
+                {{ tag.label }}
+              </button>
+            }
+          </div>
+        </div>
+        <div class="tag-block">
+          <p class="tag-label">I am looking for</p>
+          <div class="chip-row">
+            @for (tag of tags; track tag.id) {
+              <button type="button" class="chip" [class.on]="hasTag('looking', tag.id)" (click)="toggleTag('looking', tag.id)">
+                {{ tag.label }}
+              </button>
+            }
+          </div>
+        </div>
+
+        <div class="checks">
+          <label class="check"><input type="checkbox" [(ngModel)]="isDiscoverable" name="isDiscoverable" /> Show me in this goal’s circle</label>
+          <label class="check"><input type="checkbox" [(ngModel)]="shareMobile" name="shareMobile" [disabled]="under18" /> Share mobile after both accept</label>
+          <label class="check"><input type="checkbox" [(ngModel)]="shareEmail" name="shareEmail" [disabled]="under18" /> Share email after both accept</label>
+          <label class="check"><input type="checkbox" [(ngModel)]="under18" name="under18" /> I am under 18 (stricter privacy)</label>
+        </div>
+
+        <button type="button" class="primary" [disabled]="saving()" (click)="saveProfile()">
+          {{ saving() ? 'Saving…' : hasProfile() ? 'Save profile' : 'Join Path Circle' }}
+        </button>
+      </section>
+    }
+
+    @if (hasProfile() && tab() === 'peers') {
+      <section class="panel" aria-labelledby="peers-title">
+        <div class="panel-head">
+          <div>
+            <h2 id="peers-title">Peers aiming at {{ profile()?.goalTitle }}</h2>
+            <p class="hint">No phone or email until both of you accept a connect request.</p>
+          </div>
+          <button type="button" class="ghost" (click)="copyInvite()">Copy invite link</button>
+        </div>
+        <label class="note-field">
+          <span>Optional note with requests</span>
+          <input [(ngModel)]="connectNote" name="connectNote" maxlength="240" placeholder="e.g. Looking for NEET study buddies" />
+        </label>
+        @if (!peers().length) {
+          <div class="empty card">
+            <p>No peers in this circle yet. Invite someone targeting the same goal.</p>
+            <button type="button" class="primary" (click)="copyInvite()">Copy invite link</button>
+          </div>
+        } @else {
+          <div class="cards">
+            @for (peer of peers(); track peer.buyerId) {
+              <article class="card peer">
+                <div class="peer-top">
+                  <div>
+                    <h3>{{ peer.displayName }}</h3>
+                    <p class="meta">{{ peer.headline || (peer.standingTitle + ' → ' + peer.goalTitle) }}</p>
+                    @if (peer.city) {
+                      <p class="meta">{{ peer.city }}</p>
+                    }
+                  </div>
+                  <span class="score">{{ peer.matchScore }}</span>
+                </div>
+                @if (peer.bio) {
+                  <p>{{ peer.bio }}</p>
+                }
+                <div class="chip-row readonly">
+                  @for (tag of peer.helpOffers; track tag) {
+                    <span class="chip soft">Helps: {{ tagLabel(tag) }}</span>
+                  }
+                  @for (tag of peer.lookingFor; track tag) {
+                    <span class="chip soft">Needs: {{ tagLabel(tag) }}</span>
+                  }
+                </div>
+                <div class="actions">
+                  @if (peer.relation === 'none' || peer.relation === 'declined') {
+                    <button type="button" class="primary" (click)="requestConnect(peer)">Connect</button>
+                  } @else if (peer.relation === 'pending') {
+                    <span class="meta">Request pending</span>
+                  } @else if (peer.relation === 'accepted') {
+                    <span class="meta">Connected</span>
+                  }
+                  <button type="button" class="ghost" (click)="openReport(peer.buyerId)">Report</button>
+                  <button type="button" class="ghost" (click)="block(peer.buyerId, peer.displayName)">Block</button>
+                </div>
+              </article>
+            }
+          </div>
+        }
+      </section>
+    }
+
+    @if (hasProfile() && tab() === 'requests') {
+      <section class="panel" aria-labelledby="requests-title">
+        <h2 id="requests-title">Connect requests</h2>
+        @if (!requests().length) {
+          <p class="hint">No pending requests.</p>
+        } @else {
+          <div class="cards">
+            @for (req of requests(); track req.id) {
+              <article class="card peer">
+                <h3>{{ req.otherDisplayName }}</h3>
+                <p class="meta">{{ req.direction === 'incoming' ? 'Wants to connect' : 'You sent a request' }} · {{ req.standingTitle }} → {{ req.goalTitle }}</p>
+                @if (req.note) {
+                  <p>{{ req.note }}</p>
+                }
+                <div class="actions">
+                  @if (req.direction === 'incoming') {
+                    <button type="button" class="primary" (click)="accept(req)">Accept</button>
+                    <button type="button" class="ghost" (click)="decline(req)">Decline</button>
+                  } @else {
+                    <span class="meta">Waiting for them</span>
+                  }
+                </div>
+              </article>
+            }
+          </div>
+        }
+      </section>
+    }
+
+    @if (hasProfile() && tab() === 'connections') {
+      <section class="panel" aria-labelledby="connections-title">
+        <div class="panel-head">
+          <div>
+            <h2 id="connections-title">Your connections</h2>
+            <p class="hint">Contact details appear only after both of you accepted.</p>
+          </div>
+          <button type="button" class="ghost" (click)="copyInvite()">Invite more to this goal</button>
+        </div>
+        @if (!connections().length) {
+          <p class="hint">No connections yet. Send a request from Peers.</p>
+        } @else {
+          <div class="cards">
+            @for (c of connections(); track c.buyerId) {
+              <article class="card peer">
+                <h3>{{ c.displayName }}</h3>
+                <p class="meta">{{ c.standingTitle }} → {{ c.goalTitle }}</p>
+                @if (c.city) {
+                  <p class="meta">{{ c.city }}</p>
+                }
+                <div class="contact">
+                  @if (c.mobile) {
+                    <a [href]="'tel:' + c.mobile">{{ c.mobile }}</a>
+                  }
+                  @if (c.email) {
+                    <a [href]="'mailto:' + c.email">{{ c.email }}</a>
+                  }
+                  @if (!c.mobile && !c.email) {
+                    <span class="meta">They chose not to share contact yet.</span>
+                  }
+                </div>
+                <div class="actions">
+                  <button type="button" class="ghost" (click)="openReport(c.buyerId)">Report</button>
+                  <button type="button" class="ghost" (click)="block(c.buyerId, c.displayName)">Block</button>
+                </div>
+              </article>
+            }
+          </div>
+        }
+      </section>
+    }
+
+    @if (reportTarget()) {
+      <div class="report-overlay" (click)="reportTarget.set('')">
+        <div class="report card" (click)="$event.stopPropagation()" role="dialog" aria-modal="true">
+          <h3>Report this person</h3>
+          <textarea [(ngModel)]="reportReason" rows="4" maxlength="400" placeholder="What went wrong?"></textarea>
+          <div class="actions">
+            <button type="button" class="primary" (click)="submitReport()">Send report</button>
+            <button type="button" class="ghost" (click)="reportTarget.set('')">Cancel</button>
+          </div>
+        </div>
+      </div>
+    }
+  }
+</section>

@@ -26,6 +26,11 @@
     <priority>0.85</priority>
   </url>
   <url>
+    <loc>https://agamipatha.com/circle</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
     <loc>https://agamipatha.com/store</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>

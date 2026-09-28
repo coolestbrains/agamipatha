@@ -33,6 +33,7 @@
         }
       </div>
       <a routerLink="/trending" class="nav-trending" routerLinkActive="active">Trending Now</a>
+      <a routerLink="/circle" routerLinkActive="active">Path Circle</a>
       <a routerLink="/store" routerLinkActive="active">Online Store</a>
     </nav>
     <div class="header-auth">
@@ -53,6 +54,7 @@
           @if (accountMenuOpen()) {
             <div class="account-dropdown" role="menu" aria-label="Account">
               <a role="menuitem" routerLink="/my-paths" (click)="closeAccountMenu()">My Account</a>
+              <a role="menuitem" routerLink="/circle" (click)="closeAccountMenu()">Path Circle</a>
               <a role="menuitem" routerLink="/my-orders" (click)="closeAccountMenu()">My Orders</a>
               @if (admin.isAdmin()) {
                 <a role="menuitem" routerLink="/admin/nodes" (click)="closeAccountMenu()">Admin</a>

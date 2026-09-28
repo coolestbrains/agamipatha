@@ -488,3 +488,125 @@ public class CatalogSuggestionDto
     public string FromTitle { get; set; } = "";
     public DateTime CreatedAtUtc { get; set; }
 }
+
+public class PathProfileUpsertDto
+{
+    public string DisplayName { get; set; } = "";
+    public string? Headline { get; set; }
+    public string? City { get; set; }
+    public string StandingNodeId { get; set; } = "";
+    public string GoalNodeId { get; set; } = "";
+    public string Audience { get; set; } = "student";
+    public string? Bio { get; set; }
+    public List<string>? HelpOffers { get; set; }
+    public List<string>? LookingFor { get; set; }
+    public bool IsDiscoverable { get; set; } = true;
+    public bool ShareEmail { get; set; }
+    public bool ShareMobile { get; set; } = true;
+    public bool Under18 { get; set; }
+}
+
+public class PathProfileDto
+{
+    public string BuyerId { get; set; } = "";
+    public string DisplayName { get; set; } = "";
+    public string Headline { get; set; } = "";
+    public string? City { get; set; }
+    public string StandingNodeId { get; set; } = "";
+    public string StandingTitle { get; set; } = "";
+    public string GoalNodeId { get; set; } = "";
+    public string GoalTitle { get; set; } = "";
+    public string Audience { get; set; } = "student";
+    public string Bio { get; set; } = "";
+    public List<string> HelpOffers { get; set; } = [];
+    public List<string> LookingFor { get; set; } = [];
+    public bool IsDiscoverable { get; set; }
+    public bool ShareEmail { get; set; }
+    public bool ShareMobile { get; set; }
+    public bool Under18 { get; set; }
+    public string InviteCode { get; set; } = "";
+    public DateTime UpdatedAtUtc { get; set; }
+}
+
+public class PathPeerCardDto
+{
+    public string BuyerId { get; set; } = "";
+    public string DisplayName { get; set; } = "";
+    public string Headline { get; set; } = "";
+    public string? City { get; set; }
+    public string StandingNodeId { get; set; } = "";
+    public string StandingTitle { get; set; } = "";
+    public string GoalNodeId { get; set; } = "";
+    public string GoalTitle { get; set; } = "";
+    public string Audience { get; set; } = "student";
+    public string Bio { get; set; } = "";
+    public List<string> HelpOffers { get; set; } = [];
+    public List<string> LookingFor { get; set; } = [];
+    public int MatchScore { get; set; }
+    public string Relation { get; set; } = "none";
+    public int? RequestId { get; set; }
+}
+
+public class PathConnectRequestCreateDto
+{
+    public string ToBuyerId { get; set; } = "";
+    public string? Note { get; set; }
+}
+
+public class PathConnectRequestDto
+{
+    public int Id { get; set; }
+    public string Direction { get; set; } = "";
+    public string OtherBuyerId { get; set; } = "";
+    public string OtherDisplayName { get; set; } = "";
+    public string OtherHeadline { get; set; } = "";
+    public string GoalTitle { get; set; } = "";
+    public string StandingTitle { get; set; } = "";
+    public string Status { get; set; } = "";
+    public string? Note { get; set; }
+    public DateTime CreatedAtUtc { get; set; }
+}
+
+public class PathConnectionDto
+{
+    public int RequestId { get; set; }
+    public string BuyerId { get; set; } = "";
+    public string DisplayName { get; set; } = "";
+    public string Headline { get; set; } = "";
+    public string? City { get; set; }
+    public string StandingTitle { get; set; } = "";
+    public string GoalTitle { get; set; } = "";
+    public string Audience { get; set; } = "";
+    public List<string> HelpOffers { get; set; } = [];
+    public List<string> LookingFor { get; set; } = [];
+    public string? Email { get; set; }
+    public string? Mobile { get; set; }
+    public DateTime ConnectedAtUtc { get; set; }
+}
+
+public class PathReportDto
+{
+    public string TargetBuyerId { get; set; } = "";
+    public string Reason { get; set; } = "";
+}
+
+public class PathCircleStatsDto
+{
+    public int Profiles { get; set; }
+    public int Discoverable { get; set; }
+    public int PendingRequests { get; set; }
+    public int AcceptedConnections { get; set; }
+    public int Reports { get; set; }
+    public List<PathCircleReportRowDto> RecentReports { get; set; } = [];
+}
+
+public class PathCircleReportRowDto
+{
+    public int Id { get; set; }
+    public string ReporterBuyerId { get; set; } = "";
+    public string ReporterName { get; set; } = "";
+    public string TargetBuyerId { get; set; } = "";
+    public string TargetName { get; set; } = "";
+    public string Reason { get; set; } = "";
+    public DateTime CreatedAtUtc { get; set; }
+}

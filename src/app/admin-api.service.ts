@@ -81,6 +81,23 @@ export interface AdminCatalogSuggestion {
   createdAtUtc: string;
 }
 
+export interface AdminPathCircleStats {
+  profiles: number;
+  discoverable: number;
+  pendingRequests: number;
+  acceptedConnections: number;
+  reports: number;
+  recentReports: {
+    id: number;
+    reporterBuyerId: string;
+    reporterName: string;
+    targetBuyerId: string;
+    targetName: string;
+    reason: string;
+    createdAtUtc: string;
+  }[];
+}
+
 export interface AdminStoreSales {
   buyerCount: number;
   booksPurchased: number;
@@ -180,5 +197,9 @@ export class AdminApiService {
 
   deleteSuggestion(id: number) {
     return this.http.delete(`${this.base}/admin/suggestions/${id}`);
+  }
+
+  circleStats() {
+    return this.http.get<AdminPathCircleStats>(`${this.base}/admin/circle/stats`);
   }
 }

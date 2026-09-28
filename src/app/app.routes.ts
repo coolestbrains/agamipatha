@@ -19,6 +19,10 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/options-page.component').then((m) => m.OptionsPageComponent),
   },
   {
+    path: 'circle',
+    loadComponent: () => import('./pages/circle-page.component').then((m) => m.CirclePageComponent),
+  },
+  {
     path: 'my-paths',
     loadComponent: () => import('./pages/my-paths-page.component').then((m) => m.MyPathsPageComponent),
   },
@@ -98,6 +102,11 @@ export const routes: Routes = [
   {
     path: 'admin/store',
     loadComponent: () => import('./pages/admin-store.component').then((m) => m.AdminStoreComponent),
+    canActivate: [adminGuard],
+  },
+  {
+    path: 'admin/circle',
+    loadComponent: () => import('./pages/admin-circle.component').then((m) => m.AdminCircleComponent),
     canActivate: [adminGuard],
   },
   { path: '**', redirectTo: '' },

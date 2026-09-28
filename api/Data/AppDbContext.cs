@@ -15,6 +15,9 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<StoreOrderRecord> StoreOrders => Set<StoreOrderRecord>();
     public DbSet<StoreBuyerRecord> StoreBuyers => Set<StoreBuyerRecord>();
     public DbSet<CatalogSuggestionRecord> CatalogSuggestions => Set<CatalogSuggestionRecord>();
+    public DbSet<PathProfileRecord> PathProfiles => Set<PathProfileRecord>();
+    public DbSet<PathConnectRequestRecord> PathConnectRequests => Set<PathConnectRequestRecord>();
+    public DbSet<PathCircleReportRecord> PathCircleReports => Set<PathCircleReportRecord>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -92,6 +95,30 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         modelBuilder.Entity<CatalogSuggestionRecord>(entity =>
         {
             entity.ToTable("CatalogSuggestions");
+            entity.HasKey(v => v.Id);
+            entity.HasIndex(v => v.CreatedAtUtc);
+        });
+
+        modelBuilder.Entity<PathProfileRecord>(entity =>
+        {
+            entity.ToTable("PathProfiles");
+            entity.HasKey(v => v.BuyerId);
+            entity.HasIndex(v => v.GoalNodeId);
+            entity.HasIndex(v => new { v.GoalNodeId, v.StandingNodeId });
+            entity.HasIndex(v => v.InviteCode).IsUnique();
+        });
+
+        modelBuilder.Entity<PathConnectRequestRecord>(entity =>
+        {
+            entity.ToTable("PathConnectRequests");
+            entity.HasKey(v => v.Id);
+            entity.HasIndex(v => new { v.FromBuyerId, v.ToBuyerId }).IsUnique();
+            entity.HasIndex(v => new { v.ToBuyerId, v.Status });
+        });
+
+        modelBuilder.Entity<PathCircleReportRecord>(entity =>
+        {
+            entity.ToTable("PathCircleReports");
             entity.HasKey(v => v.Id);
             entity.HasIndex(v => v.CreatedAtUtc);
         });

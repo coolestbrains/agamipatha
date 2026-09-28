@@ -76,6 +76,7 @@ builder.Services.AddScoped<IRouteRanker>(sp =>
 });
 builder.Services.AddSingleton<TokenService>();
 builder.Services.AddScoped<StoreBuyerService>();
+builder.Services.AddScoped<CircleService>();
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
     ?? throw new InvalidOperationException("Connection string 'DefaultConnection' is missing from appsettings.Production.json.");

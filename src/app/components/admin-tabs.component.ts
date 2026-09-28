@@ -12,6 +12,7 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
       <a routerLink="/admin/paths" routerLinkActive="active">Full paths</a>
       <a routerLink="/admin/suggestions" routerLinkActive="active">Suggestions</a>
       <a routerLink="/admin/store" routerLinkActive="active">Users & sales</a>
+      <a routerLink="/admin/circle" routerLinkActive="active">Path Circle</a>
     </nav>
   `,
   styles: `

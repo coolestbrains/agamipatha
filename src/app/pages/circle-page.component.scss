@@ -1,0 +1,291 @@
+.circle {
+  max-width: 46rem;
+  margin: 0 auto;
+  padding: clamp(1.4rem, 3.5vh, 2.4rem) max(1.15rem, env(safe-area-inset-right))
+    clamp(2.4rem, 5vh, 3.5rem) max(1.15rem, env(safe-area-inset-left));
+  text-align: left;
+}
+
+.hero {
+  margin: 0 0 1.2rem;
+}
+
+.eyebrow {
+  margin: 0 0 0.45rem;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+h1 {
+  margin: 0 0 0.55rem;
+  font-family: var(--serif);
+  font-size: clamp(1.9rem, 5vw, 2.8rem);
+  font-weight: 650;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+}
+
+.lede,
+.hint {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+.lede {
+  max-width: 38rem;
+}
+
+.banner {
+  margin: 0 0 0.85rem;
+  padding: 0.7rem 0.9rem;
+  border-radius: 0.85rem;
+  border: 1px solid var(--line);
+  background: color-mix(in srgb, white 78%, var(--paper));
+  color: var(--ink);
+}
+
+.banner.ok {
+  border-color: color-mix(in srgb, #1f9d55 35%, var(--line));
+  background: color-mix(in srgb, #1f9d55 8%, white);
+}
+
+.form-error {
+  margin: 0 0 0.75rem;
+  color: #8a1f1f;
+}
+
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin: 0 0 1rem;
+}
+
+.tabs button {
+  appearance: none;
+  border: 1px solid var(--line-strong);
+  background: white;
+  border-radius: 999px;
+  padding: 0.4rem 0.85rem;
+  font: inherit;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.tabs button.on {
+  background: #111;
+  color: #fff;
+  border-color: #111;
+}
+
+.badge {
+  display: inline-grid;
+  place-items: center;
+  min-width: 1.2rem;
+  margin-left: 0.3rem;
+  padding: 0.05rem 0.3rem;
+  border-radius: 999px;
+  background: #d97706;
+  color: #fff;
+  font-size: 0.7rem;
+}
+
+.panel {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.panel-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.panel.card,
+.empty.card,
+.card {
+  padding: 1rem 1.05rem;
+  border: 1px solid var(--line);
+  border-radius: 1rem;
+  background: color-mix(in srgb, white 86%, var(--paper));
+}
+
+label {
+  display: grid;
+  gap: 0.35rem;
+  font-weight: 650;
+}
+
+label span,
+.tag-label {
+  font-size: 0.86rem;
+}
+
+input,
+textarea,
+select {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid var(--line-strong);
+  border-radius: 0.75rem;
+  padding: 0.65rem 0.75rem;
+  font: inherit;
+  background: white;
+}
+
+.grid-2 {
+  display: grid;
+  gap: 0.75rem;
+}
+
+@media (min-width: 720px) {
+  .grid-2 {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.tag-block {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.chip {
+  appearance: none;
+  border: 1px solid var(--line-strong);
+  background: white;
+  border-radius: 999px;
+  padding: 0.35rem 0.7rem;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.chip.on {
+  background: #111;
+  color: #fff;
+  border-color: #111;
+}
+
+.chip.soft {
+  cursor: default;
+  background: color-mix(in srgb, var(--teal) 6%, white);
+}
+
+.checks {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.check {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  font-weight: 550;
+}
+
+.check input {
+  width: auto;
+}
+
+.row,
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.cards {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.peer-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  align-items: flex-start;
+}
+
+.peer h3 {
+  margin: 0 0 0.2rem;
+  font-size: 1.1rem;
+}
+
+.meta {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.score {
+  font-weight: 800;
+  color: var(--muted);
+}
+
+.contact {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.contact a {
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.primary,
+.ghost {
+  appearance: none;
+  border-radius: 999px;
+  padding: 0.55rem 0.95rem;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.primary {
+  border: 1px solid #111;
+  background: #111;
+  color: #fff;
+}
+
+.ghost {
+  border: 1px solid var(--line-strong);
+  background: white;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.report-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 140;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgb(17 17 17 / 45%);
+}
+
+.report {
+  width: min(24rem, 100%);
+  display: grid;
+  gap: 0.75rem;
+}
+
+.note-field {
+  max-width: 28rem;
+}

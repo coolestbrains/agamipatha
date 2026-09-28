@@ -211,3 +211,88 @@ public class CatalogSuggestionRecord
 
     public DateTime CreatedAtUtc { get; set; }
 }
+
+public class PathProfileRecord
+{
+    [Key]
+    [MaxLength(80)]
+    public string BuyerId { get; set; } = "";
+
+    [MaxLength(80)]
+    public string DisplayName { get; set; } = "";
+
+    [MaxLength(160)]
+    public string Headline { get; set; } = "";
+
+    [MaxLength(80)]
+    public string? City { get; set; }
+
+    [MaxLength(80)]
+    public string StandingNodeId { get; set; } = "";
+
+    [MaxLength(80)]
+    public string GoalNodeId { get; set; } = "";
+
+    [MaxLength(20)]
+    public string Audience { get; set; } = "student";
+
+    [MaxLength(500)]
+    public string Bio { get; set; } = "";
+
+    public string HelpOffersJson { get; set; } = "[]";
+
+    public string LookingForJson { get; set; } = "[]";
+
+    public bool IsDiscoverable { get; set; } = true;
+
+    public bool ShareEmail { get; set; }
+
+    public bool ShareMobile { get; set; } = true;
+
+    public bool Under18 { get; set; }
+
+    [MaxLength(32)]
+    public string InviteCode { get; set; } = "";
+
+    public DateTime CreatedAtUtc { get; set; }
+
+    public DateTime UpdatedAtUtc { get; set; }
+}
+
+public class PathConnectRequestRecord
+{
+    public int Id { get; set; }
+
+    [MaxLength(80)]
+    public string FromBuyerId { get; set; } = "";
+
+    [MaxLength(80)]
+    public string ToBuyerId { get; set; } = "";
+
+    /// <summary>pending | accepted | declined | blocked</summary>
+    [MaxLength(20)]
+    public string Status { get; set; } = "pending";
+
+    [MaxLength(240)]
+    public string? Note { get; set; }
+
+    public DateTime CreatedAtUtc { get; set; }
+
+    public DateTime? ResolvedAtUtc { get; set; }
+}
+
+public class PathCircleReportRecord
+{
+    public int Id { get; set; }
+
+    [MaxLength(80)]
+    public string ReporterBuyerId { get; set; } = "";
+
+    [MaxLength(80)]
+    public string TargetBuyerId { get; set; } = "";
+
+    [MaxLength(400)]
+    public string Reason { get; set; } = "";
+
+    public DateTime CreatedAtUtc { get; set; }
+}

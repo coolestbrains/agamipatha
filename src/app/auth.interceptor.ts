@@ -9,11 +9,13 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const buyer = inject(BuyerAuthService);
   const isAdminApi = req.url.includes('/admin') || req.url.includes('/auth/login');
   const isStoreBuyerApi = /\/store\/(orders|verify|purchases|my-orders)(?:\?|$)/.test(req.url);
+  const isCircleApi =
+    /\/api\/circle(?:\/|$)/.test(req.url) && !/\/api\/circle\/invite\//.test(req.url);
 
   let token = '';
   if (isAdminApi) {
     token = auth.token();
-  } else if (isStoreBuyerApi) {
+  } else if (isStoreBuyerApi || isCircleApi) {
     token = buyer.token();
   }
 
@@ -23,7 +25,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
       if (err.status === 401 && req.url.includes('/admin')) {
         auth.logout();
       }
-      if (err.status === 401 && isStoreBuyerApi) {
+      if (err.status === 401 && (isStoreBuyerApi || isCircleApi)) {
         buyer.logout();
       }
       return throwError(() => err);
