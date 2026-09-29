@@ -1,11 +1,9 @@
 <header class="site-header">
   <div class="site-header-inner">
     <div class="brand-cluster">
-      <a routerLink="/" class="brand">
-        <img [src]="logoSrc()" alt="AgamiPatha" class="brand-logo" (error)="onLogoError()" />
-        <span class="brand-copy">
-          <small>Your Path to the Future</small>
-        </span>
+      <a routerLink="/" class="brand" aria-label="AgamiPatha home">
+        <img src="logo-icon.png" alt="" class="brand-logo-icon" />
+        <img src="logo-text.png" alt="AgamiPatha" class="brand-logo-text" />
       </a>
     </div>
     <nav class="site-nav" aria-label="Primary">

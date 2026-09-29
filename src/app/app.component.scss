@@ -44,7 +44,7 @@
 
 .brand {
   display: flex;
-  gap: 0.7rem;
+  gap: 0.55rem;
   align-items: center;
   min-width: 0;
   color: inherit;
@@ -52,33 +52,31 @@
   text-align: left;
 }
 
-.brand-logo {
+.brand-logo-icon {
   display: block;
-  height: 3.55rem;
+  height: clamp(3.6rem, 2.4rem + 4.2vw, 6.75rem);
   width: auto;
-  max-width: 10.5rem;
+  aspect-ratio: 1;
   object-fit: contain;
   flex-shrink: 0;
   transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.brand:hover .brand-logo {
-  transform: scale(1.035);
-}
-
-.brand-copy {
-  display: grid;
-  align-content: center;
-  min-width: 0;
-}
-
-.brand small {
+.brand-logo-text {
   display: block;
-  color: var(--muted);
-  font-size: 0.78rem;
-  font-weight: 550;
-  max-width: 11rem;
-  line-height: 1.35;
+  height: clamp(2.4rem, 1.5rem + 2.8vw, 4.4rem);
+  width: auto;
+  max-width: clamp(8rem, 6rem + 12vw, 16rem);
+  object-fit: contain;
+  object-position: left center;
+  flex-shrink: 1;
+  min-width: 0;
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.brand:hover .brand-logo-icon,
+.brand:hover .brand-logo-text {
+  transform: scale(1.035);
 }
 
 .header-auth {
@@ -390,13 +388,13 @@
     --nav-pad-x: clamp(0.42rem, 0.28rem + 0.55vw, 0.72rem);
   }
 
-  .brand-copy {
-    display: none;
+  .brand-logo-icon {
+    height: clamp(3rem, 2.3rem + 3.2vw, 4.25rem);
   }
 
-  .brand-logo {
-    height: 2.7rem;
-    max-width: 7.4rem;
+  .brand-logo-text {
+    height: clamp(1.9rem, 1.4rem + 2vw, 2.7rem);
+    max-width: clamp(6.5rem, 5rem + 8vw, 10rem);
   }
 
   .account-trigger {

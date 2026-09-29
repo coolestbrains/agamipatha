@@ -26,14 +26,12 @@ export class AppComponent {
   readonly career = inject(CareerService);
   readonly buyer = inject(BuyerAuthService);
   readonly admin = inject(AuthService);
-  readonly logoSrc = signal('assets/logo.png');
   readonly chartMetric = signal<StatMetric | null>(null);
   readonly chartSeries = signal<StatSeries | null>(null);
   readonly chartBusy = signal(false);
   readonly chartError = signal('');
   readonly accountMenuOpen = signal(false);
   readonly whyMenuOpen = signal(false);
-  private readonly logoFallbacks = ['logo.png', 'assets/fav.png', 'fav.png'];
   private readonly router = inject(Router);
   private readonly path = signal(this.currentPath());
 
@@ -99,13 +97,6 @@ export class AppComponent {
 
   private currentPath(): string {
     return this.router.url.split('?')[0].split('#')[0];
-  }
-
-  onLogoError(): void {
-    const next = this.logoFallbacks.shift();
-    if (next) {
-      this.logoSrc.set(next);
-    }
   }
 
   tillDateItems(s: SiteStats): { metric: StatMetric; value: number; label: string }[] {

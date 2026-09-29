@@ -172,8 +172,6 @@ export class LandingComponent implements OnDestroy {
   readonly audiences = AUDIENCES;
   readonly audience = signal<Audience>('student');
   readonly askStep = signal<1 | 2 | 3>(1);
-  readonly logoSrc = signal('assets/fav.png');
-  private readonly logoFallbacks = ['fav.png', 'assets/logo.png', 'logo.png'];
   readonly fromId = signal('');
   readonly toId = signal('');
   readonly error = signal('');
@@ -537,13 +535,6 @@ export class LandingComponent implements OnDestroy {
 
   openLogin(): void {
     this.buyer.requestAccount('login');
-  }
-
-  onLogoError(): void {
-    const next = this.logoFallbacks.shift();
-    if (next) {
-      this.logoSrc.set(next);
-    }
   }
 
   pickSuggestion(id: string): void {
