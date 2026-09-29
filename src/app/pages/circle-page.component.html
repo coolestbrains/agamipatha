@@ -32,6 +32,7 @@
     @if (hasProfile()) {
       <nav class="tabs" aria-label="Path Circle sections">
         <button type="button" [class.on]="tab() === 'peers'" (click)="setTab('peers')">Peers</button>
+        <button type="button" [class.on]="tab() === 'mentors'" (click)="setTab('mentors')">Mentors</button>
         <button type="button" [class.on]="tab() === 'requests'" (click)="setTab('requests')">
           Requests
           @if (pendingIncoming()) {
@@ -70,6 +71,17 @@
             <input [(ngModel)]="city" name="city" maxlength="80" [disabled]="under18" />
           </label>
         </div>
+        <fieldset class="role-field">
+          <legend>Path Circle role</legend>
+          <label class="check inline">
+            <input type="radio" name="circleRole" value="aspirant" [(ngModel)]="circleRole" />
+            Aspirant
+          </label>
+          <label class="check inline">
+            <input type="radio" name="circleRole" value="guide" [(ngModel)]="circleRole" />
+            Guide (mentor)
+          </label>
+        </fieldset>
 
         <label>
           <span>Current standing</span>
@@ -190,6 +202,55 @@
       </section>
     }
 
+    @if (hasProfile() && tab() === 'mentors') {
+      <section class="panel" aria-labelledby="mentors-title">
+        <div class="panel-head">
+          <div>
+            <h2 id="mentors-title">Mentors &amp; mentees</h2>
+            <p class="hint">Profession-matched guides and aspirants. Connect and chat need an active subscription.</p>
+          </div>
+        </div>
+        @if (!buyer.subscriptionActive()) {
+          <div class="empty card">
+            <p>Subscribe for ₹199/month to browse mentors, send connect requests, and chat after you connect.</p>
+            <button type="button" class="primary" [disabled]="subscriptionBusy()" (click)="subscribeMentors()">
+              {{ subscriptionBusy() ? 'Opening checkout…' : 'Subscribe — ₹199/month' }}
+            </button>
+          </div>
+        } @else {
+          @if (!mentors().length) {
+            <p class="hint">No mentor matches yet. Check back as more guides join.</p>
+          } @else {
+            <div class="cards">
+              @for (peer of mentors(); track peer.buyerId) {
+                <article class="card peer">
+                  <div class="peer-top">
+                    <div>
+                      <h3>{{ peer.displayName }}</h3>
+                      <p class="meta">{{ peer.headline || (peer.standingTitle + ' → ' + peer.goalTitle) }}</p>
+                    </div>
+                    <span class="score">{{ peer.matchScore }}</span>
+                  </div>
+                  @if (peer.bio) {
+                    <p>{{ peer.bio }}</p>
+                  }
+                  <div class="actions">
+                    @if (peer.relation === 'none' || peer.relation === 'declined') {
+                      <button type="button" class="primary" (click)="requestConnect(peer)">Connect</button>
+                    } @else if (peer.relation === 'pending') {
+                      <span class="meta">Request pending</span>
+                    } @else if (peer.relation === 'accepted') {
+                      <span class="meta">Connected</span>
+                    }
+                  </div>
+                </article>
+              }
+            </div>
+          }
+        }
+      </section>
+    }
+
     @if (hasProfile() && tab() === 'requests') {
       <section class="panel" aria-labelledby="requests-title">
         <h2 id="requests-title">Connect requests</h2>
@@ -229,32 +290,65 @@
           <button type="button" class="ghost" (click)="copyInvite()">Invite more to this goal</button>
         </div>
         @if (!connections().length) {
-          <p class="hint">No connections yet. Send a request from Peers.</p>
+          <p class="hint">No connections yet. Send a request from Peers or Mentors.</p>
         } @else {
-          <div class="cards">
-            @for (c of connections(); track c.buyerId) {
-              <article class="card peer">
-                <h3>{{ c.displayName }}</h3>
-                <p class="meta">{{ c.standingTitle }} → {{ c.goalTitle }}</p>
-                @if (c.city) {
-                  <p class="meta">{{ c.city }}</p>
+          <div class="connections-layout">
+            <div class="cards">
+              @for (c of connections(); track c.buyerId) {
+                <article class="card peer" [class.selected]="chatConnection()?.buyerId === c.buyerId">
+                  <h3>{{ c.displayName }}</h3>
+                  <p class="meta">{{ c.standingTitle }} → {{ c.goalTitle }}</p>
+                  @if (c.city) {
+                    <p class="meta">{{ c.city }}</p>
+                  }
+                  <div class="contact">
+                    @if (c.mobile) {
+                      <a [href]="'tel:' + c.mobile">{{ c.mobile }}</a>
+                    }
+                    @if (c.email) {
+                      <a [href]="'mailto:' + c.email">{{ c.email }}</a>
+                    }
+                    @if (!c.mobile && !c.email) {
+                      <span class="meta">They chose not to share contact yet.</span>
+                    }
+                  </div>
+                  <div class="actions">
+                    @if (buyer.subscriptionActive()) {
+                      <button type="button" class="primary" (click)="openChat(c)">Chat</button>
+                    } @else {
+                      <button type="button" class="ghost" (click)="setTab('mentors')">Subscribe to chat</button>
+                    }
+                    <button type="button" class="ghost" (click)="openReport(c.buyerId)">Report</button>
+                    <button type="button" class="ghost" (click)="block(c.buyerId, c.displayName)">Block</button>
+                  </div>
+                </article>
+              }
+            </div>
+            @if (chatConnection(); as chat) {
+              <section class="chat card" aria-label="Chat">
+                <h3>Chat with {{ chat.displayName }}</h3>
+                @if (chatBusy() && !chatMessages().length) {
+                  <p class="hint">Loading messages…</p>
                 }
-                <div class="contact">
-                  @if (c.mobile) {
-                    <a [href]="'tel:' + c.mobile">{{ c.mobile }}</a>
-                  }
-                  @if (c.email) {
-                    <a [href]="'mailto:' + c.email">{{ c.email }}</a>
-                  }
-                  @if (!c.mobile && !c.email) {
-                    <span class="meta">They chose not to share contact yet.</span>
+                <div class="chat-log">
+                  @for (msg of chatMessages(); track msg.id) {
+                    <p [class.mine]="msg.mine" class="chat-line">
+                      <span>{{ msg.body }}</span>
+                      <small>{{ msg.createdAtUtc | date: 'short' }}</small>
+                    </p>
                   }
                 </div>
-                <div class="actions">
-                  <button type="button" class="ghost" (click)="openReport(c.buyerId)">Report</button>
-                  <button type="button" class="ghost" (click)="block(c.buyerId, c.displayName)">Block</button>
-                </div>
-              </article>
+                <form class="chat-compose" (ngSubmit)="sendChat()">
+                  <input
+                    [(ngModel)]="chatDraft"
+                    name="chatDraft"
+                    maxlength="2000"
+                    placeholder="Write a message"
+                    [disabled]="chatBusy()"
+                  />
+                  <button type="submit" class="primary" [disabled]="chatBusy() || !chatDraft.trim()">Send</button>
+                </form>
+              </section>
             }
           </div>
         }

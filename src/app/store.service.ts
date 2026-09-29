@@ -48,6 +48,9 @@ export interface StoreAccount {
   email?: string;
   mobile?: string;
   password?: string;
+  circleRole?: 'aspirant' | 'guide';
+  standingNodeId?: string;
+  goalNodeId?: string;
 }
 
 export interface StoreBuyerAuth {
@@ -55,6 +58,8 @@ export interface StoreBuyerAuth {
   buyerName: string;
   adminToken?: string;
   purchases: StorePurchase[];
+  subscriptionActive?: boolean;
+  periodEndUtc?: string | null;
 }
 
 interface StoreBuyerAuthResponse {
@@ -62,6 +67,16 @@ interface StoreBuyerAuthResponse {
   buyerName: string;
   adminToken?: string;
   purchases: StoreApiPurchase[];
+  subscriptionActive?: boolean;
+  periodEndUtc?: string | null;
+}
+
+export interface BuyerSubscription {
+  active: boolean;
+  periodEndUtc?: string | null;
+  amountPaise: number;
+  amountLabel: string;
+  currency: string;
 }
 
 export interface StorePurchase {
@@ -142,7 +157,33 @@ export class StoreService {
         email: account.email?.trim() || undefined,
         mobile: account.mobile?.trim() || undefined,
         password: account.password || undefined,
+        circleRole: account.circleRole || undefined,
+        standingNodeId: account.standingNodeId?.trim() || undefined,
+        goalNodeId: account.goalNodeId?.trim() || undefined,
       }),
+    );
+  }
+
+  claimFree(productId: string): Observable<StoreApiPurchase> {
+    return this.http.post<StoreApiPurchase>(`${this.base}/store/claim`, { productId });
+  }
+
+  subscription(): Observable<BuyerSubscription> {
+    return this.http.get<BuyerSubscription>(`${this.base}/store/subscription`);
+  }
+
+  createSubscriptionOrder(): Observable<StoreOrder> {
+    return this.http.post<StoreOrder>(`${this.base}/store/subscription/order`, {});
+  }
+
+  verifySubscription(orderId: string, paymentId: string, signature: string): Observable<{
+    subscriptionActive: boolean;
+    periodEndUtc?: string | null;
+    amountLabel?: string;
+  }> {
+    return this.http.post<{ subscriptionActive: boolean; periodEndUtc?: string | null; amountLabel?: string }>(
+      `${this.base}/store/subscription/verify`,
+      { orderId, paymentId, signature },
     );
   }
 
@@ -159,6 +200,8 @@ export class StoreService {
         buyerName: res.buyerName,
         adminToken: res.adminToken,
         purchases: this.fromApiPurchases(res.purchases ?? []),
+        subscriptionActive: !!res.subscriptionActive,
+        periodEndUtc: res.periodEndUtc ?? null,
       })),
     );
   }

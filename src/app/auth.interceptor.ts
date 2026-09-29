@@ -8,7 +8,8 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const auth = inject(AuthService);
   const buyer = inject(BuyerAuthService);
   const isAdminApi = req.url.includes('/admin') || req.url.includes('/auth/login');
-  const isStoreBuyerApi = /\/store\/(orders|verify|purchases|my-orders)(?:\?|$)/.test(req.url);
+  const isStoreBuyerApi =
+    /\/store\/(orders|verify|purchases|my-orders|claim|subscription)(?:\/|\?|$)/.test(req.url);
   const isCircleApi =
     /\/api\/circle(?:\/|$)/.test(req.url) && !/\/api\/circle\/invite\//.test(req.url);
 

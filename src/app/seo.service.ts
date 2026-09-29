@@ -65,7 +65,7 @@ const ROUTE_SEO: { match: RegExp | string; seo: PageSeo }[] = [
     seo: {
       title: 'Career guide ebooks & stream chooser | AgamiPatha Store',
       description:
-        'Buy AgamiPatha career workbooks: Career Path Planner, Class 10 Stream Chooser, All Career Paths, and first-year college guides.',
+        'Free AgamiPatha career ebooks: Career Path Planner, Class 10 Stream Chooser, All Career Paths, and first-year college guides.',
       path: '/store',
     },
   },

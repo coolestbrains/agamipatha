@@ -325,6 +325,58 @@ public static class DatabaseInitializer
                 );
                 CREATE INDEX IX_PathCircleReports_CreatedAtUtc ON dbo.PathCircleReports (CreatedAtUtc DESC);
             END
+
+            IF COL_LENGTH(N'dbo.StoreBuyers', N'CircleRole') IS NULL
+            BEGIN
+                ALTER TABLE dbo.StoreBuyers ADD CircleRole nvarchar(20) NOT NULL
+                    CONSTRAINT DF_StoreBuyers_CircleRole DEFAULT (N'aspirant');
+            END
+            IF COL_LENGTH(N'dbo.StoreBuyers', N'StandingNodeId') IS NULL
+            BEGIN
+                ALTER TABLE dbo.StoreBuyers ADD StandingNodeId nvarchar(80) NULL;
+            END
+            IF COL_LENGTH(N'dbo.StoreBuyers', N'GoalNodeId') IS NULL
+            BEGIN
+                ALTER TABLE dbo.StoreBuyers ADD GoalNodeId nvarchar(80) NULL;
+            END
+
+            IF COL_LENGTH(N'dbo.PathProfiles', N'CircleRole') IS NULL
+            BEGIN
+                ALTER TABLE dbo.PathProfiles ADD CircleRole nvarchar(20) NOT NULL
+                    CONSTRAINT DF_PathProfiles_CircleRole DEFAULT (N'aspirant');
+            END
+
+            IF OBJECT_ID(N'dbo.BuyerSubscriptions', N'U') IS NULL
+            BEGIN
+                CREATE TABLE dbo.BuyerSubscriptions (
+                    Id nvarchar(80) NOT NULL CONSTRAINT PK_BuyerSubscriptions PRIMARY KEY,
+                    BuyerId nvarchar(80) NOT NULL,
+                    Status nvarchar(20) NOT NULL,
+                    AmountPaise int NOT NULL,
+                    Currency nvarchar(10) NOT NULL,
+                    RazorpayOrderId nvarchar(80) NULL,
+                    RazorpayPaymentId nvarchar(80) NULL,
+                    PeriodStartUtc datetime2 NOT NULL,
+                    PeriodEndUtc datetime2 NOT NULL,
+                    CreatedAtUtc datetime2 NOT NULL
+                );
+                CREATE INDEX IX_BuyerSubscriptions_BuyerId ON dbo.BuyerSubscriptions (BuyerId);
+                CREATE INDEX IX_BuyerSubscriptions_BuyerStatusEnd ON dbo.BuyerSubscriptions (BuyerId, Status, PeriodEndUtc);
+            END
+
+            IF OBJECT_ID(N'dbo.PathMessages', N'U') IS NULL
+            BEGIN
+                CREATE TABLE dbo.PathMessages (
+                    Id int NOT NULL IDENTITY(1,1) CONSTRAINT PK_PathMessages PRIMARY KEY,
+                    FromBuyerId nvarchar(80) NOT NULL,
+                    ToBuyerId nvarchar(80) NOT NULL,
+                    Body nvarchar(2000) NOT NULL,
+                    CreatedAtUtc datetime2 NOT NULL,
+                    ReadAtUtc datetime2 NULL
+                );
+                CREATE INDEX IX_PathMessages_Pair ON dbo.PathMessages (FromBuyerId, ToBuyerId, CreatedAtUtc);
+                CREATE INDEX IX_PathMessages_ToFrom ON dbo.PathMessages (ToBuyerId, FromBuyerId, CreatedAtUtc);
+            END
             """);
         await EnsureGuestVisitKeyAsync(db);
     }

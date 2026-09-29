@@ -81,6 +81,11 @@ public class StoreService(
             return (400, new { message });
         }
 
+        if (product.PricePaise <= 0)
+        {
+            return (400, new { message = "This ebook is free. Use Get free instead of checkout." });
+        }
+
         if (product.PricePaise < 100)
         {
             return (400, new { message = "Product price must be at least ₹1." });
@@ -214,22 +219,88 @@ public class StoreService(
 
     public async Task<(int Status, object Body)> RegisterAsync(StoreRegisterRequestDto body, CancellationToken ct)
     {
-        var (status, message, buyer) = await buyers.ResolveForCheckoutAsync(
-            new StoreOrderRequestDto
-            {
-                Name = body.Name,
-                Email = body.Email,
-                Mobile = body.Mobile,
-                Password = body.Password
-            },
-            null,
-            ct);
+        var (status, message, buyer) = await buyers.RegisterAsync(body, ct);
         if (buyer is null)
         {
             return (status, new { message });
         }
 
         return (200, await AuthForBuyerAsync(buyer, ct));
+    }
+
+    public async Task<(int Status, object Body)> ClaimFreeAsync(
+        string buyerId,
+        StoreClaimRequestDto body,
+        CancellationToken ct)
+    {
+        var productId = (body.ProductId ?? "").Trim();
+        var product = Products().FirstOrDefault(p => p.Id.Equals(productId, StringComparison.OrdinalIgnoreCase));
+        if (product is null)
+        {
+            return (404, new { message = "That product is not in the store." });
+        }
+
+        if (!IsOnSale(product))
+        {
+            var message = HasPdf(product)
+                ? "This ebook is not available until it has a cover."
+                : "This product is not available until a PDF is uploaded.";
+            return (400, new { message });
+        }
+
+        if (product.PricePaise > 0)
+        {
+            return (400, new { message = "This product is not free. Use checkout instead." });
+        }
+
+        var existing = await db.StoreOrders.AsNoTracking()
+            .FirstOrDefaultAsync(
+                o => o.BuyerId == buyerId && o.ProductId == product.Id && o.Status == "paid" && o.DownloadToken != null,
+                ct);
+        if (existing is not null)
+        {
+            return (200, new StorePurchaseDto
+            {
+                ProductId = product.Id,
+                Title = product.Title,
+                FileName = ProductFileName(product),
+                DownloadToken = existing.DownloadToken!,
+            });
+        }
+
+        var buyer = await db.StoreBuyers.AsNoTracking().FirstOrDefaultAsync(b => b.Id == buyerId, ct);
+        if (buyer is null)
+        {
+            return (401, new { message = "Sign in to claim this ebook." });
+        }
+
+        var (_, _, currency, _, _) = Credentials();
+        var receipt = Guid.NewGuid().ToString("N")[..24];
+        var token = Guid.NewGuid().ToString("N");
+        var now = DateTime.UtcNow;
+        db.StoreOrders.Add(new StoreOrderRecord
+        {
+            Id = receipt,
+            BuyerId = buyerId,
+            ProductId = product.Id,
+            AmountPaise = 0,
+            Currency = currency,
+            RazorpayOrderId = $"free-{receipt}",
+            Status = "paid",
+            DownloadToken = token,
+            BuyerEmail = buyer.Email,
+            CreatedAtUtc = now,
+            PaidAtUtc = now,
+        });
+        await db.SaveChangesAsync(ct);
+
+        return (200, new StorePurchaseDto
+        {
+            ProductId = product.Id,
+            Title = product.Title,
+            FileName = ProductFileName(product),
+            DownloadToken = token,
+        });
     }
 
     public async Task<(int Status, object Body)> LoginAsync(StoreLoginRequestDto body, CancellationToken ct)
@@ -243,14 +314,179 @@ public class StoreService(
         return (200, await AuthForBuyerAsync(buyer, ct));
     }
 
-    private async Task<StoreBuyerAuthDto> AuthForBuyerAsync(StoreBuyerRecord buyer, CancellationToken ct) =>
-        new()
+    private async Task<StoreBuyerAuthDto> AuthForBuyerAsync(StoreBuyerRecord buyer, CancellationToken ct)
+    {
+        var subscription = await GetSubscriptionAsync(buyer.Id, ct);
+        return new StoreBuyerAuthDto
         {
             Token = tokens.CreateBuyerToken(buyer.Id, buyer.Name),
             BuyerName = buyer.Name,
             AdminToken = buyers.IsAdminBuyer(buyer) ? tokens.CreateToken() : null,
-            Purchases = await PurchasesForBuyerAsync(buyer.Id, ct)
+            Purchases = await PurchasesForBuyerAsync(buyer.Id, ct),
+            SubscriptionActive = subscription.Active,
+            PeriodEndUtc = subscription.PeriodEndUtc,
         };
+    }
+
+    public const int SubscriptionAmountPaise = 19_900;
+
+    public async Task<BuyerSubscriptionDto> GetSubscriptionAsync(string buyerId, CancellationToken ct)
+    {
+        var (_, _, currency, _, _) = Credentials();
+        var row = await db.BuyerSubscriptions.AsNoTracking()
+            .Where(s => s.BuyerId == buyerId && s.Status == "active" && s.PeriodEndUtc > DateTime.UtcNow)
+            .OrderByDescending(s => s.PeriodEndUtc)
+            .FirstOrDefaultAsync(ct);
+
+        return new BuyerSubscriptionDto
+        {
+            Active = row is not null,
+            PeriodEndUtc = row?.PeriodEndUtc,
+            AmountPaise = SubscriptionAmountPaise,
+            AmountLabel = FormatPrice(SubscriptionAmountPaise, currency),
+            Currency = currency,
+        };
+    }
+
+    public async Task<(int Status, object Body)> CreateSubscriptionOrderAsync(string buyerId, CancellationToken ct)
+    {
+        var (keyId, keySecret, currency, configured, testMode) = Credentials();
+        if (!configured)
+        {
+            return (503, new
+            {
+                message = "Razorpay is not configured. Add Test or Live keys under Razorpay in appsettings.json.",
+            });
+        }
+
+        var buyer = await db.StoreBuyers.AsNoTracking().FirstOrDefaultAsync(b => b.Id == buyerId, ct);
+        if (buyer is null)
+        {
+            return (401, new { message = "Sign in to subscribe." });
+        }
+
+        var receipt = Guid.NewGuid().ToString("N")[..24];
+        using var request = new HttpRequestMessage(HttpMethod.Post, "https://api.razorpay.com/v1/orders");
+        request.Headers.Authorization = new AuthenticationHeaderValue("Basic", BasicAuth(keyId, keySecret));
+        request.Content = new StringContent(JsonSerializer.Serialize(new
+        {
+            amount = SubscriptionAmountPaise,
+            currency,
+            receipt,
+            notes = new { kind = "circle-subscription", buyerId },
+        }), Encoding.UTF8, "application/json");
+
+        HttpResponseMessage response;
+        try
+        {
+            response = await http.SendAsync(request, ct);
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "Razorpay subscription order request failed.");
+            return (502, new { message = "Could not reach Razorpay. Try again in a moment." });
+        }
+
+        var raw = await response.Content.ReadAsStringAsync(ct);
+        if (!response.IsSuccessStatusCode)
+        {
+            logger.LogWarning("Razorpay subscription order failed ({Status}): {Body}", (int)response.StatusCode, raw);
+            var which = testMode ? "Test" : "Live";
+            var message = (int)response.StatusCode == 401
+                ? $"Razorpay rejected the {which} Key ID/secret."
+                : RazorpayError(raw);
+            return (502, new { message });
+        }
+
+        using var doc = JsonDocument.Parse(raw);
+        if (!doc.RootElement.TryGetProperty("id", out var idEl) || idEl.GetString() is not { Length: > 0 } razorpayOrderId)
+        {
+            return (502, new { message = "Razorpay did not return an order id." });
+        }
+
+        var now = DateTime.UtcNow;
+        db.BuyerSubscriptions.Add(new BuyerSubscriptionRecord
+        {
+            Id = receipt,
+            BuyerId = buyerId,
+            Status = "created",
+            AmountPaise = SubscriptionAmountPaise,
+            Currency = currency,
+            RazorpayOrderId = razorpayOrderId,
+            PeriodStartUtc = now,
+            PeriodEndUtc = now,
+            CreatedAtUtc = now,
+        });
+        await db.SaveChangesAsync(ct);
+
+        return (200, new StoreOrderDto
+        {
+            OrderId = razorpayOrderId,
+            Amount = SubscriptionAmountPaise,
+            Currency = currency,
+            KeyId = keyId,
+            ProductTitle = "Path Circle mentors (1 month)",
+            TestMode = testMode,
+        });
+    }
+
+    public async Task<(int Status, object Body)> VerifySubscriptionAsync(
+        string buyerId,
+        StoreVerifyRequestDto body,
+        CancellationToken ct)
+    {
+        var (_, keySecret, currency, configured, _) = Credentials();
+        if (!configured)
+        {
+            return (503, new { message = "Razorpay is not configured." });
+        }
+
+        var orderId = (body.OrderId ?? "").Trim();
+        var paymentId = (body.PaymentId ?? "").Trim();
+        var signature = (body.Signature ?? "").Trim();
+        if (orderId.Length == 0 || paymentId.Length == 0 || signature.Length == 0)
+        {
+            return (400, new { message = "Payment confirmation is incomplete." });
+        }
+
+        if (!ValidSignature(orderId, paymentId, signature, keySecret))
+        {
+            return (400, new { message = "Payment signature did not match." });
+        }
+
+        var row = await db.BuyerSubscriptions.FirstOrDefaultAsync(
+            s => s.RazorpayOrderId == orderId && s.BuyerId == buyerId,
+            ct);
+        if (row is null)
+        {
+            return (404, new { message = "That subscription order was not found." });
+        }
+
+        if (row.Status != "active")
+        {
+            var now = DateTime.UtcNow;
+            var activeEnd = await db.BuyerSubscriptions.AsNoTracking()
+                .Where(s => s.BuyerId == buyerId && s.Status == "active" && s.PeriodEndUtc > now && s.Id != row.Id)
+                .OrderByDescending(s => s.PeriodEndUtc)
+                .Select(s => s.PeriodEndUtc)
+                .FirstOrDefaultAsync(ct);
+
+            var start = activeEnd > now ? activeEnd : now;
+            row.Status = "active";
+            row.RazorpayPaymentId = paymentId;
+            row.PeriodStartUtc = start;
+            row.PeriodEndUtc = start.AddDays(30);
+            await db.SaveChangesAsync(ct);
+        }
+
+        var subscription = await GetSubscriptionAsync(buyerId, ct);
+        return (200, new
+        {
+            subscriptionActive = subscription.Active,
+            periodEndUtc = subscription.PeriodEndUtc,
+            amountLabel = FormatPrice(SubscriptionAmountPaise, currency),
+        });
+    }
 
     public async Task<List<StorePurchaseDto>> PurchasesForBuyerAsync(string buyerId, CancellationToken ct)
     {
@@ -579,6 +815,11 @@ public class StoreService(
 
     private static string FormatPrice(int paise, string currency)
     {
+        if (paise <= 0)
+        {
+            return currency.Equals("INR", StringComparison.OrdinalIgnoreCase) ? "Free" : $"{currency} 0";
+        }
+
         var amount = paise / 100m;
         if (currency.Equals("INR", StringComparison.OrdinalIgnoreCase))
         {

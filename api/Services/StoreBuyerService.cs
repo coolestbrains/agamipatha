@@ -97,7 +97,8 @@ public class StoreBuyerService(AppDbContext db, IConfiguration config)
             Email = email,
             Mobile = mobile,
             PasswordHash = HashPassword(body.Password ?? ""),
-            CreatedAtUtc = DateTime.UtcNow
+            CreatedAtUtc = DateTime.UtcNow,
+            CircleRole = "aspirant",
         };
         db.StoreBuyers.Add(buyer);
         try
@@ -107,6 +108,55 @@ public class StoreBuyerService(AppDbContext db, IConfiguration config)
         catch (DbUpdateException)
         {
             return (400, "This email or mobile is already registered. Enter the same password, or log in first.", null);
+        }
+
+        return (200, null, buyer);
+    }
+
+    public async Task<(int Status, string? Message, StoreBuyerRecord? Buyer)> RegisterAsync(
+        StoreRegisterRequestDto body,
+        CancellationToken ct)
+    {
+        var standingId = (body.StandingNodeId ?? "").Trim();
+        if (standingId.Length == 0)
+        {
+            return (400, "Choose your current qualification or profession.", null);
+        }
+
+        if (!await db.Nodes.AsNoTracking().AnyAsync(n => n.Id == standingId, ct))
+        {
+            return (400, "That qualification or profession was not found.", null);
+        }
+
+        var goalId = (body.GoalNodeId ?? "").Trim();
+        if (goalId.Length > 0 && !await db.Nodes.AsNoTracking().AnyAsync(n => n.Id == goalId, ct))
+        {
+            return (400, "Career goal was not found.", null);
+        }
+
+        var circleRole = NormalizeCircleRole(body.CircleRole);
+        var (status, message, buyer) = await ResolveForCheckoutAsync(
+            new StoreOrderRequestDto
+            {
+                Name = body.Name,
+                Email = body.Email,
+                Mobile = body.Mobile,
+                Password = body.Password,
+            },
+            null,
+            ct);
+
+        if (buyer is null)
+        {
+            return (status, message, null);
+        }
+
+        if (string.IsNullOrWhiteSpace(buyer.StandingNodeId))
+        {
+            buyer.CircleRole = circleRole;
+            buyer.StandingNodeId = standingId;
+            buyer.GoalNodeId = goalId.Length > 0 ? goalId : null;
+            await db.SaveChangesAsync(ct);
         }
 
         return (200, null, buyer);
@@ -338,6 +388,12 @@ public class StoreBuyerService(AppDbContext db, IConfiguration config)
         return MobilePattern.IsMatch(digits)
             ? (digits, null)
             : (null, "Enter a 10-digit Indian mobile number.");
+    }
+
+    public static string NormalizeCircleRole(string? raw)
+    {
+        var value = (raw ?? "aspirant").Trim().ToLowerInvariant();
+        return value == "guide" ? "guide" : "aspirant";
     }
 
     public static string? ValidatePassword(string? raw)

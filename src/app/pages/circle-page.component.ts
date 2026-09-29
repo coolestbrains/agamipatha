@@ -1,3 +1,5 @@
+import { DatePipe } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
@@ -8,9 +10,11 @@ import {
   CircleService,
   PathConnection,
   PathConnectRequest,
+  PathMessage,
   PathPeerCard,
   PathProfile,
 } from '../circle.service';
+import { StoreOrder, StoreService } from '../store.service';
 import {
   SearchSelectComponent,
   toSearchGroups,
@@ -18,11 +22,17 @@ import {
 } from '../components/search-select.component';
 import { JourneyService } from '../journey.service';
 
-type CircleTab = 'peers' | 'requests' | 'connections' | 'profile';
+type CircleTab = 'peers' | 'mentors' | 'requests' | 'connections' | 'profile';
+
+interface RazorpaySuccess {
+  razorpay_payment_id: string;
+  razorpay_order_id: string;
+  razorpay_signature: string;
+}
 
 @Component({
   selector: 'app-circle-page',
-  imports: [FormsModule, SearchSelectComponent],
+  imports: [FormsModule, SearchSelectComponent, DatePipe],
   templateUrl: './circle-page.component.html',
   styleUrl: './circle-page.component.scss',
 })
@@ -30,6 +40,7 @@ export class CirclePageComponent implements OnInit {
   readonly buyer = inject(BuyerAuthService);
   readonly career = inject(CareerService);
   private readonly circle = inject(CircleService);
+  private readonly store = inject(StoreService);
   private readonly journeys = inject(JourneyService);
   private readonly route = inject(ActivatedRoute);
 
@@ -37,8 +48,14 @@ export class CirclePageComponent implements OnInit {
   readonly tab = signal<CircleTab>('peers');
   readonly profile = signal<PathProfile | null>(null);
   readonly peers = signal<PathPeerCard[]>([]);
+  readonly mentors = signal<PathPeerCard[]>([]);
   readonly requests = signal<PathConnectRequest[]>([]);
   readonly connections = signal<PathConnection[]>([]);
+  readonly chatConnection = signal<PathConnection | null>(null);
+  readonly chatMessages = signal<PathMessage[]>([]);
+  chatDraft = '';
+  readonly chatBusy = signal(false);
+  readonly subscriptionBusy = signal(false);
   readonly busy = signal(false);
   readonly saving = signal(false);
   readonly error = signal('');
@@ -52,6 +69,7 @@ export class CirclePageComponent implements OnInit {
   readonly standingNodeId = signal('');
   readonly goalNodeId = signal('');
   audience = 'student';
+  circleRole: 'aspirant' | 'guide' = 'aspirant';
   bio = '';
   helpOffers: string[] = [];
   lookingFor: string[] = [];
@@ -110,6 +128,13 @@ export class CirclePageComponent implements OnInit {
     this.tab.set(tab);
     this.error.set('');
     this.notice.set('');
+    if (tab === 'mentors' && this.buyer.subscriptionActive()) {
+      this.loadMentors();
+    }
+    if (tab === 'connections') {
+      this.chatConnection.set(null);
+      this.chatMessages.set([]);
+    }
   }
 
   toggleTag(list: 'help' | 'looking', id: string): void {
@@ -146,6 +171,7 @@ export class CirclePageComponent implements OnInit {
         standingNodeId: this.standingNodeId(),
         goalNodeId: this.goalNodeId(),
         audience: this.audience,
+        circleRole: this.circleRole,
         bio: this.bio.trim(),
         helpOffers: this.helpOffers,
         lookingFor: this.lookingFor,
@@ -178,8 +204,10 @@ export class CirclePageComponent implements OnInit {
         if (profile) {
           this.applyProfile(profile);
           this.loadPeers();
+          this.loadMentors();
           this.loadRequests();
           this.loadConnections();
+          this.refreshSubscription();
         } else {
           this.profile.set(null);
           this.tab.set('profile');
@@ -201,6 +229,130 @@ export class CirclePageComponent implements OnInit {
     this.circle.peers(profile.goalNodeId, profile.standingNodeId).subscribe({
       next: (peers) => this.peers.set(peers),
       error: (err) => this.error.set(this.circle.errorMessage(err, 'Could not load peers.')),
+    });
+  }
+
+  loadMentors(): void {
+    const profile = this.profile();
+    if (!profile) {
+      return;
+    }
+    if (!this.buyer.subscriptionActive()) {
+      this.mentors.set([]);
+      return;
+    }
+    this.circle.peers(profile.goalNodeId, profile.standingNodeId, true).subscribe({
+      next: (rows) => this.mentors.set(rows),
+      error: (err: HttpErrorResponse) => {
+        if (err.status === 402) {
+          this.buyer.setSubscription(false);
+          this.mentors.set([]);
+          this.error.set(this.circle.errorMessage(err, 'Subscribe to see mentors.'));
+          return;
+        }
+        this.error.set(this.circle.errorMessage(err, 'Could not load mentors.'));
+      },
+    });
+  }
+
+  refreshSubscription(): void {
+    if (!this.buyer.isLoggedIn()) {
+      return;
+    }
+    this.store.subscription().subscribe({
+      next: (sub) => this.buyer.setSubscription(sub.active, sub.periodEndUtc ?? null),
+      error: () => undefined,
+    });
+  }
+
+  subscribeMentors(): void {
+    this.error.set('');
+    this.subscriptionBusy.set(true);
+    this.store.createSubscriptionOrder().subscribe({
+      next: (order) => this.openSubscriptionCheckout(order),
+      error: (err: HttpErrorResponse) => {
+        this.subscriptionBusy.set(false);
+        this.error.set(this.circle.errorMessage(err, 'Could not start subscription checkout.'));
+      },
+    });
+  }
+
+  private openSubscriptionCheckout(order: StoreOrder): void {
+    const Razorpay = window.Razorpay as typeof window.Razorpay;
+    if (!Razorpay) {
+      this.subscriptionBusy.set(false);
+      this.error.set('Razorpay checkout did not load. Refresh and try again.');
+      return;
+    }
+    const checkout = new Razorpay({
+      key: order.keyId,
+      amount: order.amount,
+      currency: order.currency,
+      name: order.testMode ? 'AgamiPatha Path Circle (Test)' : 'AgamiPatha Path Circle',
+      description: order.productTitle,
+      order_id: order.orderId,
+      theme: { color: '#1A3D7C' },
+      handler: (response) => this.confirmSubscription(response),
+      modal: { ondismiss: () => this.subscriptionBusy.set(false) },
+    });
+    checkout.on('payment.failed', (response) => {
+      this.subscriptionBusy.set(false);
+      this.error.set(response.error?.description || 'Payment failed.');
+    });
+    checkout.open();
+  }
+
+  private confirmSubscription(response: RazorpaySuccess): void {
+    this.store
+      .verifySubscription(response.razorpay_order_id, response.razorpay_payment_id, response.razorpay_signature)
+      .subscribe({
+        next: (result) => {
+          this.subscriptionBusy.set(false);
+          this.buyer.setSubscription(result.subscriptionActive, result.periodEndUtc ?? null);
+          this.notice.set('Subscription active. You can connect with mentors and chat.');
+          this.loadMentors();
+          this.tab.set('mentors');
+        },
+        error: (err: HttpErrorResponse) => {
+          this.subscriptionBusy.set(false);
+          this.error.set(this.circle.errorMessage(err, 'Payment succeeded but verification failed.'));
+        },
+      });
+  }
+
+  openChat(connection: PathConnection): void {
+    this.chatConnection.set(connection);
+    this.chatDraft = '';
+    this.chatBusy.set(true);
+    this.circle.messages(connection.buyerId).subscribe({
+      next: (rows) => {
+        this.chatMessages.set(rows);
+        this.chatBusy.set(false);
+      },
+      error: (err: HttpErrorResponse) => {
+        this.chatBusy.set(false);
+        this.error.set(this.circle.errorMessage(err, 'Could not load messages.'));
+      },
+    });
+  }
+
+  sendChat(): void {
+    const connection = this.chatConnection();
+    const body = this.chatDraft.trim();
+    if (!connection || !body) {
+      return;
+    }
+    this.chatBusy.set(true);
+    this.circle.sendMessage(connection.buyerId, body).subscribe({
+      next: (msg) => {
+        this.chatMessages.update((rows) => [...rows, msg]);
+        this.chatDraft = '';
+        this.chatBusy.set(false);
+      },
+      error: (err: HttpErrorResponse) => {
+        this.chatBusy.set(false);
+        this.error.set(this.circle.errorMessage(err, 'Could not send message.'));
+      },
     });
   }
 
@@ -227,7 +379,14 @@ export class CirclePageComponent implements OnInit {
         this.loadPeers();
         this.loadRequests();
       },
-      error: (err) => this.error.set(this.circle.errorMessage(err, 'Could not send request.')),
+      error: (err: HttpErrorResponse) => {
+        if (err.status === 402) {
+          this.error.set(this.circle.errorMessage(err, 'Subscribe to connect.'));
+          this.tab.set('mentors');
+          return;
+        }
+        this.error.set(this.circle.errorMessage(err, 'Could not send request.'));
+      },
     });
   }
 
@@ -321,6 +480,7 @@ export class CirclePageComponent implements OnInit {
     this.standingNodeId.set(profile.standingNodeId);
     this.goalNodeId.set(profile.goalNodeId);
     this.audience = profile.audience === 'guardian' ? 'parent' : profile.audience;
+    this.circleRole = profile.circleRole === 'guide' ? 'guide' : 'aspirant';
     this.bio = profile.bio;
     this.helpOffers = [...profile.helpOffers];
     this.lookingFor = [...profile.lookingFor];

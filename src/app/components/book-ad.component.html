@@ -8,7 +8,7 @@
           <button type="button" class="tool" (click)="ads.collapse()" aria-label="Collapse store ad">–</button>
           <button type="button" class="tool" (click)="ads.dismiss()" aria-label="Close store ad">×</button>
         </div>
-        <a class="body" routerLink="/store" [attr.aria-label]="'Buy ' + book.title">
+        <a class="body" routerLink="/store" [attr.aria-label]="'Get ' + book.title">
           <p class="kicker">From the Store</p>
           @if (coverSrc(book)) {
             <img
@@ -19,7 +19,7 @@
           }
           <span class="copy">
             <strong>{{ book.title }}</strong>
-            <span class="price">{{ book.priceLabel }} · Get the ebook</span>
+            <span class="price">Free ebook</span>
           </span>
         </a>
       </article>

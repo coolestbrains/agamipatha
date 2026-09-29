@@ -2,20 +2,8 @@
   <p class="eyebrow">Digital shelf</p>
   <h1>Online Store</h1>
   <p class="lede">
-    Pay with Razorpay, then download the ebook. Create an account at checkout so you can open it again later.
+    Free ebooks for your career journey. Sign in to download, then open them again anytime from your account.
   </p>
-
-  @if (catalog()?.configured && catalog()?.testMode) {
-    <p class="notice">
-      Razorpay is in <strong>test mode</strong>. Use test card <code>4111 1111 1111 1111</code>, any future expiry, and any CVV.
-    </p>
-  }
-  @if (!catalog()?.configured && catalog()) {
-    <p class="notice">
-      Products are listed, but checkout is off until you add <code>Razorpay:Test:KeyId</code> and
-      <code>Razorpay:Test:KeySecret</code> in <code>appsettings.json</code> and restart the API.
-    </p>
-  }
 
   @if (loadError()) {
     <p class="form-error">{{ loadError() }}</p>
@@ -31,7 +19,6 @@
           <p class="kind">{{ kindLabel(product.kind) }}</p>
           <h2>{{ product.title }}</h2>
           <p class="desc">{{ product.description }}</p>
-          <p class="price">{{ product.priceLabel }}</p>
           @if (purchaseFor(product.id); as purchase) {
             <button class="primary" type="button" (click)="download(product, purchase)">
               Download {{ product.file || purchase.fileName }}
@@ -40,10 +27,10 @@
             <button
               class="primary"
               type="button"
-              [disabled]="!!busyId() || !catalog()?.configured || !canBuy(product)"
+              [disabled]="!!busyId() || !canBuy(product)"
               (click)="buy(product)"
             >
-              {{ !canBuy(product) ? 'Coming soon' : 'BUY' }}
+              {{ !canBuy(product) ? 'Coming soon' : busyId() === product.id ? 'Getting…' : 'Get ebook' }}
             </button>
           }
         </div>
@@ -64,13 +51,13 @@
         <button class="close ghost" type="button" (click)="closeAccount()">Close</button>
       </div>
       <div class="tabs" role="tablist">
-        <button type="button" role="tab" [class.on]="mode === 'buy'" (click)="mode = 'buy'">New purchase</button>
+        <button type="button" role="tab" [class.on]="mode === 'buy'" (click)="mode = 'buy'">Create account</button>
         <button type="button" role="tab" [class.on]="mode === 'login'" (click)="mode = 'login'">I already have an account</button>
       </div>
 
       @if (mode === 'buy') {
         <p class="account-title">Your account</p>
-        <p class="account-hint">Name, mobile, and a password. Email is optional. You can create the account now, or when you buy. Use the same details next time to open your downloads.</p>
+        <p class="account-hint">Name, mobile, and a password. Email is optional. Create an account to download free ebooks and open them again later.</p>
         <label>
           <span>Name</span>
           <input type="text" name="name" [(ngModel)]="name" autocomplete="name" maxlength="80" placeholder="Your name" />
@@ -114,11 +101,11 @@
           <p class="account-error">{{ registerError() }}</p>
         }
         <button class="primary" type="submit" [disabled]="loginBusy() || !!busyId()">
-          {{ loginBusy() && !pendingProduct() ? 'Creating account…' : pendingProduct() ? 'Continue to pay' : 'Create account' }}
+          {{ loginBusy() && !pendingProduct() ? 'Creating account…' : pendingProduct() ? 'Create account and get ebook' : 'Create account' }}
         </button>
       } @else {
         <p class="account-title">Log in</p>
-        <p class="account-hint">Use the email or mobile and password from your purchase.</p>
+        <p class="account-hint">Use the email or mobile and password from your account to open downloads.</p>
         <label>
           <span>Email or mobile</span>
           <input type="text" name="loginId" [(ngModel)]="loginId" autocomplete="username" placeholder="you@example.com or 10-digit mobile" />
@@ -137,7 +124,7 @@
           <p class="field-error">{{ loginError() }}</p>
         }
         <button class="primary" type="submit" [disabled]="loginBusy() || !!busyId()">
-          {{ loginBusy() ? 'Signing in…' : pendingProduct() ? 'Log in and pay' : 'Log in' }}
+          {{ loginBusy() ? 'Signing in…' : pendingProduct() ? 'Log in and get ebook' : 'Log in' }}
         </button>
       }
     </form>
@@ -156,7 +143,6 @@
           <p class="kind">{{ kindLabel(product.kind) }}</p>
           <h2>{{ product.title }}</h2>
           <p class="preview-desc">{{ product.description }}</p>
-          <p class="price">{{ product.priceLabel }}</p>
           @if (purchaseFor(product.id); as purchase) {
             <button class="primary" type="button" (click)="download(product, purchase)">
               Download {{ product.file || purchase.fileName }}
@@ -165,10 +151,10 @@
             <button
               class="primary"
               type="button"
-              [disabled]="!!busyId() || !catalog()?.configured || !canBuy(product)"
+              [disabled]="!!busyId() || !canBuy(product)"
               (click)="buy(product)"
             >
-              {{ !canBuy(product) ? 'Coming soon' : 'BUY' }}
+              {{ !canBuy(product) ? 'Coming soon' : busyId() === product.id ? 'Getting…' : 'Get ebook' }}
             </button>
           }
         </div>
@@ -176,5 +162,3 @@
     </div>
   </div>
 }
-
-<app-razorpay-trust />

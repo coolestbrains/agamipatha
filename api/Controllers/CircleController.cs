@@ -38,7 +38,12 @@ public class CircleController(CircleService circle) : ControllerBase
     }
 
     [HttpGet("peers")]
-    public async Task<IActionResult> Peers([FromQuery] string? goalId, [FromQuery] string? standingId, CancellationToken ct)
+    public async Task<IActionResult> Peers(
+        [FromQuery] string? goalId,
+        [FromQuery] string? standingId,
+        [FromQuery] int mentor,
+        [FromQuery] string? kind,
+        CancellationToken ct)
     {
         var buyerId = BuyerId();
         if (buyerId is null)
@@ -46,7 +51,34 @@ public class CircleController(CircleService circle) : ControllerBase
             return Unauthorized();
         }
 
-        var (status, payload) = await circle.ListPeersAsync(buyerId, goalId, standingId, ct);
+        var mentorMode = mentor == 1 || string.Equals(kind, "mentor", StringComparison.OrdinalIgnoreCase);
+        var (status, payload) = await circle.ListPeersAsync(buyerId, goalId, standingId, mentorMode, ct);
+        return StatusCode(status, payload);
+    }
+
+    [HttpGet("messages")]
+    public async Task<IActionResult> Messages([FromQuery] string with, CancellationToken ct)
+    {
+        var buyerId = BuyerId();
+        if (buyerId is null)
+        {
+            return Unauthorized();
+        }
+
+        var (status, body) = await circle.ListMessagesAsync(buyerId, with, ct);
+        return StatusCode(status, body);
+    }
+
+    [HttpPost("messages")]
+    public async Task<IActionResult> PostMessage([FromBody] PathMessageCreateDto? body, CancellationToken ct)
+    {
+        var buyerId = BuyerId();
+        if (buyerId is null)
+        {
+            return Unauthorized();
+        }
+
+        var (status, payload) = await circle.SendMessageAsync(buyerId, body ?? new PathMessageCreateDto(), ct);
         return StatusCode(status, payload);
     }
 

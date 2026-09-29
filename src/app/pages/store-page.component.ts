@@ -3,7 +3,6 @@ import { Component, HostListener, effect, inject, signal, untracked } from '@ang
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../auth.service';
 import { BuyerAuthService } from '../buyer-auth.service';
-import { RazorpayTrustComponent } from '../components/razorpay-trust.component';
 import { StoreAccount, StoreBuyerAuth, StoreCatalog, StoreOrder, StoreProduct, StorePurchase, StoreService } from '../store.service';
 
 interface RazorpayCheckoutOptions {
@@ -41,7 +40,7 @@ type FieldErrors = Partial<Record<'name' | 'email' | 'mobile' | 'password' | 'pr
 
 @Component({
   selector: 'app-store-page',
-  imports: [FormsModule, RazorpayTrustComponent],
+  imports: [FormsModule],
   templateUrl: './store-page.component.html',
   styleUrl: './store-page.component.scss',
 })
@@ -117,6 +116,10 @@ export class StorePageComponent {
     return labels[kind] ?? kind;
   }
 
+  isFree(product: StoreProduct): boolean {
+    return product.pricePaise <= 0;
+  }
+
   canBuy(product: StoreProduct): boolean {
     if (product.onSale === false || product.hasPdf === false) {
       return false;
@@ -157,7 +160,7 @@ export class StorePageComponent {
   download(product: StoreProduct, purchase: StorePurchase): void {
     if (!this.buyer.isLoggedIn()) {
       this.purchases.set([]);
-      this.checkoutError.set('Log in and buy this book again to download it.');
+      this.checkoutError.set('Log in and get this ebook again to download it.');
       return;
     }
     this.store.accountPurchases().subscribe({
@@ -166,7 +169,7 @@ export class StorePageComponent {
         this.applyAccountPurchases(account);
         const live = account.find((item) => item.productId === product.id && item.token);
         if (!live) {
-          this.checkoutError.set(`The ${product.title} purchase was removed. Buy it again to download.`);
+          this.checkoutError.set(`The ${product.title} download was removed. Get it again from the store.`);
           return;
         }
         const link = document.createElement('a');
@@ -177,7 +180,7 @@ export class StorePageComponent {
         link.remove();
       },
       error: () => {
-        this.checkoutError.set(`Could not confirm the ${product.title} purchase. Buy it again if the download is gone.`);
+        this.checkoutError.set(`Could not confirm the ${product.title} download. Get it again if the file is gone.`);
       },
     });
   }
@@ -219,7 +222,11 @@ export class StorePageComponent {
     }
     const product = this.pendingProduct();
     if (product) {
-      this.startCheckout(product);
+      if (this.isFree(product)) {
+        this.claimFree(product);
+      } else {
+        this.startCheckout(product);
+      }
       return;
     }
     this.register();
@@ -273,7 +280,11 @@ export class StorePageComponent {
         const product = this.pendingProduct();
         this.accountOpen.set(false);
         if (product) {
-          this.startCheckout(product);
+          if (this.isFree(product)) {
+            this.claimFree(product);
+          } else {
+            this.startCheckout(product);
+          }
         } else {
           this.pendingProduct.set(null);
         }
@@ -304,7 +315,10 @@ export class StorePageComponent {
   }
 
   private applyBuyerSession(session: StoreBuyerAuth): void {
-    this.buyer.setSession(session.token, session.buyerName);
+    this.buyer.setSession(session.token, session.buyerName, false, {
+      active: session.subscriptionActive,
+      periodEndUtc: session.periodEndUtc ?? null,
+    });
     if (session.adminToken) {
       this.admin.setSession(session.adminToken);
     } else {
@@ -329,7 +343,36 @@ export class StorePageComponent {
     }
     this.closeAccount();
     this.closePreview();
+    if (this.isFree(product)) {
+      this.claimFree(product);
+      return;
+    }
     this.startCheckout(product);
+  }
+
+  private claimFree(product: StoreProduct): void {
+    this.checkoutError.set('');
+    this.busyId.set(product.id);
+    this.store.claimFree(product.id).subscribe({
+      next: (item) => {
+        const purchase: StorePurchase = {
+          productId: item.productId,
+          token: item.downloadToken,
+          fileName: item.fileName,
+          title: item.title,
+        };
+        this.applyAccountPurchases([
+          purchase,
+          ...this.purchases().filter((p) => p.productId !== purchase.productId),
+        ]);
+        this.busyId.set('');
+        this.checkoutError.set('');
+      },
+      error: (err: HttpErrorResponse) => {
+        this.busyId.set('');
+        this.checkoutError.set(this.apiMessage(err, 'Could not claim this ebook.'));
+      },
+    });
   }
 
   private startCheckout(product: StoreProduct): void {

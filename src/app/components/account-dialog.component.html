@@ -41,6 +41,33 @@
             <em>{{ fieldErrors.email }}</em>
           }
         </label>
+        <fieldset class="role-field">
+          <legend>I am</legend>
+          <div class="role-cards" role="radiogroup" aria-label="I am">
+            <label class="role-card" [class.on]="circleRole === 'aspirant'">
+              <input type="radio" name="circleRole" value="aspirant" [(ngModel)]="circleRole" />
+              <span class="role-title">Aspirant</span>
+              <span class="role-desc">Finding a path and seeking guidance</span>
+            </label>
+            <label class="role-card" [class.on]="circleRole === 'guide'">
+              <input type="radio" name="circleRole" value="guide" [(ngModel)]="circleRole" />
+              <span class="role-title">Guide</span>
+              <span class="role-desc">Mentoring others in my field</span>
+            </label>
+          </div>
+        </fieldset>
+        <label>
+          <span>Current qualification or profession</span>
+          <app-search-select
+            [value]="standingNodeId()"
+            (valueChange)="standingNodeId.set($event)"
+            [options]="standingOptions()"
+            placeholder="Search qualification or profession"
+          />
+          @if (fieldErrors.standing) {
+            <em>{{ fieldErrors.standing }}</em>
+          }
+        </label>
         <label>
           <span>Password</span>
           <input type="password" name="password" [(ngModel)]="password" autocomplete="new-password" placeholder="8+ characters, letter and number" />

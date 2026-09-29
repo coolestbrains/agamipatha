@@ -333,6 +333,17 @@ public class StoreRegisterRequestDto
     public string? Email { get; set; }
     public string? Mobile { get; set; }
     public string? Password { get; set; }
+
+    /// <summary>aspirant | guide</summary>
+    public string? CircleRole { get; set; }
+
+    public string? StandingNodeId { get; set; }
+    public string? GoalNodeId { get; set; }
+}
+
+public class StoreClaimRequestDto
+{
+    public string ProductId { get; set; } = "";
 }
 
 public class StorePurchaseDto
@@ -363,6 +374,17 @@ public class StoreBuyerAuthDto
     public string BuyerName { get; set; } = "";
     public string? AdminToken { get; set; }
     public List<StorePurchaseDto> Purchases { get; set; } = [];
+    public bool SubscriptionActive { get; set; }
+    public DateTime? PeriodEndUtc { get; set; }
+}
+
+public class BuyerSubscriptionDto
+{
+    public bool Active { get; set; }
+    public DateTime? PeriodEndUtc { get; set; }
+    public int AmountPaise { get; set; }
+    public string AmountLabel { get; set; } = "";
+    public string Currency { get; set; } = "INR";
 }
 
 public class StoreOrderDto
@@ -497,6 +519,8 @@ public class PathProfileUpsertDto
     public string StandingNodeId { get; set; } = "";
     public string GoalNodeId { get; set; } = "";
     public string Audience { get; set; } = "student";
+    /// <summary>aspirant | guide</summary>
+    public string? CircleRole { get; set; }
     public string? Bio { get; set; }
     public List<string>? HelpOffers { get; set; }
     public List<string>? LookingFor { get; set; }
@@ -517,6 +541,7 @@ public class PathProfileDto
     public string GoalNodeId { get; set; } = "";
     public string GoalTitle { get; set; } = "";
     public string Audience { get; set; } = "student";
+    public string CircleRole { get; set; } = "aspirant";
     public string Bio { get; set; } = "";
     public List<string> HelpOffers { get; set; } = [];
     public List<string> LookingFor { get; set; } = [];
@@ -526,6 +551,22 @@ public class PathProfileDto
     public bool Under18 { get; set; }
     public string InviteCode { get; set; } = "";
     public DateTime UpdatedAtUtc { get; set; }
+}
+
+public class PathMessageDto
+{
+    public int Id { get; set; }
+    public string FromBuyerId { get; set; } = "";
+    public string ToBuyerId { get; set; } = "";
+    public string Body { get; set; } = "";
+    public DateTime CreatedAtUtc { get; set; }
+    public bool Mine { get; set; }
+}
+
+public class PathMessageCreateDto
+{
+    public string ToBuyerId { get; set; } = "";
+    public string Body { get; set; } = "";
 }
 
 public class PathPeerCardDto

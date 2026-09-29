@@ -16,6 +16,8 @@ export class BuyerAuthService {
   readonly firstName = computed(() => this.name().trim().split(/\s+/)[0] || 'there');
   readonly loginRequested = signal(false);
   readonly accountPrompt = signal<'login' | 'register' | ''>('');
+  readonly subscriptionActive = signal(false);
+  readonly periodEndUtc = signal<string | null>(null);
 
   constructor() {
     this.readStorage();
@@ -47,7 +49,12 @@ export class BuyerAuthService {
     this.loginRequested.set(false);
   }
 
-  setSession(token: string, name: string, fromAdmin = false): void {
+  setSession(
+    token: string,
+    name: string,
+    fromAdmin = false,
+    subscription?: { active?: boolean; periodEndUtc?: string | null },
+  ): void {
     localStorage.setItem(TOKEN_KEY, token);
     localStorage.setItem(NAME_KEY, name);
     if (fromAdmin) {
@@ -58,6 +65,15 @@ export class BuyerAuthService {
     this.token.set(token);
     this.name.set(name);
     this.linkedToAdmin.set(fromAdmin);
+    if (subscription) {
+      this.subscriptionActive.set(!!subscription.active);
+      this.periodEndUtc.set(subscription.periodEndUtc ?? null);
+    }
+  }
+
+  setSubscription(active: boolean, periodEndUtc: string | null = null): void {
+    this.subscriptionActive.set(active);
+    this.periodEndUtc.set(periodEndUtc);
   }
 
   logout(): void {
@@ -68,6 +84,8 @@ export class BuyerAuthService {
     this.token.set('');
     this.name.set('');
     this.linkedToAdmin.set(false);
+    this.subscriptionActive.set(false);
+    this.periodEndUtc.set(null);
   }
 
   dropIfInvalid(): void {

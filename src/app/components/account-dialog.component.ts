@@ -1,17 +1,21 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, HostListener, effect, inject, signal, untracked } from '@angular/core';
+import { Component, HostListener, computed, effect, inject, signal, untracked } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../auth.service';
 import { BuyerAuthService } from '../buyer-auth.service';
+import { CareerService } from '../career.service';
 import { JourneyService } from '../journey.service';
 import { StoreAccount, StoreService } from '../store.service';
+import { SearchSelectComponent, toSearchOptions } from './search-select.component';
 
 type AccountMode = 'register' | 'login';
-type FieldErrors = Partial<Record<'name' | 'email' | 'mobile' | 'password' | 'privacy' | 'login' | 'loginPassword', string>>;
+type FieldErrors = Partial<
+  Record<'name' | 'email' | 'mobile' | 'password' | 'privacy' | 'login' | 'loginPassword' | 'standing', string>
+>;
 
 @Component({
   selector: 'app-account-dialog',
-  imports: [FormsModule],
+  imports: [FormsModule, SearchSelectComponent],
   templateUrl: './account-dialog.component.html',
   styleUrl: './account-dialog.component.scss',
 })
@@ -20,6 +24,7 @@ export class AccountDialogComponent {
   private readonly buyer = inject(BuyerAuthService);
   private readonly admin = inject(AuthService);
   private readonly journeys = inject(JourneyService);
+  private readonly career = inject(CareerService);
 
   readonly open = signal(false);
   mode: AccountMode = 'register';
@@ -30,11 +35,18 @@ export class AccountDialogComponent {
   loginId = '';
   loginPassword = '';
   acceptedPrivacy = false;
+  circleRole: 'aspirant' | 'guide' = 'aspirant';
+  readonly standingNodeId = signal('');
+  readonly goalNodeId = signal('');
   fieldErrors: FieldErrors = {};
   loginError = signal('');
   registerError = signal('');
   busy = signal(false);
   readonly savingKind = signal<'' | 'my-path' | 'favourite'>('');
+
+  readonly standingOptions = computed(() =>
+    toSearchOptions([...this.career.qualifications(), ...this.career.professions()]),
+  );
 
   constructor() {
     effect(() => {
@@ -56,6 +68,7 @@ export class AccountDialogComponent {
     this.loginError.set('');
     this.registerError.set('');
     this.acceptedPrivacy = false;
+    this.prefillPath();
     this.open.set(true);
   }
 
@@ -83,6 +96,18 @@ export class AccountDialogComponent {
     }
   }
 
+  private prefillPath(): void {
+    const trip = this.journeys.myPath() || this.journeys.saved();
+    if (trip) {
+      if (!this.standingNodeId()) {
+        this.standingNodeId.set(trip.fromId);
+      }
+      if (!this.goalNodeId()) {
+        this.goalNodeId.set(trip.toId);
+      }
+    }
+  }
+
   private login(): void {
     this.fieldErrors = {};
     this.loginError.set('');
@@ -98,12 +123,7 @@ export class AccountDialogComponent {
     this.busy.set(true);
     this.store.login(login, this.loginPassword).subscribe({
       next: (session) => {
-        this.buyer.setSession(session.token, session.buyerName);
-        if (session.adminToken) {
-          this.admin.setSession(session.adminToken);
-        } else {
-          this.admin.clearSession();
-        }
+        this.applySession(session);
         this.loginPassword = '';
         this.busy.set(false);
         this.journeys.commitPendingSave();
@@ -124,12 +144,7 @@ export class AccountDialogComponent {
     this.busy.set(true);
     this.store.register(this.account()).subscribe({
       next: (session) => {
-        this.buyer.setSession(session.token, session.buyerName);
-        if (session.adminToken) {
-          this.admin.setSession(session.adminToken);
-        } else {
-          this.admin.clearSession();
-        }
+        this.applySession(session);
         this.password = '';
         this.busy.set(false);
         this.journeys.commitPendingSave();
@@ -142,12 +157,33 @@ export class AccountDialogComponent {
     });
   }
 
+  private applySession(session: {
+    token: string;
+    buyerName: string;
+    adminToken?: string;
+    subscriptionActive?: boolean;
+    periodEndUtc?: string | null;
+  }): void {
+    this.buyer.setSession(session.token, session.buyerName, false, {
+      active: session.subscriptionActive,
+      periodEndUtc: session.periodEndUtc ?? null,
+    });
+    if (session.adminToken) {
+      this.admin.setSession(session.adminToken);
+    } else {
+      this.admin.clearSession();
+    }
+  }
+
   private account(): StoreAccount {
     return {
       name: this.name.trim(),
       email: this.email.trim() || undefined,
       mobile: this.mobile.trim(),
       password: this.password,
+      circleRole: this.circleRole,
+      standingNodeId: this.standingNodeId(),
+      goalNodeId: this.goalNodeId() || undefined,
     };
   }
 
@@ -166,6 +202,9 @@ export class AccountDialogComponent {
     }
     if (this.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       errors.email = 'Enter a valid email address.';
+    }
+    if (!this.standingNodeId()) {
+      errors.standing = 'Choose your current qualification or profession.';
     }
     if (this.password.length < 8 || this.password.length > 72) {
       errors.password = 'Password must be 8–72 characters.';

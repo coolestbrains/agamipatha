@@ -18,6 +18,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<PathProfileRecord> PathProfiles => Set<PathProfileRecord>();
     public DbSet<PathConnectRequestRecord> PathConnectRequests => Set<PathConnectRequestRecord>();
     public DbSet<PathCircleReportRecord> PathCircleReports => Set<PathCircleReportRecord>();
+    public DbSet<BuyerSubscriptionRecord> BuyerSubscriptions => Set<BuyerSubscriptionRecord>();
+    public DbSet<PathMessageRecord> PathMessages => Set<PathMessageRecord>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -121,6 +123,22 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             entity.ToTable("PathCircleReports");
             entity.HasKey(v => v.Id);
             entity.HasIndex(v => v.CreatedAtUtc);
+        });
+
+        modelBuilder.Entity<BuyerSubscriptionRecord>(entity =>
+        {
+            entity.ToTable("BuyerSubscriptions");
+            entity.HasKey(v => v.Id);
+            entity.HasIndex(v => v.BuyerId);
+            entity.HasIndex(v => new { v.BuyerId, v.Status, v.PeriodEndUtc });
+        });
+
+        modelBuilder.Entity<PathMessageRecord>(entity =>
+        {
+            entity.ToTable("PathMessages");
+            entity.HasKey(v => v.Id);
+            entity.HasIndex(v => new { v.FromBuyerId, v.ToBuyerId, v.CreatedAtUtc });
+            entity.HasIndex(v => new { v.ToBuyerId, v.FromBuyerId, v.CreatedAtUtc });
         });
     }
 }

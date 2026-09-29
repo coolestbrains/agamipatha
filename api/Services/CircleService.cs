@@ -101,12 +101,15 @@ public class CircleService(AppDbContext db)
             db.PathProfiles.Add(profile);
         }
 
+        var circleRole = StoreBuyerService.NormalizeCircleRole(body.CircleRole ?? buyer.CircleRole);
+
         profile.DisplayName = display;
         profile.Headline = headline;
         profile.City = city;
         profile.StandingNodeId = standingId;
         profile.GoalNodeId = goalId;
         profile.Audience = audience;
+        profile.CircleRole = circleRole;
         profile.Bio = bio;
         profile.HelpOffersJson = JsonSerializer.Serialize(help);
         profile.LookingForJson = JsonSerializer.Serialize(looking);
@@ -128,12 +131,23 @@ public class CircleService(AppDbContext db)
         string buyerId,
         string? goalId,
         string? standingId,
+        bool mentorMode,
         CancellationToken ct)
     {
         var me = await db.PathProfiles.AsNoTracking().FirstOrDefaultAsync(p => p.BuyerId == buyerId, ct);
         if (me is null)
         {
             return (400, new { message = "Create your Path Circle profile first." });
+        }
+
+        if (mentorMode && !await HasActiveSubscriptionAsync(buyerId, ct))
+        {
+            return (402, SubscriptionRequired());
+        }
+
+        if (mentorMode)
+        {
+            return await ListMentorPeersAsync(buyerId, me, ct);
         }
 
         var goal = string.IsNullOrWhiteSpace(goalId) ? me.GoalNodeId : goalId.Trim();
@@ -233,6 +247,11 @@ public class CircleService(AppDbContext db)
         PathConnectRequestCreateDto body,
         CancellationToken ct)
     {
+        if (!await HasActiveSubscriptionAsync(buyerId, ct))
+        {
+            return (402, "Subscribe to Path Circle mentors (₹199/month) to connect with people.", null);
+        }
+
         var toId = (body.ToBuyerId ?? "").Trim();
         if (string.IsNullOrWhiteSpace(toId) || toId == buyerId)
         {
@@ -321,6 +340,11 @@ public class CircleService(AppDbContext db)
         if (row.Status != "pending")
         {
             return (400, "This request is no longer pending.", null);
+        }
+
+        if (accept && !await HasActiveSubscriptionAsync(buyerId, ct))
+        {
+            return (402, "Subscribe to Path Circle mentors (₹199/month) to connect with people.", null);
         }
 
         row.Status = accept ? "accepted" : "declined";
@@ -472,6 +496,101 @@ public class CircleService(AppDbContext db)
         return profile is null ? null : await ToProfileDtoAsync(profile, ct);
     }
 
+    public async Task<(int Status, object Body)> ListMessagesAsync(
+        string buyerId,
+        string withBuyerId,
+        CancellationToken ct)
+    {
+        if (!await HasActiveSubscriptionAsync(buyerId, ct))
+        {
+            return (402, SubscriptionRequired());
+        }
+
+        var withId = (withBuyerId ?? "").Trim();
+        if (withId.Length == 0 || withId == buyerId)
+        {
+            return (400, new { message = "Choose a connection to chat with." });
+        }
+
+        if (!await IsConnectedAsync(buyerId, withId, ct))
+        {
+            return (403, new { message = "You can chat only after both of you accept a connect request." });
+        }
+
+        var rows = await db.PathMessages.AsNoTracking()
+            .Where(m =>
+                (m.FromBuyerId == buyerId && m.ToBuyerId == withId)
+                || (m.FromBuyerId == withId && m.ToBuyerId == buyerId))
+            .OrderBy(m => m.CreatedAtUtc)
+            .Take(200)
+            .ToListAsync(ct);
+
+        var list = rows.Select(m => new PathMessageDto
+        {
+            Id = m.Id,
+            FromBuyerId = m.FromBuyerId,
+            ToBuyerId = m.ToBuyerId,
+            Body = m.Body,
+            CreatedAtUtc = m.CreatedAtUtc,
+            Mine = m.FromBuyerId == buyerId,
+        }).ToList();
+
+        return (200, list);
+    }
+
+    public async Task<(int Status, object Body)> SendMessageAsync(
+        string buyerId,
+        PathMessageCreateDto body,
+        CancellationToken ct)
+    {
+        if (!await HasActiveSubscriptionAsync(buyerId, ct))
+        {
+            return (402, SubscriptionRequired());
+        }
+
+        var toId = (body.ToBuyerId ?? "").Trim();
+        var text = (body.Body ?? "").Trim();
+        if (toId.Length == 0 || toId == buyerId)
+        {
+            return (400, new { message = "Choose someone to message." });
+        }
+
+        if (text.Length == 0)
+        {
+            return (400, new { message = "Write a message." });
+        }
+
+        if (text.Length > 2000)
+        {
+            text = text[..2000];
+        }
+
+        if (!await IsConnectedAsync(buyerId, toId, ct))
+        {
+            return (403, new { message = "You can chat only after both of you accept a connect request." });
+        }
+
+        var row = new PathMessageRecord
+        {
+            FromBuyerId = buyerId,
+            ToBuyerId = toId,
+            Body = text,
+            CreatedAtUtc = DateTime.UtcNow,
+        };
+        db.PathMessages.Add(row);
+        await db.SaveChangesAsync(ct);
+
+        return (200, new PathMessageDto
+        {
+            Id = row.Id,
+            FromBuyerId = row.FromBuyerId,
+            ToBuyerId = row.ToBuyerId,
+            Body = row.Body,
+            CreatedAtUtc = row.CreatedAtUtc,
+            Mine = true,
+        });
+    }
+
     public async Task<PathCircleStatsDto> AdminStatsAsync(CancellationToken ct)
     {
         var reports = await db.PathCircleReports.AsNoTracking()
@@ -522,6 +641,7 @@ public class CircleService(AppDbContext db)
             GoalNodeId = profile.GoalNodeId,
             GoalTitle = NodeLabel(nodes.GetValueOrDefault(profile.GoalNodeId), profile.GoalNodeId),
             Audience = profile.Audience,
+            CircleRole = profile.CircleRole,
             Bio = profile.Bio,
             HelpOffers = ParseTags(profile.HelpOffersJson),
             LookingFor = ParseTags(profile.LookingForJson),
@@ -568,6 +688,131 @@ public class CircleService(AppDbContext db)
             CreatedAtUtc = row.CreatedAtUtc,
         };
     }
+
+    private async Task<(int Status, object Payload)> ListMentorPeersAsync(
+        string buyerId,
+        PathProfileRecord me,
+        CancellationToken ct)
+    {
+        var myRole = StoreBuyerService.NormalizeCircleRole(me.CircleRole);
+        var blocked = await BlockedBuyerIdsAsync(buyerId, ct);
+        var relations = await RelationMapAsync(buyerId, ct);
+
+        List<PathProfileRecord> candidates;
+        if (myRole == "guide")
+        {
+            candidates = await db.PathProfiles.AsNoTracking()
+                .Where(p =>
+                    p.IsDiscoverable
+                    && p.BuyerId != buyerId
+                    && p.CircleRole == "aspirant"
+                    && (p.GoalNodeId == me.StandingNodeId || p.GoalNodeId == me.GoalNodeId))
+                .OrderByDescending(p => p.UpdatedAtUtc)
+                .Take(120)
+                .ToListAsync(ct);
+        }
+        else
+        {
+            candidates = await db.PathProfiles.AsNoTracking()
+                .Where(p =>
+                    p.IsDiscoverable
+                    && p.BuyerId != buyerId
+                    && p.CircleRole == "guide"
+                    && (p.StandingNodeId == me.GoalNodeId || p.GoalNodeId == me.GoalNodeId))
+                .OrderByDescending(p => p.UpdatedAtUtc)
+                .Take(120)
+                .ToListAsync(ct);
+        }
+
+        var nodeIds = candidates
+            .SelectMany(p => new[] { p.StandingNodeId, p.GoalNodeId })
+            .Append(me.StandingNodeId)
+            .Append(me.GoalNodeId)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+        var nodes = await db.Nodes.AsNoTracking()
+            .Where(n => nodeIds.Contains(n.Id))
+            .ToDictionaryAsync(n => n.Id, StringComparer.OrdinalIgnoreCase, ct);
+
+        var cards = new List<PathPeerCardDto>();
+        foreach (var peer in candidates)
+        {
+            if (blocked.Contains(peer.BuyerId))
+            {
+                continue;
+            }
+
+            relations.TryGetValue(peer.BuyerId, out var rel);
+            if (rel.Status is "blocked" or "declined")
+            {
+                continue;
+            }
+
+            var score = 50;
+            if (myRole == "aspirant")
+            {
+                if (string.Equals(peer.StandingNodeId, me.GoalNodeId, StringComparison.OrdinalIgnoreCase))
+                {
+                    score += 30;
+                }
+
+                if (string.Equals(peer.GoalNodeId, me.GoalNodeId, StringComparison.OrdinalIgnoreCase))
+                {
+                    score += 15;
+                }
+            }
+            else
+            {
+                if (string.Equals(peer.GoalNodeId, me.StandingNodeId, StringComparison.OrdinalIgnoreCase))
+                {
+                    score += 30;
+                }
+
+                if (string.Equals(peer.GoalNodeId, me.GoalNodeId, StringComparison.OrdinalIgnoreCase))
+                {
+                    score += 15;
+                }
+            }
+
+            cards.Add(new PathPeerCardDto
+            {
+                BuyerId = peer.BuyerId,
+                DisplayName = peer.DisplayName,
+                Headline = peer.Headline,
+                City = peer.Under18 ? null : peer.City,
+                StandingNodeId = peer.StandingNodeId,
+                StandingTitle = NodeLabel(nodes.GetValueOrDefault(peer.StandingNodeId), peer.StandingNodeId),
+                GoalNodeId = peer.GoalNodeId,
+                GoalTitle = NodeLabel(nodes.GetValueOrDefault(peer.GoalNodeId), peer.GoalNodeId),
+                Audience = peer.Audience,
+                Bio = peer.Bio,
+                HelpOffers = ParseTags(peer.HelpOffersJson),
+                LookingFor = ParseTags(peer.LookingForJson),
+                MatchScore = score,
+                Relation = rel.Status ?? "none",
+                RequestId = rel.RequestId,
+            });
+        }
+
+        return (200, cards.OrderByDescending(c => c.MatchScore).ThenBy(c => c.DisplayName).Take(40).ToList());
+    }
+
+    private async Task<bool> HasActiveSubscriptionAsync(string buyerId, CancellationToken ct) =>
+        await db.BuyerSubscriptions.AsNoTracking()
+            .AnyAsync(
+                s => s.BuyerId == buyerId && s.Status == "active" && s.PeriodEndUtc > DateTime.UtcNow,
+                ct);
+
+    private static object SubscriptionRequired() =>
+        new { message = "Subscribe to Path Circle mentors (₹199/month) to use this feature." };
+
+    private async Task<bool> IsConnectedAsync(string buyerId, string otherId, CancellationToken ct) =>
+        await db.PathConnectRequests.AsNoTracking()
+            .AnyAsync(
+                r => r.Status == "accepted"
+                     && ((r.FromBuyerId == buyerId && r.ToBuyerId == otherId)
+                         || (r.FromBuyerId == otherId && r.ToBuyerId == buyerId)),
+                ct);
 
     private async Task<HashSet<string>> BlockedBuyerIdsAsync(string buyerId, CancellationToken ct)
     {

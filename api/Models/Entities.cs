@@ -148,6 +148,16 @@ public class StoreBuyerRecord
     public string PasswordHash { get; set; } = "";
 
     public DateTime CreatedAtUtc { get; set; }
+
+    /// <summary>aspirant | guide</summary>
+    [MaxLength(20)]
+    public string CircleRole { get; set; } = "aspirant";
+
+    [MaxLength(80)]
+    public string? StandingNodeId { get; set; }
+
+    [MaxLength(80)]
+    public string? GoalNodeId { get; set; }
 }
 
 public class StoreOrderRecord
@@ -185,6 +195,55 @@ public class StoreOrderRecord
     public DateTime CreatedAtUtc { get; set; }
 
     public DateTime? PaidAtUtc { get; set; }
+}
+
+public class BuyerSubscriptionRecord
+{
+    [Key]
+    [MaxLength(80)]
+    public string Id { get; set; } = "";
+
+    [MaxLength(80)]
+    public string BuyerId { get; set; } = "";
+
+    /// <summary>active | expired | canceled</summary>
+    [MaxLength(20)]
+    public string Status { get; set; } = "active";
+
+    public int AmountPaise { get; set; }
+
+    [MaxLength(10)]
+    public string Currency { get; set; } = "INR";
+
+    [MaxLength(80)]
+    public string? RazorpayOrderId { get; set; }
+
+    [MaxLength(80)]
+    public string? RazorpayPaymentId { get; set; }
+
+    public DateTime PeriodStartUtc { get; set; }
+
+    public DateTime PeriodEndUtc { get; set; }
+
+    public DateTime CreatedAtUtc { get; set; }
+}
+
+public class PathMessageRecord
+{
+    public int Id { get; set; }
+
+    [MaxLength(80)]
+    public string FromBuyerId { get; set; } = "";
+
+    [MaxLength(80)]
+    public string ToBuyerId { get; set; } = "";
+
+    [MaxLength(2000)]
+    public string Body { get; set; } = "";
+
+    public DateTime CreatedAtUtc { get; set; }
+
+    public DateTime? ReadAtUtc { get; set; }
 }
 
 public class CatalogSuggestionRecord
@@ -235,6 +294,10 @@ public class PathProfileRecord
 
     [MaxLength(20)]
     public string Audience { get; set; } = "student";
+
+    /// <summary>aspirant | guide</summary>
+    [MaxLength(20)]
+    public string CircleRole { get; set; } = "aspirant";
 
     [MaxLength(500)]
     public string Bio { get; set; } = "";

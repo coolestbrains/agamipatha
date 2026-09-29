@@ -68,6 +68,61 @@ public class StoreController(StoreService store) : ControllerBase
         return await store.OrdersForBuyerAsync(buyerId, ct);
     }
 
+    [Authorize(Roles = "buyer")]
+    [HttpPost("claim")]
+    public async Task<IActionResult> Claim([FromBody] StoreClaimRequestDto? body, CancellationToken ct)
+    {
+        var buyerId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrWhiteSpace(buyerId))
+        {
+            return Unauthorized();
+        }
+
+        var (status, payload) = await store.ClaimFreeAsync(buyerId, body ?? new StoreClaimRequestDto(), ct);
+        return StatusCode(status, payload);
+    }
+
+    [Authorize(Roles = "buyer")]
+    [HttpGet("subscription")]
+    public async Task<IActionResult> Subscription(CancellationToken ct)
+    {
+        var buyerId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrWhiteSpace(buyerId))
+        {
+            return Unauthorized();
+        }
+
+        return Ok(await store.GetSubscriptionAsync(buyerId, ct));
+    }
+
+    [Authorize(Roles = "buyer")]
+    [HttpPost("subscription/order")]
+    public async Task<IActionResult> SubscriptionOrder(CancellationToken ct)
+    {
+        var buyerId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrWhiteSpace(buyerId))
+        {
+            return Unauthorized();
+        }
+
+        var (status, payload) = await store.CreateSubscriptionOrderAsync(buyerId, ct);
+        return StatusCode(status, payload);
+    }
+
+    [Authorize(Roles = "buyer")]
+    [HttpPost("subscription/verify")]
+    public async Task<IActionResult> SubscriptionVerify([FromBody] StoreVerifyRequestDto? body, CancellationToken ct)
+    {
+        var buyerId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrWhiteSpace(buyerId))
+        {
+            return Unauthorized();
+        }
+
+        var (status, payload) = await store.VerifySubscriptionAsync(buyerId, body ?? new StoreVerifyRequestDto(), ct);
+        return StatusCode(status, payload);
+    }
+
     [HttpGet("download/{token}")]
     public async Task<IActionResult> Download(string token, CancellationToken ct)
     {

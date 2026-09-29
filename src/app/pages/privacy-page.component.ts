@@ -8,44 +8,45 @@ import { RouterLink } from '@angular/router';
     <section class="wrap">
       <p class="crumb"><a routerLink="/store">← Back to store</a></p>
       <h1>Privacy</h1>
-      <p class="lede">How AgamiPatha uses the details you give us when you create an account or buy an ebook.</p>
+      <p class="lede">How AgamiPatha uses the details you give us when you create an account or download a free ebook.</p>
 
       <article class="card body">
         <h2>Who we are</h2>
         <p>
-          AgamiPatha is run by Smruti Ranjan Sahoo. This site helps you map Indian education routes and buy digital
+          AgamiPatha is run by Smruti Ranjan Sahoo. This site helps you map Indian education routes and download free digital
           workbooks from the store.
         </p>
 
         <h2>What we collect</h2>
         <ul>
-          <li>Name, email and/or mobile, and a password when you register at checkout</li>
-          <li>Purchase records so you can download ebooks you paid for</li>
+          <li>Name, email and/or mobile, and a password when you register</li>
+          <li>Download records so you can open free ebooks again later</li>
           <li>Path searches and optional catalogue suggestions you send</li>
           <li>Guest visit counts used in the site totals — once per browser and domain each day</li>
+          <li>Subscription payment ids if you subscribe to Path Circle mentors</li>
         </ul>
 
         <h2>Payments</h2>
         <p>
-          Card, UPI, netbanking and wallet details are collected by Razorpay, not by AgamiPatha. We keep the Razorpay
-          order and payment ids needed to confirm a paid download.
+          Ebooks are free. Mentor subscription payments (if you choose them) are handled by Razorpay; AgamiPatha does not
+          collect your card, UPI, or wallet details. We keep Razorpay order and payment ids needed to confirm a subscription.
         </p>
 
         <h2>How we use it</h2>
         <p>
-          To create your store account, complete checkout, let you sign in later, deliver PDFs, and improve the
+          To create your account, let you sign in later, deliver PDFs, run Path Circle, and improve the
           qualification map. We do not sell your contact details.
         </p>
 
         <h2>How long we keep it</h2>
         <p>
-          Account and purchase records stay until you ask us to remove them, or until they are no longer needed to
-          prove a paid download. Passwords are stored hashed.
+          Account and download records stay until you ask us to remove them, or until they are no longer needed.
+          Passwords are stored hashed.
         </p>
 
         <h2>Your choices</h2>
         <p>
-          You can log in to download books you bought. To correct or delete an account, write to
+          You can log in to download free ebooks again. To correct or delete an account, write to
           <a href="mailto:admin&#64;agamipatha.com">admin&#64;agamipatha.com</a>.
         </p>
 

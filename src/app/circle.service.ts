@@ -22,6 +22,7 @@ export interface PathProfile {
   under18: boolean;
   inviteCode: string;
   updatedAtUtc: string;
+  circleRole: string;
 }
 
 export interface PathProfileUpsert {
@@ -31,6 +32,7 @@ export interface PathProfileUpsert {
   standingNodeId: string;
   goalNodeId: string;
   audience: string;
+  circleRole?: string;
   bio?: string;
   helpOffers: string[];
   lookingFor: string[];
@@ -87,6 +89,15 @@ export interface PathConnection {
   connectedAtUtc: string;
 }
 
+export interface PathMessage {
+  id: number;
+  fromBuyerId: string;
+  toBuyerId: string;
+  body: string;
+  createdAtUtc: string;
+  mine: boolean;
+}
+
 export interface PathCircleStats {
   profiles: number;
   discoverable: number;
@@ -135,7 +146,7 @@ export class CircleService {
     return this.http.put<PathProfile>(`${this.base}/profile`, body);
   }
 
-  peers(goalId?: string, standingId?: string): Observable<PathPeerCard[]> {
+  peers(goalId?: string, standingId?: string, mentor = false): Observable<PathPeerCard[]> {
     const params: Record<string, string> = {};
     if (goalId) {
       params['goalId'] = goalId;
@@ -143,7 +154,18 @@ export class CircleService {
     if (standingId) {
       params['standingId'] = standingId;
     }
+    if (mentor) {
+      params['mentor'] = '1';
+    }
     return this.http.get<PathPeerCard[]>(`${this.base}/peers`, { params });
+  }
+
+  messages(withBuyerId: string): Observable<PathMessage[]> {
+    return this.http.get<PathMessage[]>(`${this.base}/messages`, { params: { with: withBuyerId } });
+  }
+
+  sendMessage(toBuyerId: string, body: string): Observable<PathMessage> {
+    return this.http.post<PathMessage>(`${this.base}/messages`, { toBuyerId, body });
   }
 
   requests(): Observable<PathConnectRequest[]> {

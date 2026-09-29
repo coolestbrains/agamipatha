@@ -138,6 +138,85 @@
   margin: -0.25rem 0 0;
 }
 
+.role-field {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  display: grid;
+  gap: 0.4rem;
+}
+
+.role-field legend {
+  padding: 0;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.role-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.55rem;
+}
+
+.role-card {
+  position: relative;
+  display: grid;
+  gap: 0.2rem;
+  align-content: start;
+  min-height: 4.6rem;
+  padding: 0.75rem 0.8rem;
+  border-radius: 0.85rem;
+  border: 1.5px solid var(--line-strong);
+  background: color-mix(in srgb, white 88%, var(--paper));
+  cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.role-card input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+  width: 0;
+  height: 0;
+  padding: 0;
+  margin: 0;
+}
+
+.role-card .role-title {
+  font-size: 0.92rem;
+  font-weight: 750;
+  color: var(--ink);
+}
+
+.role-card .role-desc {
+  font-size: 0.74rem;
+  font-weight: 550;
+  line-height: 1.35;
+  color: var(--muted);
+}
+
+.role-card:hover {
+  border-color: color-mix(in srgb, var(--teal) 45%, var(--line-strong));
+  background: color-mix(in srgb, var(--teal) 6%, white);
+}
+
+.role-card.on {
+  border-color: var(--blue);
+  background: color-mix(in srgb, var(--blue) 8%, white);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--blue) 35%, transparent);
+}
+
+.role-card.on .role-title {
+  color: var(--blue);
+}
+
+@media (max-width: 420px) {
+  .role-cards {
+    grid-template-columns: 1fr;
+  }
+}
+
 .account .primary {
   justify-self: stretch;
   width: 100%;

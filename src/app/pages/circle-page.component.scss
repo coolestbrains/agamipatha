@@ -289,3 +289,76 @@ select {
 .note-field {
   max-width: 28rem;
 }
+
+.role-field {
+  margin: 0 0 0.75rem;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: 0.75rem;
+}
+
+.role-field legend {
+  font-size: 0.85rem;
+  font-weight: 700;
+  padding: 0 0.25rem;
+}
+
+.connections-layout {
+  display: grid;
+  gap: 1rem;
+}
+
+@media (min-width: 52rem) {
+  .connections-layout {
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+  }
+}
+
+.peer.selected {
+  outline: 2px solid color-mix(in srgb, #1a3d7c 35%, transparent);
+}
+
+.chat {
+  display: grid;
+  gap: 0.65rem;
+  min-height: 14rem;
+}
+
+.chat-log {
+  display: grid;
+  gap: 0.45rem;
+  max-height: 16rem;
+  overflow: auto;
+  padding: 0.5rem;
+  border: 1px solid var(--line);
+  border-radius: 0.65rem;
+  background: color-mix(in srgb, white 85%, var(--paper));
+}
+
+.chat-line {
+  margin: 0;
+  display: grid;
+  gap: 0.15rem;
+  justify-items: start;
+}
+
+.chat-line.mine {
+  justify-items: end;
+  text-align: right;
+}
+
+.chat-line small {
+  color: var(--muted);
+  font-size: 0.72rem;
+}
+
+.chat-compose {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.5rem;
+}
+
+.chat-compose input {
+  width: 100%;
+}
