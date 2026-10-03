@@ -377,6 +377,46 @@ public static class DatabaseInitializer
                 CREATE INDEX IX_PathMessages_Pair ON dbo.PathMessages (FromBuyerId, ToBuyerId, CreatedAtUtc);
                 CREATE INDEX IX_PathMessages_ToFrom ON dbo.PathMessages (ToBuyerId, FromBuyerId, CreatedAtUtc);
             END
+
+            IF COL_LENGTH(N'dbo.StoreBuyers', N'AiCredits') IS NULL
+            BEGIN
+                ALTER TABLE dbo.StoreBuyers ADD AiCredits int NOT NULL
+                    CONSTRAINT DF_StoreBuyers_AiCredits DEFAULT (0);
+            END
+
+            IF OBJECT_ID(N'dbo.AiCreditOrders', N'U') IS NULL
+            BEGIN
+                CREATE TABLE dbo.AiCreditOrders (
+                    Id nvarchar(80) NOT NULL CONSTRAINT PK_AiCreditOrders PRIMARY KEY,
+                    BuyerId nvarchar(80) NOT NULL,
+                    PackId nvarchar(40) NOT NULL,
+                    Credits int NOT NULL,
+                    AmountPaise int NOT NULL,
+                    Currency nvarchar(10) NOT NULL,
+                    RazorpayOrderId nvarchar(80) NOT NULL,
+                    RazorpayPaymentId nvarchar(80) NULL,
+                    Status nvarchar(20) NOT NULL,
+                    CreatedAtUtc datetime2 NOT NULL,
+                    PaidAtUtc datetime2 NULL
+                );
+                CREATE INDEX IX_AiCreditOrders_RazorpayOrderId ON dbo.AiCreditOrders (RazorpayOrderId);
+                CREATE INDEX IX_AiCreditOrders_BuyerId ON dbo.AiCreditOrders (BuyerId);
+            END
+
+            IF OBJECT_ID(N'dbo.AiCreditLedger', N'U') IS NULL
+            BEGIN
+                CREATE TABLE dbo.AiCreditLedger (
+                    Id int NOT NULL IDENTITY(1,1) CONSTRAINT PK_AiCreditLedger PRIMARY KEY,
+                    BuyerId nvarchar(80) NOT NULL,
+                    Delta int NOT NULL,
+                    BalanceAfter int NOT NULL,
+                    Reason nvarchar(80) NOT NULL,
+                    RefId nvarchar(80) NULL,
+                    CreatedAtUtc datetime2 NOT NULL
+                );
+                CREATE INDEX IX_AiCreditLedger_BuyerId_CreatedAtUtc
+                    ON dbo.AiCreditLedger (BuyerId, CreatedAtUtc DESC);
+            END
             """);
         await EnsureGuestVisitKeyAsync(db);
     }

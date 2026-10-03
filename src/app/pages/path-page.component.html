@@ -181,6 +181,22 @@
             </a>
             <a
               class="ghost tool"
+              [routerLink]="['/report']"
+              [queryParams]="{ from: fromId(), to: toId(), via: activeVia() || null, voice: 'student' }"
+              aria-label="AI career report for this path"
+              title="AI career report for this path"
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M7 4.5h10a1.5 1.5 0 0 1 1.5 1.5v12a1.5 1.5 0 0 1-1.5 1.5H7A1.5 1.5 0 0 1 5.5 18V6A1.5 1.5 0 0 1 7 4.5Z" fill="none" stroke="currentColor" stroke-width="1.7" />
+                <path d="M8.5 9h7M8.5 12h7M8.5 15h4.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" />
+              </svg>
+              <span class="tool-label">
+                <span class="label-short">Report</span>
+                <span class="label-full">Career report</span>
+              </span>
+            </a>
+            <a
+              class="ghost tool"
               [routerLink]="['/compare']"
               [queryParams]="{ from: fromId(), a: toId() }"
               aria-label="Compare to another"

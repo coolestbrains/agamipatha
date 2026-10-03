@@ -19,6 +19,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<PathConnectRequestRecord> PathConnectRequests => Set<PathConnectRequestRecord>();
     public DbSet<PathCircleReportRecord> PathCircleReports => Set<PathCircleReportRecord>();
     public DbSet<BuyerSubscriptionRecord> BuyerSubscriptions => Set<BuyerSubscriptionRecord>();
+    public DbSet<AiCreditOrderRecord> AiCreditOrders => Set<AiCreditOrderRecord>();
+    public DbSet<AiCreditLedgerRecord> AiCreditLedger => Set<AiCreditLedgerRecord>();
     public DbSet<PathMessageRecord> PathMessages => Set<PathMessageRecord>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -131,6 +133,22 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             entity.HasKey(v => v.Id);
             entity.HasIndex(v => v.BuyerId);
             entity.HasIndex(v => new { v.BuyerId, v.Status, v.PeriodEndUtc });
+        });
+
+        modelBuilder.Entity<AiCreditOrderRecord>(entity =>
+        {
+            entity.ToTable("AiCreditOrders");
+            entity.HasKey(v => v.Id);
+            entity.HasIndex(v => v.RazorpayOrderId);
+            entity.HasIndex(v => v.BuyerId);
+        });
+
+        modelBuilder.Entity<AiCreditLedgerRecord>(entity =>
+        {
+            entity.ToTable("AiCreditLedger");
+            entity.HasKey(v => v.Id);
+            entity.Property(v => v.Id).ValueGeneratedOnAdd();
+            entity.HasIndex(v => new { v.BuyerId, v.CreatedAtUtc });
         });
 
         modelBuilder.Entity<PathMessageRecord>(entity =>

@@ -60,6 +60,7 @@ export interface StoreBuyerAuth {
   purchases: StorePurchase[];
   subscriptionActive?: boolean;
   periodEndUtc?: string | null;
+  aiCredits?: number;
 }
 
 interface StoreBuyerAuthResponse {
@@ -69,6 +70,26 @@ interface StoreBuyerAuthResponse {
   purchases: StoreApiPurchase[];
   subscriptionActive?: boolean;
   periodEndUtc?: string | null;
+  aiCredits?: number;
+}
+
+export interface AiCreditPack {
+  id: string;
+  credits: number;
+  amountPaise: number;
+  label: string;
+  priceLabel: string;
+}
+
+export interface AiCreditsCatalog {
+  balance: number;
+  reportCostCredits: number;
+  packs: AiCreditPack[];
+}
+
+export interface AiCreditVerifyResult {
+  aiCredits: number;
+  creditsAdded: number;
 }
 
 export interface BuyerSubscription {
@@ -180,11 +201,30 @@ export class StoreService {
     subscriptionActive: boolean;
     periodEndUtc?: string | null;
     amountLabel?: string;
+    aiCredits?: number;
   }> {
-    return this.http.post<{ subscriptionActive: boolean; periodEndUtc?: string | null; amountLabel?: string }>(
-      `${this.base}/store/subscription/verify`,
-      { orderId, paymentId, signature },
-    );
+    return this.http.post<{
+      subscriptionActive: boolean;
+      periodEndUtc?: string | null;
+      amountLabel?: string;
+      aiCredits?: number;
+    }>(`${this.base}/store/subscription/verify`, { orderId, paymentId, signature });
+  }
+
+  getCredits(): Observable<AiCreditsCatalog> {
+    return this.http.get<AiCreditsCatalog>(`${this.base}/store/credits`);
+  }
+
+  createCreditOrder(packId: string): Observable<StoreOrder> {
+    return this.http.post<StoreOrder>(`${this.base}/store/credits/order`, { packId });
+  }
+
+  verifyCreditOrder(orderId: string, paymentId: string, signature: string): Observable<AiCreditVerifyResult> {
+    return this.http.post<AiCreditVerifyResult>(`${this.base}/store/credits/verify`, {
+      orderId,
+      paymentId,
+      signature,
+    });
   }
 
   login(login: string, password: string): Observable<StoreBuyerAuth> {
@@ -202,6 +242,7 @@ export class StoreService {
         purchases: this.fromApiPurchases(res.purchases ?? []),
         subscriptionActive: !!res.subscriptionActive,
         periodEndUtc: res.periodEndUtc ?? null,
+        aiCredits: res.aiCredits ?? 0,
       })),
     );
   }

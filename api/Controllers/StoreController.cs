@@ -123,6 +123,47 @@ public class StoreController(StoreService store) : ControllerBase
         return StatusCode(status, payload);
     }
 
+    [Authorize(Roles = "buyer")]
+    [HttpGet("credits")]
+    public async Task<IActionResult> Credits(CancellationToken ct)
+    {
+        var buyerId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrWhiteSpace(buyerId))
+        {
+            return Unauthorized();
+        }
+
+        return Ok(await store.GetAiCreditsAsync(buyerId, ct));
+    }
+
+    [Authorize(Roles = "buyer")]
+    [HttpPost("credits/order")]
+    public async Task<IActionResult> CreditOrder([FromBody] StoreAiCreditOrderRequestDto? body, CancellationToken ct)
+    {
+        var buyerId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrWhiteSpace(buyerId))
+        {
+            return Unauthorized();
+        }
+
+        var (status, payload) = await store.CreateAiCreditOrderAsync(buyerId, body?.PackId ?? "", ct);
+        return StatusCode(status, payload);
+    }
+
+    [Authorize(Roles = "buyer")]
+    [HttpPost("credits/verify")]
+    public async Task<IActionResult> CreditVerify([FromBody] StoreVerifyRequestDto? body, CancellationToken ct)
+    {
+        var buyerId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrWhiteSpace(buyerId))
+        {
+            return Unauthorized();
+        }
+
+        var (status, payload) = await store.VerifyAiCreditOrderAsync(buyerId, body ?? new StoreVerifyRequestDto(), ct);
+        return StatusCode(status, payload);
+    }
+
     [HttpGet("download/{token}")]
     public async Task<IActionResult> Download(string token, CancellationToken ct)
     {

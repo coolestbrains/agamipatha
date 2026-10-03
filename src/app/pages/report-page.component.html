@@ -1,0 +1,202 @@
+<section class="report-page">
+  <header class="hero">
+    <p class="eyebrow">Career report</p>
+    <h1>AI career report for your path</h1>
+    <p class="lede">
+      A downloadable PDF that combines AgamiPatha catalogue facts with exams, stages, cost hints, and next steps.
+      Path Circle mentors (₹199/month) unlocks report generation; each <strong>AI narrative</strong> uses
+      {{ reportCostCredits() }} credit on top of subscription. Catalogue-only reports stay free with your subscription.
+    </p>
+  </header>
+
+  @if (!buyer.isLoggedIn()) {
+    <div class="empty card">
+      <p>Log in to generate a career report for your route.</p>
+      <div class="row">
+        <button type="button" class="primary" (click)="openRegister()">Create account</button>
+        <button type="button" class="ghost" (click)="openLogin()">Log in</button>
+      </div>
+    </div>
+  } @else {
+    @if (error()) {
+      <p class="form-error" role="alert">{{ error() }}</p>
+    }
+    @if (notice()) {
+      <p class="banner ok">{{ notice() }}</p>
+    }
+    @if (needsAiTopUp()) {
+      <p class="banner warn" role="status">
+        This report used catalogue narrative because you have no AI credits. Top up below to unlock LLM personalisation
+        on your next generate.
+      </p>
+    }
+
+    @if (buyer.aiCredits() !== null) {
+      <p class="credit-balance">
+        <strong>AI credits:</strong> {{ buyer.aiCredits() }} · {{ reportCostCredits() }} credit per AI narrative
+      </p>
+    }
+
+    @if (!subscriptionActive() && !buyer.subscriptionActive()) {
+      <div class="wall card">
+        <h2>Subscribe to unlock reports</h2>
+        <p>
+          Career reports use the same Path Circle mentors subscription (₹199/month). You get peer discovery, mentor
+          connections, and report generation (fair use: 5 per hour). AI narratives cost credits separately; each
+          successful subscription payment includes 5 bonus credits.
+        </p>
+        <button type="button" class="primary" [disabled]="subscriptionBusy()" (click)="subscribeMentors()">
+          {{ subscriptionBusy() ? 'Opening checkout…' : 'Subscribe — ₹199/month' }}
+        </button>
+        <p class="hint"><a routerLink="/circle">Learn about Path Circle</a></p>
+      </div>
+    }
+
+    @if (subscriptionActive() || buyer.subscriptionActive()) {
+      <section class="panel card credits-panel" aria-labelledby="credits-title">
+        <h2 id="credits-title">Top up AI credits</h2>
+        <p class="hint">Separate from subscription. Used only when you generate a report with AI narrative.</p>
+        <div class="row pack-row">
+          @for (pack of creditPacks(); track pack.id) {
+            <button
+              type="button"
+              class="ghost"
+              [disabled]="creditBusy()"
+              (click)="buyCredits(pack)"
+            >
+              {{ pack.label }} — {{ pack.priceLabel }}
+            </button>
+          }
+        </div>
+      </section>
+    }
+
+    <section class="panel card" aria-labelledby="route-title">
+      <h2 id="route-title">Your route</h2>
+      @if (!canGenerate()) {
+        <p class="hint empty-hint">
+          Pick a starting qualification and goal below, or open a path on the planner and use the Career report link.
+        </p>
+      }
+      <div class="fields">
+        <label>
+          <span>Where you stand</span>
+          <app-search-select
+            [options]="startOptions()"
+            [value]="fromId()"
+            placeholder="Starting qualification"
+            (valueChange)="fromId.set($event)"
+          />
+        </label>
+        <label>
+          <span>Goal career</span>
+          <app-search-select
+            [groups]="goalGroups()"
+            [value]="toId()"
+            placeholder="Goal profession or degree"
+            (valueChange)="toId.set($event)"
+          />
+        </label>
+        <label>
+          <span>Voice</span>
+          <select [(ngModel)]="voice" name="voice">
+            <option value="student">Student / professional</option>
+            <option value="parent">Parent / guardian</option>
+            <option value="explore">Just exploring</option>
+          </select>
+        </label>
+      </div>
+      @if (routeLabel()) {
+        <p class="route-line"><strong>Report route:</strong> {{ routeLabel() }}</p>
+      }
+      <div class="row actions">
+        <button type="button" class="primary" [disabled]="loading() || !canGenerate()" (click)="generate()">
+          {{ loading() ? 'Generating…' : report() ? 'Regenerate report' : 'Generate report' }}
+        </button>
+        @if (report()) {
+          <button type="button" class="ghost" [disabled]="pdfBusy()" (click)="downloadPdf()">
+            {{ pdfBusy() ? 'Preparing PDF…' : 'Download PDF' }}
+          </button>
+        }
+      </div>
+    </section>
+
+    @if (report(); as r) {
+      <article class="preview card" aria-labelledby="preview-title">
+        <h2 id="preview-title">Preview</h2>
+        <p class="meta">
+          For {{ r.displayName }}@if (r.city) { · {{ r.city }} } · {{ r.generatedAtUtc | date: 'mediumDate' }}
+          @if (r.ai.usedAi) {
+            · <span class="tag">AI narrative</span>
+          } @else {
+            · <span class="tag muted">Catalogue narrative</span>
+          }
+        </p>
+        <p class="spine">{{ r.spine }} · {{ r.totalLabel }}</p>
+
+        <section aria-labelledby="overview-h">
+          <h3 id="overview-h">Overview</h3>
+          <ul>
+            @for (line of r.overview; track line) {
+              <li>{{ line }}</li>
+            }
+          </ul>
+        </section>
+
+        <section aria-labelledby="ai-h">
+          <h3 id="ai-h">Personalised narrative</h3>
+          <p>{{ r.ai.intro }}</p>
+          <h4>Why this route fits</h4>
+          <p>{{ r.ai.fit }}</p>
+          <h4>Risks to watch</h4>
+          <ul>
+            @for (item of r.ai.risks; track item) {
+              <li>{{ item }}</li>
+            }
+          </ul>
+          <h4>Next 30 days</h4>
+          <ul>
+            @for (item of r.ai.actions30; track item) {
+              <li>{{ item }}</li>
+            }
+          </ul>
+          <h4>Next 90 days</h4>
+          <ul>
+            @for (item of r.ai.actions90; track item) {
+              <li>{{ item }}</li>
+            }
+          </ul>
+        </section>
+
+        @for (stage of r.stages; track stage.title) {
+          <section class="stage">
+            <h3>{{ stage.title }}</h3>
+            @if (stage.kicker) {
+              <p class="kicker">{{ stage.kicker }}</p>
+            }
+            <p>{{ stage.summary }}</p>
+            @for (group of stage.groups; track group.label) {
+              <h4>{{ group.label }}</h4>
+              <ul>
+                @for (item of group.items; track item) {
+                  <li>{{ item }}</li>
+                }
+              </ul>
+            }
+          </section>
+        }
+
+        <section aria-labelledby="next-h">
+          <h3 id="next-h">What to do next</h3>
+          <ul>
+            @for (door of r.nextDoors; track door) {
+              <li>{{ door }}</li>
+            }
+          </ul>
+        </section>
+
+        <p class="disclaimer" role="note"><strong>Disclaimer:</strong> {{ r.disclaimer }}</p>
+      </article>
+    }
+  }
+</section>

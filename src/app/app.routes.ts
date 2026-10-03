@@ -23,6 +23,10 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/circle-page.component').then((m) => m.CirclePageComponent),
   },
   {
+    path: 'report',
+    loadComponent: () => import('./pages/report-page.component').then((m) => m.ReportPageComponent),
+  },
+  {
     path: 'my-paths',
     loadComponent: () => import('./pages/my-paths-page.component').then((m) => m.MyPathsPageComponent),
   },

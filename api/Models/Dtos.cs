@@ -376,6 +376,34 @@ public class StoreBuyerAuthDto
     public List<StorePurchaseDto> Purchases { get; set; } = [];
     public bool SubscriptionActive { get; set; }
     public DateTime? PeriodEndUtc { get; set; }
+    public int AiCredits { get; set; }
+}
+
+public class StoreAiCreditPackDto
+{
+    public string Id { get; set; } = "";
+    public int Credits { get; set; }
+    public int AmountPaise { get; set; }
+    public string Label { get; set; } = "";
+    public string PriceLabel { get; set; } = "";
+}
+
+public class StoreAiCreditsDto
+{
+    public int Balance { get; set; }
+    public int ReportCostCredits { get; set; }
+    public List<StoreAiCreditPackDto> Packs { get; set; } = [];
+}
+
+public class StoreAiCreditOrderRequestDto
+{
+    public string PackId { get; set; } = "";
+}
+
+public class StoreAiCreditVerifyDto
+{
+    public int AiCredits { get; set; }
+    public int CreditsAdded { get; set; }
 }
 
 public class BuyerSubscriptionDto
@@ -650,4 +678,74 @@ public class PathCircleReportRowDto
     public string TargetName { get; set; } = "";
     public string Reason { get; set; } = "";
     public DateTime CreatedAtUtc { get; set; }
+}
+
+public class CareerReportRequestDto
+{
+    public string? FromId { get; set; }
+    public string? ToId { get; set; }
+    public string? Via { get; set; }
+    /// <summary>student | parent | explore</summary>
+    public string? Voice { get; set; }
+}
+
+public class CareerReportStatusDto
+{
+    public bool SubscriptionActive { get; set; }
+    public DateTime? PeriodEndUtc { get; set; }
+    public bool HasProfile { get; set; }
+    public string? StandingNodeId { get; set; }
+    public string? GoalNodeId { get; set; }
+    public string? DisplayName { get; set; }
+    public int AiCredits { get; set; }
+    public int ReportCostCredits { get; set; }
+}
+
+public class CareerReportStageGroupDto
+{
+    public string Label { get; set; } = "";
+    public List<string> Items { get; set; } = [];
+}
+
+public class CareerReportStageDto
+{
+    public string Title { get; set; } = "";
+    public string Kicker { get; set; } = "";
+    public string Summary { get; set; } = "";
+    public List<CareerReportStageGroupDto> Groups { get; set; } = [];
+}
+
+public class CareerReportAiDto
+{
+    public string Intro { get; set; } = "";
+    public string Fit { get; set; } = "";
+    public List<string> Risks { get; set; } = [];
+    public List<string> Actions30 { get; set; } = [];
+    public List<string> Actions90 { get; set; } = [];
+    public bool UsedAi { get; set; }
+}
+
+public class CareerReportDto
+{
+    public string DisplayName { get; set; } = "";
+    public string? City { get; set; }
+    public string CircleRole { get; set; } = "aspirant";
+    public string Audience { get; set; } = "student";
+    public string StandingTitle { get; set; } = "";
+    public string GoalTitle { get; set; } = "";
+    public string Spine { get; set; } = "";
+    public string TotalLabel { get; set; } = "";
+    public List<string> Overview { get; set; } = [];
+    public List<CareerReportStageDto> Stages { get; set; } = [];
+    public CareerReportAiDto Ai { get; set; } = new();
+    public List<string> NextDoors { get; set; } = [];
+    public string Disclaimer { get; set; } = "";
+    public DateTime GeneratedAtUtc { get; set; }
+    public string Filename { get; set; } = "";
+    public string Voice { get; set; } = "student";
+    public bool AiAvailable { get; set; }
+    public int CreditsRemaining { get; set; }
+    public int ReportCostCredits { get; set; }
+    public int CreditsCharged { get; set; }
+    public bool NeedsAiTopUp { get; set; }
 }

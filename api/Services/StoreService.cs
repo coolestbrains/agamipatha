@@ -325,10 +325,226 @@ public class StoreService(
             Purchases = await PurchasesForBuyerAsync(buyer.Id, ct),
             SubscriptionActive = subscription.Active,
             PeriodEndUtc = subscription.PeriodEndUtc,
+            AiCredits = buyer.AiCredits,
         };
     }
 
     public const int SubscriptionAmountPaise = 19_900;
+    public const int ReportCostCredits = 1;
+    public const int SubscriptionBonusCredits = 5;
+
+    private static readonly (string Id, int Credits, int Paise, string Label)[] AiCreditPacks =
+    [
+        ("ai-credits-10", 10, 4900, "10 AI credits"),
+        ("ai-credits-30", 30, 9900, "30 AI credits"),
+        ("ai-credits-100", 100, 24900, "100 AI credits"),
+    ];
+
+    public async Task<StoreAiCreditsDto> GetAiCreditsAsync(string buyerId, CancellationToken ct)
+    {
+        var (_, _, currency, _, _) = Credentials();
+        var balance = await db.StoreBuyers.AsNoTracking()
+            .Where(b => b.Id == buyerId)
+            .Select(b => b.AiCredits)
+            .FirstOrDefaultAsync(ct);
+
+        return new StoreAiCreditsDto
+        {
+            Balance = balance,
+            ReportCostCredits = ReportCostCredits,
+            Packs = AiCreditPacks
+                .Select(p => new StoreAiCreditPackDto
+                {
+                    Id = p.Id,
+                    Credits = p.Credits,
+                    AmountPaise = p.Paise,
+                    Label = p.Label,
+                    PriceLabel = FormatPrice(p.Paise, currency),
+                })
+                .ToList(),
+        };
+    }
+
+    public async Task GrantAiCreditsAsync(
+        string buyerId,
+        int delta,
+        string reason,
+        string? refId,
+        CancellationToken ct)
+    {
+        var buyer = await db.StoreBuyers.FirstOrDefaultAsync(b => b.Id == buyerId, ct);
+        if (buyer is null)
+        {
+            return;
+        }
+
+        buyer.AiCredits += delta;
+        if (buyer.AiCredits < 0)
+        {
+            buyer.AiCredits = 0;
+        }
+
+        db.AiCreditLedger.Add(new AiCreditLedgerRecord
+        {
+            BuyerId = buyerId,
+            Delta = delta,
+            BalanceAfter = buyer.AiCredits,
+            Reason = reason.Length > 80 ? reason[..80] : reason,
+            RefId = refId,
+            CreatedAtUtc = DateTime.UtcNow,
+        });
+        await db.SaveChangesAsync(ct);
+    }
+
+    public async Task<(int Status, object Body)> CreateAiCreditOrderAsync(
+        string buyerId,
+        string packId,
+        CancellationToken ct)
+    {
+        var (keyId, keySecret, currency, configured, testMode) = Credentials();
+        if (!configured)
+        {
+            return (503, new
+            {
+                message = "Razorpay is not configured. Add Test or Live keys under Razorpay in appsettings.json.",
+            });
+        }
+
+        var trimmedPackId = packId.Trim();
+        var packIndex = Array.FindIndex(
+            AiCreditPacks,
+            p => p.Id.Equals(trimmedPackId, StringComparison.OrdinalIgnoreCase));
+        if (packIndex < 0)
+        {
+            return (404, new { message = "That AI credit pack is not available." });
+        }
+
+        var pack = AiCreditPacks[packIndex];
+
+        var buyer = await db.StoreBuyers.AsNoTracking().FirstOrDefaultAsync(b => b.Id == buyerId, ct);
+        if (buyer is null)
+        {
+            return (401, new { message = "Sign in to buy AI credits." });
+        }
+
+        var receipt = Guid.NewGuid().ToString("N")[..24];
+        using var request = new HttpRequestMessage(HttpMethod.Post, "https://api.razorpay.com/v1/orders");
+        request.Headers.Authorization = new AuthenticationHeaderValue("Basic", BasicAuth(keyId, keySecret));
+        request.Content = new StringContent(JsonSerializer.Serialize(new
+        {
+            amount = pack.Paise,
+            currency,
+            receipt,
+            notes = new { kind = "ai-credits", packId = pack.Id, buyerId },
+        }), Encoding.UTF8, "application/json");
+
+        HttpResponseMessage response;
+        try
+        {
+            response = await http.SendAsync(request, ct);
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "Razorpay AI credit order request failed.");
+            return (502, new { message = "Could not reach Razorpay. Try again in a moment." });
+        }
+
+        var raw = await response.Content.ReadAsStringAsync(ct);
+        if (!response.IsSuccessStatusCode)
+        {
+            logger.LogWarning("Razorpay AI credit order failed ({Status}): {Body}", (int)response.StatusCode, raw);
+            var which = testMode ? "Test" : "Live";
+            var message = (int)response.StatusCode == 401
+                ? $"Razorpay rejected the {which} Key ID/secret."
+                : RazorpayError(raw);
+            return (502, new { message });
+        }
+
+        using var doc = JsonDocument.Parse(raw);
+        if (!doc.RootElement.TryGetProperty("id", out var idEl) || idEl.GetString() is not { Length: > 0 } razorpayOrderId)
+        {
+            return (502, new { message = "Razorpay did not return an order id." });
+        }
+
+        db.AiCreditOrders.Add(new AiCreditOrderRecord
+        {
+            Id = receipt,
+            BuyerId = buyerId,
+            PackId = pack.Id,
+            Credits = pack.Credits,
+            AmountPaise = pack.Paise,
+            Currency = currency,
+            RazorpayOrderId = razorpayOrderId,
+            Status = "created",
+            CreatedAtUtc = DateTime.UtcNow,
+        });
+        await db.SaveChangesAsync(ct);
+
+        return (200, new StoreOrderDto
+        {
+            OrderId = razorpayOrderId,
+            Amount = pack.Paise,
+            Currency = currency,
+            KeyId = keyId,
+            ProductTitle = pack.Label,
+            TestMode = testMode,
+        });
+    }
+
+    public async Task<(int Status, object Body)> VerifyAiCreditOrderAsync(
+        string buyerId,
+        StoreVerifyRequestDto body,
+        CancellationToken ct)
+    {
+        var (_, keySecret, _, configured, _) = Credentials();
+        if (!configured)
+        {
+            return (503, new { message = "Razorpay is not configured." });
+        }
+
+        var orderId = (body.OrderId ?? "").Trim();
+        var paymentId = (body.PaymentId ?? "").Trim();
+        var signature = (body.Signature ?? "").Trim();
+        if (orderId.Length == 0 || paymentId.Length == 0 || signature.Length == 0)
+        {
+            return (400, new { message = "Payment confirmation is incomplete." });
+        }
+
+        if (!ValidSignature(orderId, paymentId, signature, keySecret))
+        {
+            return (400, new { message = "Payment signature did not match." });
+        }
+
+        var row = await db.AiCreditOrders.FirstOrDefaultAsync(
+            o => o.RazorpayOrderId == orderId && o.BuyerId == buyerId,
+            ct);
+        if (row is null)
+        {
+            return (404, new { message = "That AI credit order was not found." });
+        }
+
+        var creditsAdded = 0;
+        if (row.Status != "paid")
+        {
+            row.Status = "paid";
+            row.RazorpayPaymentId = paymentId;
+            row.PaidAtUtc = DateTime.UtcNow;
+            await db.SaveChangesAsync(ct);
+            await GrantAiCreditsAsync(buyerId, row.Credits, "credit-pack", row.Id, ct);
+            creditsAdded = row.Credits;
+        }
+
+        var balance = await db.StoreBuyers.AsNoTracking()
+            .Where(b => b.Id == buyerId)
+            .Select(b => b.AiCredits)
+            .FirstOrDefaultAsync(ct);
+
+        return (200, new StoreAiCreditVerifyDto
+        {
+            AiCredits = balance,
+            CreditsAdded = creditsAdded,
+        });
+    }
 
     public async Task<BuyerSubscriptionDto> GetSubscriptionAsync(string buyerId, CancellationToken ct)
     {
@@ -477,14 +693,20 @@ public class StoreService(
             row.PeriodStartUtc = start;
             row.PeriodEndUtc = start.AddDays(30);
             await db.SaveChangesAsync(ct);
+            await GrantAiCreditsAsync(buyerId, SubscriptionBonusCredits, "subscription-bonus", row.Id, ct);
         }
 
         var subscription = await GetSubscriptionAsync(buyerId, ct);
+        var aiCredits = await db.StoreBuyers.AsNoTracking()
+            .Where(b => b.Id == buyerId)
+            .Select(b => b.AiCredits)
+            .FirstOrDefaultAsync(ct);
         return (200, new
         {
             subscriptionActive = subscription.Active,
             periodEndUtc = subscription.PeriodEndUtc,
             amountLabel = FormatPrice(SubscriptionAmountPaise, currency),
+            aiCredits,
         });
     }
 

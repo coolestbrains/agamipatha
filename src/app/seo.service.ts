@@ -61,6 +61,15 @@ const ROUTE_SEO: { match: RegExp | string; seo: PageSeo }[] = [
     },
   },
   {
+    match: /^\/report$/,
+    seo: {
+      title: 'AI career report PDF | AgamiPatha Path Circle',
+      description:
+        'Generate a personalised AI career report for your AgamiPatha route — catalogue facts plus narrative, risks, and 30/90-day actions. Included with Path Circle mentors.',
+      path: '/report',
+    },
+  },
+  {
     match: /^\/store$/,
     seo: {
       title: 'Career guide ebooks & stream chooser | AgamiPatha Store',

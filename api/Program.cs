@@ -56,6 +56,11 @@ builder.Services.AddHttpClient<ChatService>(client =>
     client.Timeout = TimeSpan.FromSeconds(50);
     client.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", "Mozilla/5.0");
 });
+builder.Services.AddHttpClient<CareerReportService>(client =>
+{
+    client.Timeout = TimeSpan.FromSeconds(60);
+    client.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", "Mozilla/5.0");
+});
 builder.Services.AddHttpClient<StoreService>(client =>
 {
     client.Timeout = TimeSpan.FromSeconds(30);

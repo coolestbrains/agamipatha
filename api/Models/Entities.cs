@@ -158,6 +158,62 @@ public class StoreBuyerRecord
 
     [MaxLength(80)]
     public string? GoalNodeId { get; set; }
+
+    public int AiCredits { get; set; }
+}
+
+public class AiCreditOrderRecord
+{
+    [Key]
+    [MaxLength(80)]
+    public string Id { get; set; } = "";
+
+    [MaxLength(80)]
+    public string BuyerId { get; set; } = "";
+
+    [MaxLength(40)]
+    public string PackId { get; set; } = "";
+
+    public int Credits { get; set; }
+
+    public int AmountPaise { get; set; }
+
+    [MaxLength(10)]
+    public string Currency { get; set; } = "INR";
+
+    [MaxLength(80)]
+    public string RazorpayOrderId { get; set; } = "";
+
+    [MaxLength(80)]
+    public string? RazorpayPaymentId { get; set; }
+
+    /// <summary>created | paid</summary>
+    [MaxLength(20)]
+    public string Status { get; set; } = "created";
+
+    public DateTime CreatedAtUtc { get; set; }
+
+    public DateTime? PaidAtUtc { get; set; }
+}
+
+public class AiCreditLedgerRecord
+{
+    public int Id { get; set; }
+
+    [MaxLength(80)]
+    public string BuyerId { get; set; } = "";
+
+    public int Delta { get; set; }
+
+    public int BalanceAfter { get; set; }
+
+    [MaxLength(80)]
+    public string Reason { get; set; } = "";
+
+    [MaxLength(80)]
+    public string? RefId { get; set; }
+
+    public DateTime CreatedAtUtc { get; set; }
 }
 
 public class StoreOrderRecord

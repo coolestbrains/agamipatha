@@ -18,6 +18,7 @@ export class BuyerAuthService {
   readonly accountPrompt = signal<'login' | 'register' | ''>('');
   readonly subscriptionActive = signal(false);
   readonly periodEndUtc = signal<string | null>(null);
+  readonly aiCredits = signal<number | null>(null);
 
   constructor() {
     this.readStorage();
@@ -54,6 +55,7 @@ export class BuyerAuthService {
     name: string,
     fromAdmin = false,
     subscription?: { active?: boolean; periodEndUtc?: string | null },
+    aiCredits?: number | null,
   ): void {
     localStorage.setItem(TOKEN_KEY, token);
     localStorage.setItem(NAME_KEY, name);
@@ -69,11 +71,18 @@ export class BuyerAuthService {
       this.subscriptionActive.set(!!subscription.active);
       this.periodEndUtc.set(subscription.periodEndUtc ?? null);
     }
+    if (aiCredits !== undefined && aiCredits !== null) {
+      this.aiCredits.set(aiCredits);
+    }
   }
 
   setSubscription(active: boolean, periodEndUtc: string | null = null): void {
     this.subscriptionActive.set(active);
     this.periodEndUtc.set(periodEndUtc);
+  }
+
+  setAiCredits(balance: number): void {
+    this.aiCredits.set(balance);
   }
 
   logout(): void {
@@ -86,6 +95,7 @@ export class BuyerAuthService {
     this.linkedToAdmin.set(false);
     this.subscriptionActive.set(false);
     this.periodEndUtc.set(null);
+    this.aiCredits.set(null);
   }
 
   dropIfInvalid(): void {

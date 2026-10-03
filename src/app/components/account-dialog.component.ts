@@ -163,11 +163,18 @@ export class AccountDialogComponent {
     adminToken?: string;
     subscriptionActive?: boolean;
     periodEndUtc?: string | null;
+    aiCredits?: number;
   }): void {
-    this.buyer.setSession(session.token, session.buyerName, false, {
-      active: session.subscriptionActive,
-      periodEndUtc: session.periodEndUtc ?? null,
-    });
+    this.buyer.setSession(
+      session.token,
+      session.buyerName,
+      false,
+      {
+        active: session.subscriptionActive,
+        periodEndUtc: session.periodEndUtc ?? null,
+      },
+      session.aiCredits ?? 0,
+    );
     if (session.adminToken) {
       this.admin.setSession(session.adminToken);
     } else {
