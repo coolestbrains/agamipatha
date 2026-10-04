@@ -1,5 +1,6 @@
 import { Component, DestroyRef, ElementRef, HostListener, OnDestroy, computed, effect, inject, signal, viewChild } from '@angular/core';
 import { takeUntilDestroyed, toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { of, switchMap } from 'rxjs';
 import { CareerService } from '../career.service';
@@ -26,7 +27,7 @@ const ENGAGE_NUDGE_KEY = 'agamipatha-path-nudge-dismissed';
 
 @Component({
   selector: 'app-path-page',
-  imports: [RouterLink, JourneyPathComponent, PathCalendarComponent, PathCostSheetComponent, PathGuideViewComponent, ParentBriefComponent, SearchSelectComponent],
+  imports: [RouterLink, FormsModule, JourneyPathComponent, PathCalendarComponent, PathCostSheetComponent, PathGuideViewComponent, ParentBriefComponent, SearchSelectComponent],
   templateUrl: './path-page.component.html',
   styleUrl: './path-page.component.scss',
 })
@@ -67,6 +68,13 @@ export class PathPageComponent implements OnDestroy {
   readonly sheetOpen = signal<'calendar' | 'cost' | null>(null);
   readonly switchOpen = signal(false);
   readonly printSheet = signal(false);
+  readonly suggestOpen = signal(false);
+  readonly suggestBusy = signal(false);
+  readonly suggestDone = signal(false);
+  readonly suggestError = signal('');
+  suggestTitle = '';
+  suggestNotes = '';
+  suggestKind: 'qualification' | 'profession' = 'profession';
   private readonly shareShot = viewChild<ElementRef<HTMLElement>>('shareShot');
 
   readonly fromId = computed(() => this.params().from);
@@ -686,8 +694,60 @@ export class PathPageComponent implements OnDestroy {
     this.career.openDetail(node, this.fromId());
   }
 
+  openSuggestPath(): void {
+    this.suggestTitle = this.toNode()?.title ?? '';
+    this.suggestNotes = '';
+    this.suggestKind = this.toNode()?.kind === 'profession' ? 'profession' : 'qualification';
+    this.suggestError.set('');
+    this.suggestDone.set(false);
+    this.suggestBusy.set(false);
+    this.suggestOpen.set(true);
+  }
+
+  closeSuggestPath(): void {
+    this.suggestOpen.set(false);
+  }
+
+  submitSuggestPath(): void {
+    const title = this.suggestTitle.trim();
+    if (title.length < 2) {
+      this.suggestError.set('Enter the missing course, exam, or job.');
+      return;
+    }
+    this.suggestBusy.set(true);
+    this.suggestError.set('');
+    const from = this.fromNode();
+    const to = this.toNode();
+    const route = from && to ? `${from.shortTitle || from.title} → ${to.shortTitle || to.title}` : '';
+    const extra = this.suggestNotes.trim();
+    const notes = [route ? `Suggested path around ${route}.` : '', extra].filter(Boolean).join(' ');
+    this.career
+      .suggestMissing({
+        slot: 'path',
+        kind: this.suggestKind,
+        title,
+        notes: notes || undefined,
+        fromId: from?.id,
+        fromTitle: from?.title,
+      })
+      .subscribe({
+        next: () => {
+          this.suggestBusy.set(false);
+          this.suggestDone.set(true);
+        },
+        error: () => {
+          this.suggestBusy.set(false);
+          this.suggestError.set('Could not send that. Try again in a moment.');
+        },
+      });
+  }
+
   @HostListener('document:keydown.escape')
   onEscape(): void {
+    if (this.suggestOpen()) {
+      this.closeSuggestPath();
+      return;
+    }
     if (this.switchOpen()) {
       this.closeSwitch();
       return;

@@ -24,6 +24,127 @@
   min-width: 0;
 }
 
+.suggest-path {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.85rem 1.1rem;
+  margin: 1.35rem 0 0;
+  width: 100%;
+  padding: 0.9rem 1.05rem;
+  border-radius: 1rem;
+  border: 1px solid color-mix(in srgb, var(--teal) 28%, var(--line));
+  background: color-mix(in srgb, var(--teal) 8%, white);
+  text-align: left;
+}
+
+.suggest-path-copy {
+  flex: 1 1 14rem;
+  min-width: 0;
+}
+
+.suggest-path-title {
+  margin: 0;
+  font-size: 1.02rem;
+  font-weight: 750;
+}
+
+.suggest-path-lede {
+  margin: 0.25rem 0 0;
+  font-size: 0.86rem;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+.suggest-path .primary {
+  min-height: 2.35rem;
+  padding: 0.45rem 0.95rem;
+  font-size: 0.9rem;
+}
+
+.suggest-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 130;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgb(17 17 17 / 45%);
+}
+
+.suggest-dialog {
+  position: relative;
+  width: min(26rem, 100%);
+  max-height: min(36rem, calc(100dvh - 2rem));
+  overflow: auto;
+  padding: 1.25rem 1.2rem 1.35rem;
+  text-align: left;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.suggest-dialog h2 {
+  font-family: var(--serif);
+  font-size: 1.45rem;
+  margin: 0 2.4rem 0 0;
+  text-align: left;
+}
+
+.suggest-dialog .optional {
+  margin: 0;
+  font-size: 0.86rem;
+  color: var(--muted);
+}
+
+.suggest-dialog label {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.suggest-dialog label span {
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.suggest-dialog input,
+.suggest-dialog select,
+.suggest-dialog textarea {
+  width: 100%;
+  padding: 0.7rem 0.8rem;
+  border-radius: 0.7rem;
+  border: 1px solid var(--line-strong);
+  font: inherit;
+  background: var(--paper);
+}
+
+.suggest-dialog .close {
+  position: absolute;
+  top: 0.7rem;
+  right: 0.7rem;
+  padding: 0.3rem 0.7rem;
+  font-size: 0.8rem;
+}
+
+.suggest-ok,
+.form-error {
+  margin: 0;
+}
+
+.suggest-ok {
+  font-weight: 650;
+}
+
+.suggest-dialog .primary.big {
+  width: 100%;
+  min-height: 2.6rem;
+}
+
+.form-error {
+  color: #b42318;
+  font-size: 0.86rem;
+}
+
 .experience-callout {
   margin: 0 auto;
   max-width: 42rem;
@@ -807,6 +928,8 @@
   .path-pdf,
   .guide-pop,
   .sheet-pop,
+  .suggest-path,
+  .suggest-overlay,
   .meta,
   .empty,
   app-journey-path,

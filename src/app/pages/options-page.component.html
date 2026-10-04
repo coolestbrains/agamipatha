@@ -7,7 +7,7 @@
     @if (standing(); as start) {
       <header>
         <p class="eyebrow">Career options</p>
-        <h1>From {{ start.title }}, browse mapped goals</h1>
+        <h1>From {{ start.title }}, follow the mapped tree</h1>
         @if (startNote(); as note) {
           <p class="metric-note">{{ note }}</p>
         }
@@ -18,69 +18,70 @@
         </div>
       </header>
 
-      <div class="tabs" role="tablist" aria-label="Goal type">
-        @for (item of tabs(); track item.id) {
-          <button
-            type="button"
-            role="tab"
-            [class.on]="tab() === item.id"
-            [attr.aria-selected]="tab() === item.id"
-            (click)="setTab(item.id)"
-          >
-            <span class="tab-full">{{ item.label }}</span>
-            <span class="tab-short">{{ item.short }}</span>
-            <em>{{ item.count }}</em>
-          </button>
-        }
-      </div>
-
       @if (total() === 0) {
-        <p class="muted">{{ emptyCopy() }}</p>
+        <p class="muted">No mapped next steps are listed from this qualification yet.</p>
       } @else {
-        <p class="hint">Showing {{ shownCount() }} of {{ total() }}.</p>
-        <div class="groups">
-          @for (group of visibleGroups(); track group.key) {
-            <section class="group">
-              <h2>{{ group.heading }}</h2>
-              <div class="grid">
-                @for (node of group.nodes; track node.id) {
-                  <article
-                    class="job card"
-                    [class.hot]="node.id === hotId()"
-                  >
-                    @if (node.id === hotId()) {
-                      <span class="option-badge">{{ badge(hotId()) }}</span>
-                    }
-                    @if (experienceLabel(node); as xp) {
-                      <span class="xp-badge">{{ xp }}</span>
-                    }
-                    <app-node-icon [node]="node" size="lg" />
-                    <span class="title">{{ node.title }}</span>
-                    <div class="job-actions">
-                      <a
-                        class="map"
-                        [routerLink]="['/path']"
-                        [queryParams]="{ from: fromId(), to: node.id }"
-                      >Map this path</a>
-                      <button type="button" class="go" (click)="openDetail(node)">
-                        Open full details →
-                      </button>
-                    </div>
-                  </article>
-                }
-              </div>
-            </section>
-          }
+        <section class="trunk card" aria-label="Starting point">
+          <app-node-icon [node]="start" size="md" />
+          <div class="trunk-copy">
+            <p class="trunk-kicker">You are here</p>
+            <p class="trunk-title">{{ start.shortTitle || start.title }}</p>
+            <p class="trunk-meta">{{ career.kindLabel(start.kind) }} · {{ directCount() }} next {{ directCount() === 1 ? 'step' : 'steps' }} · {{ total() }} mapped in total</p>
+          </div>
+        </section>
+
+        <div class="tree-toolbar">
+          <label class="seek">
+            <span class="sr-only">Search this tree</span>
+            <input
+              type="search"
+              [ngModel]="query()"
+              (ngModelChange)="onQuery($event)"
+              placeholder="Search a course, exam, or job…"
+            />
+          </label>
+          <div class="kind-pills" role="tablist" aria-label="Filter by type">
+            @for (item of filters; track item.id) {
+              <button
+                type="button"
+                role="tab"
+                [class.on]="kind() === item.id"
+                [attr.aria-selected]="kind() === item.id"
+                (click)="setKind(item.id)"
+              >
+                {{ item.label }}
+                <em>{{ filterCount(item.id) }}</em>
+              </button>
+            }
+          </div>
+          <div class="tree-controls">
+            <p class="hint">
+              @if (filtering()) {
+                Showing {{ visibleCount() }} of {{ total() }}.
+              } @else {
+                {{ total() }} mapped goals from here.
+              }
+            </p>
+            <button type="button" class="ghost" (click)="expandAll()">Expand all</button>
+            <button type="button" class="ghost" (click)="collapseAll()">Collapse all</button>
+          </div>
         </div>
-        <div class="more-bar">
-          @if (remaining() > 0) {
-            <button type="button" class="primary" (click)="loadMore()">
-              Load more · {{ nextBatch() }}
-            </button>
-          } @else {
-            <p class="muted more-done">All {{ total() }} listed.</p>
-          }
-        </div>
+
+        @if (visibleCount() === 0) {
+          <p class="muted">Nothing in this tree matches that filter.</p>
+        } @else {
+          <app-options-tree
+            [nodes]="visibleTree()"
+            [fromId]="fromId()"
+            [openIds]="openIds()"
+            [hotId]="hotId()"
+            [kindLabel]="kindLabelFn"
+            [badge]="badgeFn"
+            [experienceLabel]="experienceLabelFn"
+            (toggle)="toggle($event)"
+            (openDetail)="openDetail($event)"
+          />
+        }
       }
     } @else {
       <p class="muted">That qualification is not on the map.</p>

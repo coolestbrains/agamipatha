@@ -432,10 +432,26 @@ main {
   padding: 1rem max(1.5rem, env(safe-area-inset-right)) max(1.5rem, env(safe-area-inset-bottom)) max(1.5rem, env(safe-area-inset-left));
   color: var(--muted);
   font-size: 0.8rem;
-  max-width: 56rem;
+  max-width: 72rem;
   width: 100%;
   margin-inline: auto;
   text-align: center;
+}
+
+.counts-box {
+  width: 100%;
+  margin: 0 auto;
+  padding: 0.95rem 1.05rem 1.1rem;
+  text-align: center;
+  border-color: color-mix(in srgb, var(--teal) 22%, var(--line));
+  background: color-mix(in srgb, white 88%, var(--paper));
+}
+
+@media (max-width: 640px) {
+  .site-footer {
+    padding-left: max(0.9rem, env(safe-area-inset-left));
+    padding-right: max(0.9rem, env(safe-area-inset-right));
+  }
 }
 
 .site-footer p {

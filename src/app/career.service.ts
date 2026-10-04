@@ -115,7 +115,7 @@ export class CareerService {
   }
 
   suggestMissing(body: {
-    slot: 'start' | 'goal';
+    slot: 'start' | 'goal' | 'path';
     kind: 'qualification' | 'profession';
     title: string;
     notes?: string;

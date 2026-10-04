@@ -312,6 +312,14 @@
   }
   </div>
 
+  <aside class="suggest-path" aria-label="Suggest a missing path">
+    <div class="suggest-path-copy">
+      <p class="suggest-path-title">Know a path we haven’t mapped?</p>
+      <p class="suggest-path-lede">If a course, exam, or job is missing from this route, suggest it. We review every one.</p>
+    </div>
+    <button type="button" class="primary" (click)="openSuggestPath()">Suggest a path</button>
+  </aside>
+
   @if ((previewOpen() || printSheet()) && pathGuide(); as guide) {
     <article class="path-sheet" aria-hidden="true">
       <app-path-guide-view [guide]="guide" />
@@ -419,6 +427,68 @@
       </button>
       <button type="button" class="ghost" (click)="printGuide()">Print</button>
     </div>
+  </div>
+}
+
+@if (suggestOpen()) {
+  <div class="suggest-overlay" (click)="closeSuggestPath()">
+    <form
+      class="suggest-dialog card"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="suggest-path-title"
+      (click)="$event.stopPropagation()"
+      (ngSubmit)="submitSuggestPath()"
+    >
+      <button class="close ghost" type="button" (click)="closeSuggestPath()">Close</button>
+      <h2 id="suggest-path-title">Suggest a path</h2>
+      <p class="optional">
+        @if (fromNode() && toNode()) {
+          From {{ fromNode()!.shortTitle || fromNode()!.title }} toward {{ toNode()!.shortTitle || toNode()!.title }}. Admins review these and add them if they belong on the map.
+        } @else {
+          Admins review these and add them to the catalogue if they belong on the map.
+        }
+      </p>
+      @if (suggestDone()) {
+        <p class="suggest-ok">Thanks. We have the suggestion.</p>
+        <button class="primary big" type="button" (click)="closeSuggestPath()">Done</button>
+      } @else {
+        <label>
+          <span>Missing course, exam, or job</span>
+          <input
+            type="text"
+            name="suggestTitle"
+            [(ngModel)]="suggestTitle"
+            maxlength="160"
+            required
+            placeholder="e.g. B.Sc Forensic Science"
+          />
+        </label>
+        <label>
+          <span>Type</span>
+          <select name="suggestKind" [(ngModel)]="suggestKind">
+            <option value="qualification">Qualification</option>
+            <option value="profession">Profession</option>
+          </select>
+        </label>
+        <label>
+          <span>How should this path connect? (optional)</span>
+          <textarea
+            name="suggestNotes"
+            [(ngModel)]="suggestNotes"
+            maxlength="500"
+            rows="3"
+            placeholder="e.g. after Class 12 PCB, then NEET, then this role"
+          ></textarea>
+        </label>
+        @if (suggestError()) {
+          <p class="form-error" role="alert">{{ suggestError() }}</p>
+        }
+        <button class="primary big" type="submit" [disabled]="suggestBusy()">
+          {{ suggestBusy() ? 'Sending…' : 'Submit suggestion' }}
+        </button>
+      }
+    </form>
   </div>
 }
 

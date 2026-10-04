@@ -19,7 +19,7 @@ public class SuggestionsController(AppDbContext db) : ControllerBase
         }
 
         var slot = (body?.Slot ?? "").Trim().ToLowerInvariant();
-        if (slot is not ("start" or "goal"))
+        if (slot is not ("start" or "goal" or "path"))
         {
             slot = "goal";
         }

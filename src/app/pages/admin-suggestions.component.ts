@@ -39,7 +39,13 @@ export class AdminSuggestionsComponent {
   }
 
   slotLabel(slot: string): string {
-    return slot === 'start' ? 'Start qualification' : 'Goal';
+    if (slot === 'start') {
+      return 'Start qualification';
+    }
+    if (slot === 'path') {
+      return 'Path';
+    }
+    return 'Goal';
   }
 
   kindLabel(kind: string): string {

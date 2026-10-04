@@ -79,41 +79,43 @@
 <app-account-dialog />
 <footer class="site-footer">
   @if (stats.snapshot(); as s) {
-    <div class="stats-block">
-      <p class="stats-label">Till date</p>
-      <ul class="site-stats" aria-label="Site totals till date">
-        @for (item of tillDateItems(s); track item.label) {
-          <li>
-            @if (admin.isAdmin()) {
-              <button type="button" class="stat-link" (click)="openStat(item.metric)">
+    <div class="counts-box card">
+      <div class="stats-block">
+        <p class="stats-label">Till date</p>
+        <ul class="site-stats" aria-label="Site totals till date">
+          @for (item of tillDateItems(s); track item.label) {
+            <li>
+              @if (admin.isAdmin()) {
+                <button type="button" class="stat-link" (click)="openStat(item.metric)">
+                  <strong>{{ item.value | number }}</strong>
+                  <span>{{ item.label }}</span>
+                </button>
+              } @else {
                 <strong>{{ item.value | number }}</strong>
                 <span>{{ item.label }}</span>
-              </button>
-            } @else {
-              <strong>{{ item.value | number }}</strong>
-              <span>{{ item.label }}</span>
-            }
-          </li>
-        }
-      </ul>
-    </div>
-    <div class="stats-block">
-      <p class="stats-label">Today</p>
-      <ul class="site-stats today" aria-label="Activity today">
-        @for (item of todayItems(s); track item.label) {
-          <li>
-            @if (admin.isAdmin()) {
-              <button type="button" class="stat-link" (click)="openStat(item.metric)">
+              }
+            </li>
+          }
+        </ul>
+      </div>
+      <div class="stats-block">
+        <p class="stats-label">Today</p>
+        <ul class="site-stats today" aria-label="Activity today">
+          @for (item of todayItems(s); track item.label) {
+            <li>
+              @if (admin.isAdmin()) {
+                <button type="button" class="stat-link" (click)="openStat(item.metric)">
+                  <strong>{{ item.value | number }}</strong>
+                  <span>{{ item.label }}</span>
+                </button>
+              } @else {
                 <strong>{{ item.value | number }}</strong>
                 <span>{{ item.label }}</span>
-              </button>
-            } @else {
-              <strong>{{ item.value | number }}</strong>
-              <span>{{ item.label }}</span>
-            }
-          </li>
-        }
-      </ul>
+              }
+            </li>
+          }
+        </ul>
+      </div>
     </div>
   } @else if (stats.loadError()) {
     <p class="stats-miss">Totals are unavailable until the API is running.</p>

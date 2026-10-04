@@ -1,0 +1,260 @@
+.cluster {
+  margin: 0;
+}
+
+.cluster + .cluster {
+  margin-top: 0.85rem;
+}
+
+.cluster-head {
+  margin: 0 0 0.4rem 1.55rem;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+:host {
+  display: block;
+}
+
+.tree {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  text-align: left;
+}
+
+.branch {
+  position: relative;
+  margin: 0 0 0.4rem;
+  padding: 0 0 0 0.2rem;
+}
+
+.branch::before {
+  content: '';
+  position: absolute;
+  left: 0.85rem;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: color-mix(in srgb, var(--teal) 28%, var(--line));
+}
+
+.branch.last::before {
+  bottom: auto;
+  height: 1.15rem;
+}
+
+.branch::after {
+  content: '';
+  position: absolute;
+  left: 0.85rem;
+  top: 1.1rem;
+  width: 0.7rem;
+  height: 1px;
+  background: color-mix(in srgb, var(--teal) 28%, var(--line));
+}
+
+.branch > .cluster,
+.branch > app-options-tree {
+  display: block;
+  margin: 0.35rem 0 0.15rem 1.15rem;
+  padding-left: 0.35rem;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.45rem 0.55rem;
+  padding: 0.55rem 0.65rem;
+  border: 1px solid var(--line);
+  border-radius: 0.85rem;
+  background: color-mix(in srgb, white 92%, var(--paper));
+  cursor: default;
+}
+
+.row.has-kids {
+  background: color-mix(in srgb, white 96%, var(--teal));
+  cursor: pointer;
+}
+
+.row.has-kids:hover,
+.row:hover {
+  border-color: color-mix(in srgb, var(--teal) 45%, var(--line));
+}
+
+.row.open {
+  border-color: color-mix(in srgb, var(--teal) 40%, var(--line));
+}
+
+.row.job {
+  background: color-mix(in srgb, #1a3d7c 5%, white);
+}
+
+.row.hot {
+  border-color: var(--marigold);
+  box-shadow: 0 8px 18px rgb(0 0 0 / 8%);
+}
+
+.twist {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.05rem;
+  min-width: 1.85rem;
+  height: 1.7rem;
+  padding: 0 0.2rem;
+  border: 0;
+  border-radius: 0.45rem;
+  background: color-mix(in srgb, var(--ink) 5%, white);
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.twist.leaf {
+  width: 0.55rem;
+  min-width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--teal) 45%, var(--line));
+  cursor: default;
+}
+
+.twist svg {
+  width: 0.85rem;
+  height: 0.85rem;
+}
+
+.twist .count {
+  font-size: 0.62rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.twist:not(.leaf):hover {
+  background: color-mix(in srgb, var(--teal) 16%, white);
+  color: var(--teal);
+}
+
+.meta {
+  min-width: 0;
+}
+
+.title-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.3rem 0.45rem;
+}
+
+.title {
+  font-family: var(--serif);
+  font-size: 1.02rem;
+  font-weight: 650;
+  line-height: 1.25;
+}
+
+.sub {
+  margin: 0.15rem 0 0;
+  font-size: 0.78rem;
+  color: var(--muted);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.15rem 0.45rem;
+}
+
+.sub span + span::before {
+  content: '· ';
+  color: color-mix(in srgb, var(--muted) 70%, transparent);
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.12rem 0.4rem;
+  border-radius: 999px;
+  font-size: 0.62rem;
+  font-weight: 750;
+  line-height: 1.2;
+}
+
+.hot-pill {
+  border: 1px solid color-mix(in srgb, var(--marigold) 40%, var(--line));
+  background: color-mix(in srgb, var(--marigold) 14%, white);
+  color: color-mix(in srgb, var(--ink) 80%, #a35b00);
+}
+
+.xp-pill {
+  border: 1px solid color-mix(in srgb, #1a3d7c 28%, var(--line));
+  background: color-mix(in srgb, #1a3d7c 8%, white);
+  color: #1a3d7c;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.35rem;
+}
+
+.map,
+.go {
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.map {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 1.9rem;
+  padding: 0.3rem 0.65rem;
+  border-radius: 999px;
+  text-decoration: none;
+  color: var(--on-dark);
+  background: #1a3d7c;
+}
+
+.map:hover {
+  filter: brightness(1.06);
+}
+
+.go {
+  border: 0;
+  background: none;
+  padding: 0.2rem 0.25rem;
+  color: var(--teal);
+  text-decoration: underline;
+  text-underline-offset: 0.12em;
+}
+
+.go:hover {
+  color: color-mix(in srgb, var(--teal) 80%, var(--ink));
+}
+
+@media (max-width: 720px) {
+  .row {
+    grid-template-columns: auto auto minmax(0, 1fr);
+  }
+
+  .actions {
+    grid-column: 2 / -1;
+    justify-content: flex-start;
+    padding-left: 0.1rem;
+  }
+
+  .cluster-head {
+    margin-left: 1.1rem;
+  }
+
+  .branch > .cluster,
+  .branch > app-options-tree {
+    margin-left: 0.65rem;
+  }
+}

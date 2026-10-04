@@ -1,0 +1,100 @@
+@for (group of groups(); track group.key + group.items[0].node.id) {
+  <section class="cluster" [attr.aria-label]="showGroupHeads() ? group.label : null">
+    @if (showGroupHeads()) {
+      <h3 class="cluster-head">{{ group.label }}</h3>
+    }
+    <ul class="tree" role="tree">
+      @for (item of group.items; track item.node.id) {
+        <li
+          class="branch"
+          role="treeitem"
+          [class.last]="$last"
+          [attr.aria-expanded]="item.children.length ? isOpen(item.node.id) : null"
+        >
+          <div
+            class="row"
+            [class.hot]="item.node.id === hotId()"
+            [class.has-kids]="item.children.length"
+            [class.job]="item.node.kind === 'profession'"
+            [class.open]="isOpen(item.node.id)"
+            (click)="onRow(item, $event)"
+          >
+            @if (item.children.length) {
+              <button
+                type="button"
+                class="twist"
+                (click)="toggle.emit(item.node.id); $event.stopPropagation()"
+                [attr.aria-label]="(isOpen(item.node.id) ? 'Collapse' : 'Expand') + ' ' + item.node.title"
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  @if (isOpen(item.node.id)) {
+                    <path d="M6 9.5 12 15.5 18 9.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                  } @else {
+                    <path d="M9.5 6 15.5 12 9.5 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                  }
+                </svg>
+                <span class="count">{{ item.children.length }}</span>
+              </button>
+            } @else {
+              <span class="twist leaf" aria-hidden="true"></span>
+            }
+
+            <app-node-icon [node]="item.node" size="sm" />
+
+            <div class="meta">
+              <div class="title-row">
+                <span class="title">{{ item.node.shortTitle || item.node.title }}</span>
+                @if (item.node.id === hotId()) {
+                  <span class="pill hot-pill">{{ badge()(hotId()) }}</span>
+                }
+                @if (experienceLabel()(item.node); as xp) {
+                  <span class="pill xp-pill">{{ xp }}</span>
+                }
+              </div>
+              <p class="sub">
+                @if (!showGroupHeads()) {
+                  <span>{{ kindLabel()(item.node.kind) }}</span>
+                }
+                @if (item.node.field) {
+                  <span>{{ item.node.field }}</span>
+                }
+                @if (item.node.duration) {
+                  <span>{{ item.node.duration }}</span>
+                }
+                @if (item.via) {
+                  <span>via {{ item.via }}</span>
+                }
+                @if (item.descendantCount) {
+                  <span>{{ item.descendantCount }} beyond</span>
+                }
+              </p>
+            </div>
+
+            <div class="actions">
+              <a
+                class="map"
+                [routerLink]="['/path']"
+                [queryParams]="{ from: fromId(), to: item.node.id }"
+              >Map path</a>
+              <button type="button" class="go" (click)="openDetail.emit(item.node)">Details</button>
+            </div>
+          </div>
+
+          @if (item.children.length && isOpen(item.node.id)) {
+            <app-options-tree
+              [nodes]="item.children"
+              [fromId]="fromId()"
+              [openIds]="openIds()"
+              [hotId]="hotId()"
+              [kindLabel]="kindLabel()"
+              [badge]="badge()"
+              [experienceLabel]="experienceLabel()"
+              (toggle)="toggle.emit($event)"
+              (openDetail)="openDetail.emit($event)"
+            />
+          }
+        </li>
+      }
+    </ul>
+  </section>
+}
