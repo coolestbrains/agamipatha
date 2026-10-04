@@ -44,11 +44,9 @@
               <h2>{{ group.heading }}</h2>
               <div class="grid">
                 @for (node of group.nodes; track node.id) {
-                  <button
-                    type="button"
+                  <article
                     class="job card"
                     [class.hot]="node.id === hotId()"
-                    (click)="openDetail(node)"
                   >
                     @if (node.id === hotId()) {
                       <span class="option-badge">{{ badge(hotId()) }}</span>
@@ -58,8 +56,17 @@
                     }
                     <app-node-icon [node]="node" size="lg" />
                     <span class="title">{{ node.title }}</span>
-                    <span class="go">Open full details →</span>
-                  </button>
+                    <div class="job-actions">
+                      <a
+                        class="map"
+                        [routerLink]="['/path']"
+                        [queryParams]="{ from: fromId(), to: node.id }"
+                      >Map this path</a>
+                      <button type="button" class="go" (click)="openDetail(node)">
+                        Open full details →
+                      </button>
+                    </div>
+                  </article>
                 }
               </div>
             </section>

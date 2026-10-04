@@ -157,8 +157,8 @@
 
     <div class="ask-foot">
       <div class="ask-actions">
-        <button type="button" class="ghost big" (click)="restartFromBeginning()">Reset</button>
         @if (askStep() < 3) {
+          <button type="button" class="ghost big" (click)="restartFromBeginning()">Reset</button>
           <button
             type="button"
             class="primary big"
@@ -168,6 +168,15 @@
             Continue
           </button>
         } @else {
+          <button
+            type="button"
+            class="ghost big"
+            [disabled]="!career.ready() || !fromId()"
+            [class.launching]="launching() && !toId()"
+            (click)="skipGoal()"
+          >
+            {{ copy().browseGoals }}
+          </button>
           <button
             type="button"
             class="primary big"
@@ -183,7 +192,7 @@
         <div class="extra-links">
           <button type="button" class="text-link back" (click)="goBack()">Back</button>
           @if (askStep() === 3) {
-            <button type="button" class="text-link" (click)="skipGoal()">{{ copy().browseGoals }}</button>
+            <button type="button" class="text-link" (click)="restartFromBeginning()">Reset</button>
           }
         </div>
       }

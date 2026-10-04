@@ -327,7 +327,7 @@ export class LandingComponent implements OnDestroy {
     return this.career.ready();
   });
   readonly resume = computed(() => {
-    if (!this.buyer.isLoggedIn() || !this.career.ready()) {
+    if (!this.career.ready()) {
       return null;
     }
     const trip = this.journeys.saved();

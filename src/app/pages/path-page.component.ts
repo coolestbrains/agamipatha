@@ -22,6 +22,8 @@ import { trackPathPageView, trackPathScreenView } from '../facebook-pixel';
 import { experiencePathCallout, isExperiencedRole } from '../experience';
 import { clearAsk } from '../ask-prefs';
 
+const ENGAGE_NUDGE_KEY = 'agamipatha-path-nudge-dismissed';
+
 @Component({
   selector: 'app-path-page',
   imports: [RouterLink, JourneyPathComponent, PathCalendarComponent, PathCostSheetComponent, PathGuideViewComponent, ParentBriefComponent, SearchSelectComponent],
@@ -36,6 +38,7 @@ export class PathPageComponent implements OnDestroy {
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
   private readonly defaultTitle = document.title;
+  private readonly nudgeDismissed = signal(this.readNudgeDismissed());
 
   private readonly params = toSignal(
     this.route.queryParamMap.pipe(
@@ -116,6 +119,9 @@ export class PathPageComponent implements OnDestroy {
     }
     return list[Math.min(this.routeIndex(), list.length - 1)] ?? null;
   });
+  readonly showEngageNudge = computed(
+    () => !this.loading() && !!this.active() && !this.nudgeDismissed(),
+  );
   readonly feederStepIds = computed(() => {
     const goal = this.toNode();
     const path = this.active();
@@ -276,6 +282,33 @@ export class PathPageComponent implements OnDestroy {
     this.closeSheet();
     this.closeSwitch();
     this.shareOpen.set(true);
+  }
+
+  dismissEngageNudge(): void {
+    this.nudgeDismissed.set(true);
+    try {
+      localStorage.setItem(ENGAGE_NUDGE_KEY, '1');
+    } catch {
+      /* private mode */
+    }
+  }
+
+  shareFromNudge(): void {
+    this.dismissEngageNudge();
+    this.openShare();
+  }
+
+  saveFromNudge(): void {
+    this.dismissEngageNudge();
+    this.saveMyPath();
+  }
+
+  private readNudgeDismissed(): boolean {
+    try {
+      return localStorage.getItem(ENGAGE_NUDGE_KEY) === '1';
+    } catch {
+      return false;
+    }
   }
 
   closeShare(): void {

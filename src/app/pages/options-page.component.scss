@@ -166,7 +166,6 @@ h2 {
   width: 100%;
   font: inherit;
   text-align: center;
-  cursor: pointer;
   position: relative;
 }
 
@@ -190,10 +189,49 @@ h2 {
   color: var(--muted);
 }
 
+.job-actions {
+  display: grid;
+  gap: 0.35rem;
+  width: 100%;
+  margin-top: 0.15rem;
+}
+
+.job .map,
 .job .go {
+  font: inherit;
   font-size: 0.82rem;
   font-weight: 700;
+  text-align: center;
+  cursor: pointer;
+}
+
+.job .map {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.1rem;
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  text-decoration: none;
+  color: var(--on-dark);
+  background: #1a3d7c;
+}
+
+.job .map:hover {
+  filter: brightness(1.06);
+}
+
+.job .go {
+  border: 0;
+  background: none;
+  padding: 0.15rem 0;
   color: var(--teal);
+  text-decoration: underline;
+  text-underline-offset: 0.12em;
+}
+
+.job .go:hover {
+  color: color-mix(in srgb, var(--teal) 80%, var(--ink));
 }
 
 .xp-badge {

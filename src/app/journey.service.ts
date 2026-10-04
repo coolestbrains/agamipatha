@@ -41,7 +41,7 @@ export class JourneyService {
     effect(() => {
       const id = this.buyerId();
       if (!id) {
-        this.saved.set(null);
+        this.saved.set(this.read(GUEST_KEY));
         this.myPath.set(null);
         this.favourites.set([]);
         return;
@@ -68,7 +68,7 @@ export class JourneyService {
       }
       const id = this.buyerId();
       if (event.key.startsWith(KEY_PREFIX)) {
-        this.saved.set(id ? this.read(this.accountKey(id)) : null);
+        this.saved.set(id ? this.read(this.accountKey(id)) : this.read(GUEST_KEY));
       }
       if (event.key.startsWith(MY_PATH_PREFIX)) {
         this.myPath.set(id ? this.read(this.myPathKey(id)) : null);
@@ -88,8 +88,8 @@ export class JourneyService {
     const id = this.buyerId();
     if (id) {
       this.write(this.accountKey(id), trip);
-      this.saved.set(trip);
     }
+    this.saved.set(trip);
   }
 
   isMyPath(fromId: string, toId: string, via = ''): boolean {

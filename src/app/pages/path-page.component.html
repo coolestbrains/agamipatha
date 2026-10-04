@@ -58,6 +58,21 @@
     @if (experienceCallout(); as note) {
       <p class="experience-callout" role="note">{{ note }}</p>
     }
+    @if (showEngageNudge()) {
+      <aside class="engage-nudge" aria-label="Keep this path">
+        <div class="engage-copy">
+          <p class="engage-title">Keep this path handy</p>
+          <p class="engage-lede">Share it with family, or save it to come back later.</p>
+        </div>
+        <div class="engage-actions">
+          <button type="button" class="primary" (click)="shareFromNudge()">Share with family</button>
+          <button type="button" class="ghost" (click)="saveFromNudge()">Save this path</button>
+          <button type="button" class="engage-dismiss" (click)="dismissEngageNudge()" aria-label="Dismiss">
+            ×
+          </button>
+        </div>
+      </aside>
+    }
 
   <header
     class="path-head"
