@@ -20,7 +20,7 @@ const ROUTE_SEO: { match: RegExp | string; seo: PageSeo }[] = [
     seo: {
       title: 'AgamiPatha | Self-serve career guide for students & professionals',
       description:
-        'AgamiPatha is a self-serve career guide for students and professionals in India. Map paths from Class 10, 12th, or a degree to a profession — exams, years, and cost, no counsellor booking.',
+        'AgamiPatha (also written Agami Patha) is a self-serve career guide for students and professionals in India. Map paths from Class 10, 12th, or a degree to a profession — exams, years, and cost, no counsellor booking.',
       path: '/',
     },
   },
@@ -29,7 +29,7 @@ const ROUTE_SEO: { match: RegExp | string; seo: PageSeo }[] = [
     seo: {
       title: 'Self-serve career guide India | Students & professionals — AgamiPatha',
       description:
-        'Use AgamiPatha as a self-serve career guide: stream after 10th, careers after 12th, graduation routes, and career switches for working professionals — with exams and cost.',
+        'Use AgamiPatha (Agami Patha) as a self-serve career guide: stream after 10th, careers after 12th, graduation routes, and career switches for working professionals — with exams and cost.',
       path: '/careers',
     },
   },
@@ -38,7 +38,7 @@ const ROUTE_SEO: { match: RegExp | string; seo: PageSeo }[] = [
     seo: {
       title: 'Why AgamiPatha? | Self-serve career guide for students & professionals',
       description:
-        'Why AgamiPatha: a self-serve Indian career guide that starts from your qualification, shows exams and cost, and works for students, professionals, and parents.',
+        'Why AgamiPatha (Agami Patha): a self-serve Indian career guide that starts from your qualification, shows exams and cost, and works for students, professionals, and parents.',
       path: '/why',
     },
   },
@@ -47,7 +47,7 @@ const ROUTE_SEO: { match: RegExp | string; seo: PageSeo }[] = [
     seo: {
       title: 'About AgamiPatha | Self-serve career guide by Coolest Brains',
       description:
-        'About AgamiPatha: a self-serve career guide for students and professionals mapping Indian education and career routes.',
+        'About AgamiPatha (also written Agami Patha): a self-serve career guide for students and professionals mapping Indian education and career routes.',
       path: '/about',
     },
   },
